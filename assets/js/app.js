@@ -16,13 +16,15 @@ import { amiView, rtmView, rtlView } from './views/siklus.js';
 import akreditasi from './views/akreditasi.js';
 import dokumen from './views/dokumen.js';
 import pengaturan from './views/pengaturan.js';
+import wadir from './views/wadir.js';
+import laporan from './views/laporan.js';
 
 /* ---------------- state ---------------- */
 export const S = { indikator: [], ami: [], rtl: [], rtm: [], dokumen: [], log: [], settings: {} };
 const CTX_KEY = 'simantap2web_ctx';
 export const ctx = (() => {
-  try { return Object.assign({ role: 'pimpinan', unit: 'TPM', auditor: 'AU01' }, JSON.parse(localStorage.getItem(CTX_KEY) || '{}')); }
-  catch (e) { return { role: 'pimpinan', unit: 'TPM', auditor: 'AU01' }; }
+  try { return Object.assign({ role: 'pimpinan', unit: 'TP', auditor: 'AU01' }, JSON.parse(localStorage.getItem(CTX_KEY) || '{}')); }
+  catch (e) { return { role: 'pimpinan', unit: 'TP', auditor: 'AU01' }; }
 })();
 function saveCtx() { try { localStorage.setItem(CTX_KEY, JSON.stringify(ctx)); } catch (e) { /* abaikan */ } }
 
@@ -113,6 +115,9 @@ export const ROUTES = [
   { id: 'beranda', t: 'Beranda', ic: 'home', c: '#10b981', sec: 'Ringkasan', v: beranda },
   { id: 'dashboard', t: 'Dashboard Pimpinan', ic: 'dash', c: '#0ea5e9', sec: 'Ringkasan', v: dashboard },
   { id: 'simulasi', t: 'Simulasi Skenario', ic: 'sim', c: '#8b5cf6', sec: 'Ringkasan', v: simulasi },
+  { id: 'wadir-1', t: 'Wakil Direktur I', sub: 'Akademik', ic: 'book', c: '#0ea5e9', sec: 'Pimpinan', v: el => wadir(el, 1) },
+  { id: 'wadir-2', t: 'Wakil Direktur II', sub: 'Umum & Keuangan', ic: 'db', c: '#f5a524', sec: 'Pimpinan', v: el => wadir(el, 2) },
+  { id: 'wadir-3', t: 'Wakil Direktur III', sub: 'Kemahasiswaan & Kerja Sama', ic: 'user', c: '#8b5cf6', sec: 'Pimpinan', v: el => wadir(el, 3) },
   { id: 'indikator', t: 'Katalog Indikator', ic: 'target', c: '#14b8a6', sec: 'Penetapan & Pelaksanaan', v: katalog },
   { id: 'monitoring', t: 'Monitoring Capaian', ic: 'pulse', c: '#f5a524', sec: 'Penetapan & Pelaksanaan', v: monitoring },
   { id: 'ami', t: 'Audit Mutu Internal', ic: 'audit', c: '#f0616d', sec: 'Evaluasi & Pengendalian', v: amiView },
@@ -120,15 +125,17 @@ export const ROUTES = [
   { id: 'rtm', t: 'Tinjauan Manajemen', ic: 'meet', c: '#f472b6', sec: 'Evaluasi & Pengendalian', v: rtmView },
   { id: 'akreditasi', t: 'Akreditasi LAM & IABEE', ic: 'medal', c: '#10b981', sec: 'Akreditasi', v: akreditasi },
   { id: 'skema', t: 'Skema Capaian & Metode', ic: 'layers', c: '#0ea5e9', sec: 'Akreditasi', v: skema },
+  { id: 'laporan', t: 'Laporan', ic: 'download', c: '#14b8a6', sec: 'Evaluasi & Pengendalian', v: laporan },
   { id: 'dokumen', t: 'Dokumen SPMI', ic: 'folder', c: '#f5a524', sec: 'Sistem', v: dokumen },
   { id: 'pengaturan', t: 'Database & Pengaturan', ic: 'db', c: '#64748b', sec: 'Sistem', v: pengaturan }
 ];
 
 function renderSide(cur) {
-  let sec = '', h = `<div class="brand"><div class="brand-logo">${icon('spark')}</div><div><b>${APP.nama}</b><small>SPMI · PEM Akamigas</small></div></div><nav class="nav">`;
+  let sec = '', h = `<div class="brand-logos"><img src="assets/img/logo-pem-akamigas.png" alt="PEM Akamigas" class="lg-pem"><img src="assets/img/logo-esdm.png" alt="Kementerian ESDM" class="lg-esdm"></div>
+    <div class="brand"><div class="brand-logo">${icon('spark')}</div><div><b>${APP.nama}</b><small>Sistem Penjaminan Mutu Internal</small></div></div><nav class="nav">`;
   ROUTES.forEach(r => {
     if (r.sec !== sec) { sec = r.sec; h += `<div class="nav-sec">${sec}</div>`; }
-    h += `<a href="#/${r.id}" class="${r.id === cur ? 'on' : ''}" style="--c:${r.c}"><span class="chip">${icon(r.ic)}</span>${r.t}</a>`;
+    h += `<a href="#/${r.id}" class="${r.id === cur ? 'on' : ''}" style="--c:${r.c}"><span class="chip">${icon(r.ic)}</span><span>${r.t}${r.sub ? `<small class="nsub">${r.sub}</small>` : ''}</span></a>`;
   });
   h += `</nav><div class="side-foot">${APP.institusi}<br>Data ilustratif · ${BULAN[S.settings.bulan]} ${S.settings.tahun}</div>`;
   $('#side').innerHTML = h;
@@ -142,6 +149,7 @@ function renderTop(route) {
     <button class="btn ghost menu-btn" id="menuBtn" aria-label="Menu">${icon('menu')}</button>
     <div><div class="crumb">${route.sec}</div><h1>${route.t}</h1></div>
     <div class="sp"></div>
+    <img src="assets/img/logo-esdm.png" alt="Kementerian ESDM" class="top-esdm">
     <span class="pill-db ${DB.mode === 'firebase' ? 'fb' : ''}" title="${DB.mode === 'firebase' ? 'Terhubung ke Cloud Firestore' : 'Database lokal peramban'}"><i></i><span>${DB.mode === 'firebase' ? 'Firestore' : 'Lokal'}</span></span>
     <div class="role-box">
       <span class="ico-badge" style="--c:#6366f1;width:32px;height:32px">${icon('user')}</span>
@@ -173,7 +181,7 @@ async function boot() {
   await DB.init();
   let d = await DB.loadAll();
   const st = d.settings && d.settings[0];
-  if (!d.indikator.length || !st || (st.seedVersi || 0) < 4) {
+  if (!d.indikator.length || !st || (st.seedVersi || 0) < 5) {
     d = buildSeed();
     for (const c of Object.keys(d)) await DB.replaceAll(c, d[c]);
   }

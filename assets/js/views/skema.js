@@ -19,7 +19,7 @@ export default function skema(el) {
 
   <div class="grid g-21" style="margin-top:18px">
     <div class="card">
-      <div class="card-h"><span class="ico-badge" style="--c:#8b5cf6">${icon('target')}</span><div><h3>Skema capaian → skor butir</h3><div class="sub">Dapat dikalibrasi UPM (config.js · SKEMA_CAPAIAN)</div></div></div>
+      <div class="card-h"><span class="ico-badge" style="--c:#8b5cf6">${icon('target')}</span><div><h3>Skema capaian → skor butir</h3><div class="sub">Dapat dikalibrasi SPM (config.js · SKEMA_CAPAIAN)</div></div></div>
       <div class="skema-step">${SKEMA_CAPAIAN.map(s => `<div style="--c:${WARNA_SKOR[s.skor]}"><b>${s.skor}</b>${s.label}<small>${s.ket}</small></div>`).join('')}</div>
       <div class="formula" style="margin-top:14px">
 <b>rasio</b> = capaian / target            <span style="color:#94a3b8">// arah ≥</span>
@@ -46,7 +46,7 @@ export default function skema(el) {
   </div>
 
   <div class="card" style="margin-top:18px">
-    <div class="card-h"><span class="ico-badge" style="--c:#6366f1">${icon('link')}</span><div><h3>Peta aliran: sumber kebijakan → kriteria LAM → status capaian</h3><div class="sub">Bagaimana RSB, BLU, Kokin, dan benchmark PCR menopang butir akreditasi</div></div></div>
+    <div class="card-h"><span class="ico-badge" style="--c:#6366f1">${icon('link')}</span><div><h3>Peta aliran: sumber kebijakan → kriteria LAM → status capaian</h3><div class="sub">Bagaimana RSB, BLU, Kokin, dan usulan IKU/IKT PEM menopang butir akreditasi · hanya indikator berkorelasi akreditasi</div></div></div>
     <div class="chart lg" id="sankey"></div>
   </div>
 
@@ -77,7 +77,6 @@ export default function skema(el) {
     <ul class="small" style="margin:0;padding-left:18px;line-height:1.9">
       ${LAM.sumber.map(s => `<li><a href="${s.url}" target="_blank" rel="noopener">${esc(s.nama)}</a></li>`).join('')}
       <li><a href="${IABEE.sumber.url}" target="_blank" rel="noopener">${esc(IABEE.sumber.nama)}</a></li>
-      <li>Benchmark indikator: Renstra & IKU/IKT Politeknik Caltex Riau 2022–2026; laporan AMI & pengendalian SPMI PCR.</li>
       <li class="muted">Perlu verifikasi dengan lampiran resmi: bobot per butir (tabel "Bobot Butir Penilaian" STr di Pedoman), ambang doktor 12,5% untuk Unggul 3 tahun, dan bobot kerja kriteria K1–K4 di atas. Semua parameter dapat diubah di <code>assets/js/config.js</code>.</li>
     </ul>
   </div>`;

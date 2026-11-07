@@ -17,8 +17,11 @@ export function summary(inds, m = S.settings.bulan) {
   return c;
 }
 export const active = () => S.indikator.filter(i => i.aktif);
+/** Indikator yang berkorelasi dengan instrumen akreditasi (LAM/IABEE/IAPT). Selain itu hanya untuk audit internal. */
+export const isAkr = (i) => !!(i.lam || (i.iabee && i.iabee.length) || i.iapt);
+export const akrTag = (i) => isAkr(i) ? '' : '<span class="tag" style="--c:#64748b">Audit internal</span>';
 export const stBadge = (k) => `<span class="st ${k}">${KELAS[k].nama}</span>`;
-export const sumberTags = (ind) => (ind.sumber || []).map(s => `<span class="tag" style="--c:${(SUMBERMAP[s] || {}).warna}">${s}</span>`).join(' ');
+export const sumberTags = (ind) => (ind.sumber || []).map(s => `<span class="tag" style="--c:${(SUMBERMAP[s] || {}).warna}">${s === 'USULAN' ? 'Usulan PEM' : s}</span>`).join(' ');
 export const fmtV = (ind, v) => v == null ? '–' : fmt(v, ind.dec || 0);
 export const targetTxt = (ind) => `${ind.arah === '<=' ? '≤' : '≥'} ${fmt(ind.target, ind.dec || (ind.target % 1 ? 2 : 0))} ${esc(ind.satuan)}`;
 export function evalAll() { return PRODI.map(p => evalProdi(S, p.id)); }

@@ -24,6 +24,7 @@ export default function beranda(el) {
   <section class="hero">
     <canvas class="h3d" id="h3d"></canvas>
     <div class="hcontent">
+      <div class="hero-logos"><img src="assets/img/logo-pem-akamigas.png" alt="PEM Akamigas"><i></i><img src="assets/img/logo-esdm.png" alt="Kementerian ESDM"></div><br>
       <span class="eyebrow">${icon('spark')} SPMI Digital · Siklus PPEPP · ${BULAN[m]} ${S.settings.tahun}</span>
       <h2>Mutu yang terukur,<br>akreditasi yang terencana.</h2>
       <p>SIMANTAP 2.0 menautkan RSB, target BLU, dan Kontrak Kinerja Kepala Badan dengan IKU/IKT, standar SPMI, serta instrumen LAM Teknik 2025 dan IABEE, lalu mensimulasikan dampaknya terhadap status akreditasi.</p>

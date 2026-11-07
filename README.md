@@ -12,14 +12,14 @@ Rapat Tinjauan Manajemen (RTM), serta **simulasi akreditasi LAM Teknik 2025 dan 
 | Beranda | Hero 3D (Three.js), KPI animasi, infografis PPEPP, kalender mutu berlapis |
 | Dashboard Pimpinan | Indeks capaian, peta 3D unit × bulan, radar kriteria LAM, kaskade Renstra→IKU/IKT, Eisenhower |
 | Simulasi Skenario | Tuas capaian, skenario Moderat/Agresif/Hibrida, NA 0–400, syarat perlu, prediksi IABEE, proyeksi 2026–2030 |
-| Katalog Indikator | Indikator bertag sumber RSB · BLU · KOKIN · LAM · IABEE · IAPT · PCR, jejak PPEPP per indikator |
+| Katalog Indikator | Indikator bertag sumber RSB · BLU · KOKIN · LAM · IABEE · IAPT · Usulan IKU/IKT PEM, jejak PPEPP per indikator |
 | Monitoring | Lembar isian capaian bulanan per unit + kelengkapan pengisian |
 | AMI · RTL · RTM | Jadwal & temuan audit, kanban tindak lanjut, bahan RTM otomatis & pengesahan peningkatan standar |
 | Akreditasi | NA per prodi, peta syarat perlu, matriks IABEE A/C/W/D, aspek penjaminan mutu (SP9) |
 | Skema & Metode | Konversi capaian→skor, aturan status LAM Teknik 2025, metode IABEE, rujukan |
 | Dokumen · Pengaturan | Pustaka dokumen SPMI, status database, sambungan Firestore, cadangan/pulihkan, log aktivitas |
 
-Peran demo (pojok kanan atas): Admin UPM, Pimpinan, Auditor (tidak dapat mengaudit unit asal), Auditee (unit sendiri).
+Peran demo (pojok kanan atas): Admin SPM, Pimpinan, Auditor (tidak dapat mengaudit unit asal), Auditee (unit sendiri).
 
 ## Metode akreditasi
 * **LAM Teknik 2025** (Pedoman Penilaian, Lampiran 10 Per-LAM Teknik No. 6/2025; PerBAN-PT No. 8/2025):

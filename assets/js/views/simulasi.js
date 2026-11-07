@@ -4,7 +4,7 @@ import { PRODI, UNIT } from '../seed.js';
 import { LAM, IABEE } from '../config.js';
 import { evalProdi, LEVERS, SKENARIO, scenarioValues, sp9Scenario, fmt, round } from '../scoring.js';
 
-const ST = { prodi: 'TPM', sken: 'mod', year: null, vals: null, sp9: null, custom: false };
+const ST = { prodi: 'TP', sken: 'mod', year: null, vals: null, sp9: null, custom: false };
 const LVL_NAMA = { unggul5: 'Unggul 5 th', unggul3: 'Unggul 3 th', terakreditasi: 'Terakreditasi', gagal: 'Belum memenuhi' };
 
 function baseline(prodi) {

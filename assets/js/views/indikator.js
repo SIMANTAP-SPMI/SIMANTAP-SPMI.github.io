@@ -3,9 +3,10 @@ import { chart, AX, grad } from '../charts.js';
 import { UNITS, UNIT, SUMBER, SUMBERMAP, STANDAR, STD, IKU, IKUMAP, EIS, AUDITORS } from '../seed.js';
 import { LAM, IABEE } from '../config.js';
 import { BLN, BULAN, fmt, skorDariRasio } from '../scoring.js';
-import { active, indStat, stBadge, sumberTags, fmtV, targetTxt, summary } from './common.js';
+import { active, indStat, stBadge, sumberTags, fmtV, targetTxt, summary, isAkr, akrTag } from './common.js';
+import { remove } from '../app.js';
 
-const F = { q: '', sumber: 'ALL', unit: 'ALL', jenis: 'ALL', status: 'ALL' };
+const F = { q: '', sumber: 'ALL', unit: 'ALL', jenis: 'ALL', status: 'ALL', akr: 'ALL' };
 
 function ppeppDots(i) {
   const st = indStat(i);
@@ -23,7 +24,7 @@ export function katalog(el) {
   const all = active();
   const list = S.indikator.filter(i =>
     (F.sumber === 'ALL' || i.sumber.includes(F.sumber)) && (F.unit === 'ALL' || i.unit === F.unit) &&
-    (F.jenis === 'ALL' || i.jenis === F.jenis) && (F.status === 'ALL' || indStat(i).k === F.status) &&
+    (F.jenis === 'ALL' || i.jenis === F.jenis) && (F.status === 'ALL' || indStat(i).k === F.status) && (F.akr === 'ALL' || (F.akr === 'Y') === isAkr(i)) &&
     (!F.q || (i.teks + i.kode + i.unit).toLowerCase().includes(F.q.toLowerCase())));
   el.innerHTML = `
   <div class="grid g4" style="margin-bottom:18px">${SUMBER.slice(0, 4).map(s => {
@@ -36,14 +37,15 @@ export function katalog(el) {
       <select class="inp" id="fu"><option value="ALL">Semua unit</option>${UNITS.map(u => `<option ${F.unit === u.id ? 'selected' : ''} value="${u.id}">${u.id} · ${u.nama}</option>`).join('')}</select>
       <select class="inp" id="fj">${['ALL', 'IKU', 'IKT', 'IK'].map(j => `<option ${F.jenis === j ? 'selected' : ''} value="${j}">${j === 'ALL' ? 'Semua jenis' : j === 'IK' ? 'IK (indikator standar)' : j}</option>`).join('')}</select>
       <select class="inp" id="fs">${[['ALL', 'Semua status'], ['ok', 'Tercapai'], ['near', 'Hampir'], ['bad', 'Belum'], ['na', 'Belum diisi']].map(([k, n]) => `<option ${F.status === k ? 'selected' : ''} value="${k}">${n}</option>`).join('')}</select>
-      ${can('indikator') ? `<button class="btn pri" id="add">${icon('plus')} Indikator baru</button>` : ''}
+      <select class="inp" id="fk">${[['ALL', 'Semua korelasi'], ['Y', 'Berkorelasi akreditasi'], ['N', 'Audit internal saja']].map(([k, n]) => `<option ${F.akr === k ? 'selected' : ''} value="${k}">${n}</option>`).join('')}</select>
+      ${can('indikator') ? `<button class="btn pri" id="add">${icon('plus')} Input indikator</button>` : ''}
     </div>
     <div class="seg" id="sseg" style="margin-bottom:12px"><button data-s="ALL" class="${F.sumber === 'ALL' ? 'on' : ''}">Semua sumber</button>${SUMBER.map(s => `<button data-s="${s.id}" class="${F.sumber === s.id ? 'on' : ''}" title="${s.nama}">${s.id}</button>`).join('')}</div>
     <div class="muted small" style="margin-bottom:8px">${list.length} indikator · klik baris untuk melihat jejak PPEPP</div>
     <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Kode</th><th>Indikator</th><th>Unit</th><th class="num">Target</th><th class="num">Capaian</th><th>Status</th><th>PPEPP</th></tr></thead><tbody>
     ${list.map(i => { const st = indStat(i); return `<tr class="click" data-id="${i.id}" style="${i.aktif ? '' : 'opacity:.45'}">
       <td><b>${i.kode}</b><div class="muted small">${i.jenis}${i.iku ? ' · ' + i.iku : ''}</div></td>
-      <td style="min-width:260px">${esc(i.teks)}<div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap">${sumberTags(i)}${i.lam ? `<span class="tag" style="--c:#0f766e">LAM ${i.lam}</span>` : ''}${i.sp ? `<span class="tag" style="--c:#7c3aed">${i.sp}</span>` : ''}</div></td>
+      <td style="min-width:260px">${esc(i.teks)}<div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap">${sumberTags(i)}${i.lam ? `<span class="tag" style="--c:#0f766e">LAM ${i.lam}</span>` : ''}${i.sp ? `<span class="tag" style="--c:#7c3aed">${i.sp}</span>` : ''}${akrTag(i)}</div></td>
       <td><b>${i.unit}</b></td><td class="num">${targetTxt(i)}</td><td class="num"><b>${fmtV(i, st.v)}</b></td><td>${stBadge(st.k)}</td><td>${ppeppDots(i)}</td></tr>`; }).join('') || '<tr><td colspan="7" class="empty">Tidak ada indikator yang cocok.</td></tr>'}
     </tbody></table></div>
   </div>`;
@@ -52,6 +54,7 @@ export function katalog(el) {
   el.querySelector('#fu').onchange = e => { F.unit = e.target.value; re(); };
   el.querySelector('#fj').onchange = e => { F.jenis = e.target.value; re(); };
   el.querySelector('#fs').onchange = e => { F.status = e.target.value; re(); };
+  el.querySelector('#fk').onchange = e => { F.akr = e.target.value; re(); };
   el.querySelectorAll('#sseg button').forEach(b => b.onclick = () => { F.sumber = b.dataset.s; re(); });
   el.querySelectorAll('tr.click').forEach(tr => tr.onclick = () => detail(tr.dataset.id, re));
   const add = el.querySelector('#add'); if (add) add.onclick = () => formIndikator(null, re);
@@ -69,11 +72,12 @@ export function detail(id, after) {
   const tagsLam = [i.lam && `LAM ${i.lam} · ${(LAM.kriteria.find(k => k.id === i.lam) || {}).nama}`, i.komp && `Komponen ${(LAM.komponen.find(k => k.id === i.komp) || {}).nama}`, i.sp && `Syarat perlu ${i.sp}`, ...(i.iabee || []).map(k => `IABEE ${k}`), i.iapt && `IAPT ${i.iapt}`].filter(Boolean);
   openDrawer(`
     <div class="card-h"><span class="ico-badge" style="--c:#14b8a6">${icon('target')}</span><div><div class="muted small">${i.kode} · ${i.jenis} · ${esc(UNIT[i.unit].nama)}</div><h3>${esc(i.teks)}</h3></div><div class="sp"></div><button class="btn ghost" data-close aria-label="Tutup">${icon('close')}</button></div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">${sumberTags(i)} ${tagsLam.map(t => `<span class="tag" style="--c:#0f766e">${esc(t)}</span>`).join(' ')}</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">${sumberTags(i)} ${tagsLam.map(t => `<span class="tag" style="--c:#0f766e">${esc(t)}</span>`).join(' ')} ${akrTag(i)}</div>
+    ${isAkr(i) ? '' : `<div class="ribbon" style="background:rgba(100,116,139,.08);border-color:rgba(100,116,139,.35);color:#475569">${icon('info')} Indikator ini tidak berkorelasi dengan instrumen akreditasi: dievaluasi melalui Audit Mutu Internal saja dan tidak memengaruhi simulasi akreditasi.</div>`}
     ${i.catatan ? `<div class="ribbon">${icon('info')} ${esc(i.catatan)}</div>` : ''}
     <div class="card" style="margin-bottom:14px"><div class="card-h"><h3>Capaian ${S.settings.tahun}</h3><div class="sp"></div>${stBadge(st.k)}<b style="margin-left:8px">${fmtV(i, st.v)} ${esc(i.satuan)}</b></div><div class="chart sm" id="dchart"></div></div>
     <div class="trail">
-      ${step('#10b981', 'flag', '1 · Penetapan', `<dl class="kv"><dt>Target</dt><dd>${targetTxt(i)}</dd><dt>Standar</dt><dd>${i.std} · ${esc(STD[i.std])}</dd><dt>IKU/IKT Renstra</dt><dd>${i.iku ? i.iku + ' · ' + esc((IKUMAP[i.iku] || {}).nama) : '–'}</dd><dt>Data / Risiko</dt><dd>${i.data} · ${i.risk}</dd><dt>Rencana</dt><dd>${esc(i.rencana)}</dd></dl>${ctx.role === 'admin' ? `<button class="btn sm" id="editInd" style="margin-top:8px">${icon('edit')} Ubah penetapan</button>` : ''}`)}
+      ${step('#10b981', 'flag', '1 · Penetapan', `<dl class="kv"><dt>Target</dt><dd>${targetTxt(i)}</dd><dt>Standar</dt><dd>${i.std} · ${esc(STD[i.std])}</dd><dt>IKU/IKT Renstra</dt><dd>${i.iku ? i.iku + ' · ' + esc((IKUMAP[i.iku] || {}).nama) : '–'}</dd><dt>Data / Risiko</dt><dd>${i.data} · ${i.risk}</dd><dt>Rencana</dt><dd>${esc(i.rencana)}</dd></dl>${ctx.role === 'admin' ? `<div style="display:flex;gap:6px;margin-top:8px"><button class="btn sm" id="editInd">${icon('edit')} Ubah penetapan & target</button><button class="btn sm ghost danger" id="delInd">${icon('trash')} Hapus indikator</button></div>` : ''}`)}
       ${step('#0ea5e9', 'pulse', `2 · Pelaksanaan & Evaluasi Diri (${BULAN[m]})`, `
         <div class="grid g2" style="gap:10px">
           <div class="field"><label>Capaian ${BULAN[m]} (${esc(i.satuan)})</label><input class="inp" id="capIn" type="number" step="any" value="${i.cap[m] ?? ''}" ${canCap ? '' : 'disabled'}></div>
@@ -114,6 +118,11 @@ export function detail(id, after) {
     const on = (sel, fn) => { const b = d.querySelector(sel); if (b) b.onclick = fn; };
     const done = async (msg) => { toast(msg); closeDrawer(); after ? after() : route_(); };
     on('#editInd', () => formIndikator(i, after));
+    on('#delInd', async () => {
+      if (i.ami || Object.values(i.bukti || {}).some(a => a.some(b => b.verified))) { toast('Indikator sudah diaudit/berbukti terverifikasi: nonaktifkan lewat keputusan Peningkatan, tidak dihapus.'); return; }
+      if (!confirm(`Hapus indikator ${i.kode}?`)) return;
+      await remove('indikator', i.id, 'Menghapus indikator ' + i.kode); toast('Indikator dihapus'); closeDrawer(); after ? after() : route_();
+    });
     on('#saveCap', async () => {
       const v = d.querySelector('#capIn').value;
       i.cap[m] = v === '' ? null : Number(v);
@@ -144,10 +153,10 @@ function step(c, ic, title, body) {
   return `<div class="tstep"><div class="orbsm" style="--c:${c}">${icon(ic)}</div><div class="card" style="padding:14px"><h4 style="margin-bottom:8px">${title}</h4>${body}</div></div>`;
 }
 
-/* ---------- Form indikator (Admin UPM) ---------- */
+/* ---------- Form indikator (Admin SPM) ---------- */
 function formIndikator(i, after) {
   const isNew = !i;
-  const x = i || { unit: 'UPM', std: 'S13', teks: '', target: 0, satuan: '%', arah: '>=', jenis: 'IKT', iku: 'IKT-1', sumber: [], lam: 'K4', komp: 'P', iabee: [], sp: null, risk: 'Sedang', dec: 0 };
+  const x = i || { unit: 'SPM', std: 'S13', teks: '', target: 0, satuan: '%', arah: '>=', jenis: 'IKT', iku: 'IKT-1', sumber: [], lam: 'K4', komp: 'P', iabee: [], sp: null, risk: 'Sedang', dec: 0 };
   const opt = (arr, v) => arr.map(([k, n]) => `<option value="${k}" ${k === v ? 'selected' : ''}>${n}</option>`).join('');
   openDrawer(`
     <div class="card-h"><span class="ico-badge" style="--c:#14b8a6">${icon(isNew ? 'plus' : 'edit')}</span><h3>${isNew ? 'Indikator baru' : 'Ubah penetapan ' + x.kode}</h3><div class="sp"></div><button class="btn ghost" data-close>${icon('close')}</button></div>
@@ -185,20 +194,22 @@ let monUnit = null;
 export function monitoring(el) {
   const m = S.settings.bulan;
   if (ctx.role === 'auditee') monUnit = ctx.unit;
-  if (!monUnit) monUnit = 'TPM';
-  const inds = active().filter(i => i.unit === monUnit);
-  const fill = UNITS.map(u => { const x = active().filter(i => i.unit === u.id); return { u: u.id, p: x.length ? Math.round(x.filter(i => i.cap[m] != null).length / x.length * 100) : 0 }; });
+  if (!monUnit) monUnit = 'TP';
+  const inds = active().filter(i => i.unit === monUnit && isAkr(i));
+  const nInt = active().filter(i => i.unit === monUnit && !isAkr(i)).length;
+  const fill = UNITS.map(u => { const x = active().filter(i => i.unit === u.id && isAkr(i)); return { u: u.id, p: x.length ? Math.round(x.filter(i => i.cap[m] != null).length / x.length * 100) : 0 }; });
   const editable = inds.length && can('capaian', inds[0]);
   el.innerHTML = `
   <div class="grid g-12">
     <div class="card tilt"><div class="card-h"><span class="ico-badge" style="--c:#f5a524">${icon('calendar')}</span><div><h3>Kelengkapan pengisian ${BULAN[m]}</h3><div class="sub">% indikator yang sudah dimutakhirkan per unit</div></div></div><div class="chart" id="fill"></div></div>
     <div class="card">
-      <div class="card-h"><span class="ico-badge" style="--c:#0ea5e9">${icon('pulse')}</span><div><h3>Lembar monitoring · ${esc(UNIT[monUnit].nama)}</h3><div class="sub">${editable ? 'Isi capaian bulan berjalan lalu simpan' : 'Mode baca. Pilih peran Auditee unit ini untuk mengisi.'}</div></div><div class="sp"></div>
+      <div class="card-h"><span class="ico-badge" style="--c:#0ea5e9">${icon('pulse')}</span><div><h3>Lembar monitoring · ${esc(UNIT[monUnit].nama)}</h3><div class="sub">Hanya indikator berkorelasi akreditasi${nInt ? ` · ${nInt} indikator audit internal dievaluasi di menu AMI` : ''} · ${editable ? 'isi capaian bulan berjalan lalu simpan' : 'mode baca (pilih peran Auditee unit ini untuk mengisi)'}</div></div><div class="sp"></div>
         ${ctx.role !== 'auditee' ? `<select class="inp" id="mu">${UNITS.map(u => `<option ${u.id === monUnit ? 'selected' : ''} value="${u.id}">${u.id}</option>`).join('')}</select>` : ''}</div>
       <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Indikator</th><th class="num">Target</th>${BLN.slice(Math.max(0, m - 3), m).map(b => `<th class="num">${b}</th>`).join('')}<th class="num">${BLN[m]}</th><th>Status</th></tr></thead><tbody>
       ${inds.map(i => { const st = indStat(i); return `<tr><td style="min-width:220px"><a href="javascript:void 0" data-id="${i.id}" class="dl">${esc(i.teks)}</a><div class="muted small">${i.kode}</div></td><td class="num">${targetTxt(i)}</td>
         ${i.cap.slice(Math.max(0, m - 3), m).map(v => `<td class="num muted">${fmtV(i, v)}</td>`).join('')}
         <td class="num">${editable ? `<input class="inp mi" data-id="${i.id}" type="number" step="any" value="${i.cap[m] ?? ''}" style="width:90px;text-align:right">` : `<b>${fmtV(i, i.cap[m])}</b>`}</td><td>${stBadge(st.k)}</td></tr>`; }).join('')}
+      ${inds.length ? '' : '<tr><td colspan="7" class="empty">Unit ini tidak memiliki indikator yang berkorelasi akreditasi.</td></tr>'}
       </tbody></table></div>
       ${editable ? `<button class="btn pri" id="msave" style="margin-top:12px">${icon('upload')} Simpan capaian ${BULAN[m]}</button>` : ''}
     </div>

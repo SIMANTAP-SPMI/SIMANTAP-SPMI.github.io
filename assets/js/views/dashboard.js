@@ -25,7 +25,7 @@ export default function dashboard(el) {
 
   el.innerHTML = `
   <div class="filters">
-    <div class="seg" id="seg">
+    <div class="seg scroll" id="seg">
       <button data-u="ALL" class="${filt === 'ALL' ? 'on' : ''}">Institusi</button>
       ${UNITS.map(u => `<button data-u="${u.id}" class="${filt === u.id ? 'on' : ''}">${u.id}</button>`).join('')}
     </div>

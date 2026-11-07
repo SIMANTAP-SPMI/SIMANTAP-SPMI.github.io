@@ -2,7 +2,7 @@ import { S, ctx, icon, esc, save, remove, toast, openDrawer, closeDrawer } from 
 import { chart } from '../charts.js';
 
 const JENIS = ['Kebijakan', 'Manual', 'Standar', 'Formulir', 'SOP', 'Tambahan'];
-const STC = { 'Disetujui': 'ok', 'Review UPM': 'near', 'Draft': 'na' };
+const STC = { 'Disetujui': 'ok', 'Review SPM': 'near', 'Draft': 'na', 'Referensi': 'na' };
 let fj = 'ALL';
 
 export default function dokumen(el) {
@@ -15,21 +15,21 @@ export default function dokumen(el) {
       <div class="filters"><div class="seg" id="seg"><button data-j="ALL" class="${fj === 'ALL' ? 'on' : ''}">Semua</button>${JENIS.map(j => `<button data-j="${j}" class="${fj === j ? 'on' : ''}">${j}</button>`).join('')}</div><div class="sp" style="flex:1"></div>${admin ? `<button class="btn pri" id="add">${icon('plus')} Dokumen</button>` : ''}</div>
       <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Kode</th><th>Judul</th><th>Jenis</th><th>Periode</th><th>Status</th><th></th></tr></thead><tbody>
       ${list.map(d => `<tr><td><b>${esc(d.kode)}</b></td><td>${esc(d.judul)}${d.url ? ` <a href="${esc(d.url)}" target="_blank" rel="noopener">${icon('link')}</a>` : ''}</td><td>${d.jenis}</td><td>${esc(d.periode)}</td><td><span class="st ${STC[d.status]}">${d.status}</span></td>
-        <td style="white-space:nowrap">${(pimp || admin) && d.status === 'Review UPM' ? `<button class="btn sm pri" data-ok="${d.id}">${icon('check')} Sahkan</button>` : ''}${admin && d.status === 'Draft' ? `<button class="btn sm" data-rv="${d.id}">Ajukan review</button>` : ''}${admin && d.status !== 'Disetujui' ? `<button class="btn sm ghost danger" data-del="${d.id}" title="Hapus">${icon('trash')}</button>` : ''}</td></tr>`).join('')}
+        <td style="white-space:nowrap">${(pimp || admin) && d.status === 'Review SPM' ? `<button class="btn sm pri" data-ok="${d.id}">${icon('check')} Sahkan</button>` : ''}${admin && d.status === 'Draft' ? `<button class="btn sm" data-rv="${d.id}">Ajukan review</button>` : ''}${admin && (d.status !== 'Disetujui' || d.jenis === 'Tambahan') ? `<button class="btn sm ghost danger" data-del="${d.id}" title="Hapus">${icon('trash')}</button>` : ''}</td></tr>`).join('')}
       </tbody></table></div>
-      <div class="note" style="margin-top:8px">Dokumen yang sudah disahkan tidak dapat dihapus (rekaman mutu). Berkas fisik disimpan di Google Drive/Storage dan ditautkan.</div>
+      <div class="note" style="margin-top:8px">Dokumen SPMI yang sudah disahkan tidak dapat dihapus (rekaman mutu); dokumen tambahan/referensi dapat dihapus Admin SPM. Berkas fisik disimpan di Google Drive/Storage dan ditautkan.</div>
     </div>
   </div>`;
   el.querySelectorAll('#seg button').forEach(b => b.onclick = () => { fj = b.dataset.j; dokumen(el); });
   const upd = async (id, st) => { const d = S.dokumen.find(x => x.id === id); d.status = st; await save('dokumen', d, `Dokumen ${d.kode} → ${st}`); toast(`${d.kode} → ${st}`); dokumen(el); };
   el.querySelectorAll('[data-ok]').forEach(b => b.onclick = () => upd(b.dataset.ok, 'Disetujui'));
-  el.querySelectorAll('[data-rv]').forEach(b => b.onclick = () => upd(b.dataset.rv, 'Review UPM'));
+  el.querySelectorAll('[data-rv]').forEach(b => b.onclick = () => upd(b.dataset.rv, 'Review SPM'));
   el.querySelectorAll('[data-del]').forEach(b => b.onclick = async () => { const d = S.dokumen.find(x => x.id === b.dataset.del); if (!confirm(`Hapus ${d.kode}?`)) return; await remove('dokumen', d.id, 'Menghapus dokumen ' + d.kode); dokumen(el); });
   const add = el.querySelector('#add');
   if (add) add.onclick = () => openDrawer(`<div class="card-h"><h3>Dokumen baru</h3><div class="sp"></div><button class="btn ghost" data-close>${icon('close')}</button></div>
     <div class="card"><div class="grid g2" style="gap:12px">
       <div class="field"><label>Jenis</label><select class="inp" id="dJ">${JENIS.map(j => `<option>${j}</option>`).join('')}</select></div>
-      <div class="field"><label>Kode</label><input class="inp" id="dK" placeholder="SOP-UPM-05"></div>
+      <div class="field"><label>Kode</label><input class="inp" id="dK" placeholder="SOP-SPM-05"></div>
       <div class="field span2"><label>Judul</label><input class="inp" id="dT"></div>
       <div class="field"><label>Periode</label><input class="inp" id="dP" value="2026–2030"></div>
       <div class="field"><label>Tautan berkas (Drive)</label><input class="inp" id="dU" placeholder="https://drive.google.com/…"></div>
@@ -42,7 +42,7 @@ export default function dokumen(el) {
       closeDrawer(); toast('Dokumen tersimpan'); dokumen(el);
     };
   });
-  const col = { Disetujui: '#10b981', 'Review UPM': '#f5a524', Draft: '#94a3b8' };
+  const col = { Disetujui: '#10b981', 'Review SPM': '#f5a524', Draft: '#94a3b8', Referensi: '#c4b5fd' };
   chart(el.querySelector('#tree'), {
     tooltip: { formatter: p => `${p.name}: ${p.value} dokumen` },
     series: [{ type: 'treemap', roam: false, nodeClick: false, breadcrumb: { show: false }, width: '100%', height: '100%', top: 0, left: 0,
