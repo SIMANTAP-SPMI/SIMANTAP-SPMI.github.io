@@ -12,12 +12,12 @@
    ============================================================ */
 
 export const FIREBASE_CONFIG = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: ""
+  apiKey: "AIzaSyCHC9m3eFUnvLY9Kh__3q46xeF3ZSooMZA",
+  authDomain: "simantap-pem.firebaseapp.com",
+  projectId: "simantap-pem",
+  storageBucket: "simantap-pem.firebasestorage.app",
+  messagingSenderId: "672894538274",
+  appId: "1:672894538274:web:c3f9154ba2139a0fb6b07b"
 };
 
 export const APP = {
