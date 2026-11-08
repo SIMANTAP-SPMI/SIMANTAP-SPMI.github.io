@@ -130,10 +130,13 @@ export const ROUTES = [
   { id: 'pengaturan', t: 'Database & Pengaturan', ic: 'db', c: '#64748b', sec: 'Sistem', v: pengaturan }
 ];
 
+// Menu Database & Pengaturan hanya untuk pengguna yang sudah masuk (bukan mode demo)
+const navRoutes = () => ROUTES.filter(r => r.id !== 'pengaturan' || DB.user);
+
 function renderSide(cur) {
   let sec = '', h = `<div class="brand-logos"><img src="assets/img/logo-pem-akamigas.png" alt="PEM Akamigas" class="lg-pem"><img src="assets/img/logo-esdm.png" alt="Kementerian ESDM" class="lg-esdm"></div>
     <div class="brand"><div class="brand-logo">${icon('spark')}</div><div><b>${APP.nama}</b><small>Sistem Penjaminan Mutu Internal</small></div></div><nav class="nav">`;
-  ROUTES.forEach(r => {
+  navRoutes().forEach(r => {
     if (r.sec !== sec) { sec = r.sec; h += `<div class="nav-sec">${sec}</div>`; }
     h += `<a href="#/${r.id}" class="${r.id === cur ? 'on' : ''}" style="--c:${r.c}"><span class="chip">${icon(r.ic)}</span><span>${r.t}${r.sub ? `<small class="nsub">${r.sub}</small>` : ''}</span></a>`;
   });
@@ -149,7 +152,7 @@ function renderTop(route) {
     <button class="btn ghost menu-btn" id="menuBtn" aria-label="Menu">${icon('menu')}</button>
     <div><div class="crumb">${route.sec}</div><h1>${route.t}</h1></div>
     <div class="sp"></div>
-    <span class="pill-db ${DB.mode === 'firebase' ? 'fb' : ''}" title="${DB.mode === 'firebase' ? 'Terhubung ke Cloud Firestore' : 'Database lokal peramban'}"><i></i><span>${DB.mode === 'firebase' ? 'Firestore' : 'Lokal'}</span></span>
+    ${DB.user ? `<span class="pill-db ${DB.mode === 'firebase' ? 'fb' : ''}" title="${DB.mode === 'firebase' ? 'Terhubung ke Cloud Firestore' : 'Database lokal peramban'}"><i></i><span>${DB.mode === 'firebase' ? 'Firestore' : 'Lokal'}</span></span>` : ''}
     <div class="role-box">
       <span class="ico-badge" style="--c:#6366f1;width:32px;height:32px">${icon('user')}</span>
       <select class="inp" id="roleSel" aria-label="Peran">${Object.entries(ROLES).map(([k, v]) => `<option value="${k}" ${k === ctx.role ? 'selected' : ''}>${v.nama}</option>`).join('')}</select>
@@ -166,7 +169,7 @@ function renderTop(route) {
 
 export function route_() {
   const id = (location.hash.replace(/^#\/?/, '').split('?')[0]) || 'beranda';
-  const r = ROUTES.find(x => x.id === id) || ROUTES[0];
+  const r = navRoutes().find(x => x.id === id) || ROUTES[0];
   disposeAll(); disposeHero(); closeDrawer();
   renderSide(r.id); renderTop(r);
   const view = $('#view');
