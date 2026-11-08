@@ -206,7 +206,8 @@ function loginForm() {
 }
 
 async function boot() {
-  await DB.init();
+  const demo = new URLSearchParams(location.search).has('demo');
+  if (demo) DB.useLocal(); else await DB.init();
   if (DB.needLogin) await loginForm();
   let d = await DB.loadAll();
   const st = d.settings && d.settings[0];
