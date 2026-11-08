@@ -149,15 +149,16 @@ function renderTop(route) {
     <button class="btn ghost menu-btn" id="menuBtn" aria-label="Menu">${icon('menu')}</button>
     <div><div class="crumb">${route.sec}</div><h1>${route.t}</h1></div>
     <div class="sp"></div>
-    <img src="assets/img/logo-esdm.png" alt="Kementerian ESDM" class="top-esdm">
     <span class="pill-db ${DB.mode === 'firebase' ? 'fb' : ''}" title="${DB.mode === 'firebase' ? 'Terhubung ke Cloud Firestore' : 'Database lokal peramban'}"><i></i><span>${DB.mode === 'firebase' ? 'Firestore' : 'Lokal'}</span></span>
     <div class="role-box">
       <span class="ico-badge" style="--c:#6366f1;width:32px;height:32px">${icon('user')}</span>
       <select class="inp" id="roleSel" aria-label="Peran">${Object.entries(ROLES).map(([k, v]) => `<option value="${k}" ${k === ctx.role ? 'selected' : ''}>${v.nama}</option>`).join('')}</select>
       ${ctx.role === 'auditee' ? `<select class="inp rl" id="unitSel" aria-label="Unit">${unitOpts}</select>` : ''}
       ${ctx.role === 'auditor' ? `<select class="inp rl" id="audSel" aria-label="Auditor">${audOpts}</select>` : ''}
-    </div>`;
+    </div>
+    ${DB.user ? `<button class="btn" id="logoutBtn" title="Keluar dari ${esc(DB.user.email || '')}">${icon('logout')} Keluar</button>` : ''}`;
   $('#menuBtn').onclick = () => $('#side').classList.toggle('open');
+  const lo = $('#logoutBtn'); if (lo) lo.onclick = async () => { if (!confirm('Keluar dari SIMANTAP 2.0?')) return; await DB.logout(); location.reload(); };
   $('#roleSel').onchange = e => { ctx.role = e.target.value; saveCtx(); route_(); };
   const us = $('#unitSel'); if (us) us.onchange = e => { ctx.unit = e.target.value; saveCtx(); route_(); };
   const as = $('#audSel'); if (as) as.onchange = e => { ctx.auditor = e.target.value; saveCtx(); route_(); };

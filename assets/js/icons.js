@@ -1,6 +1,7 @@
 /* SIMANTAP 2.0 · Ikon duotone kustom (soft fill + garis membulat).
    Setiap ikon: lapisan "blob" lembut (warna aksen, transparan) + garis utama. */
 const P = {
+  logout: ['M4 4h9v16H4z', 'M14 12h7M18 8l4 4-4 4M13 4H4v16h9'],
   home: ['M4 11.5 12 5l8 6.5V19a1.5 1.5 0 0 1-1.5 1.5H15v-5H9v5H5.5A1.5 1.5 0 0 1 4 19z', 'M3 12 12 4.5 21 12M9 20.5v-5h6v5'],
   dash: ['M4 13h7v7H5.5A1.5 1.5 0 0 1 4 18.5zM13 4h5.5A1.5 1.5 0 0 1 20 5.5V11h-7z', 'M4 5.5A1.5 1.5 0 0 1 5.5 4H11v7H4zM13 13h7v5.5a1.5 1.5 0 0 1-1.5 1.5H13zM4 13h7v7M13 4h5.5A1.5 1.5 0 0 1 20 5.5V11h-7z'],
   target: ['M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16z', 'M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 12l7-7M16.5 4.5 19 5l.5 2.5M12 21a9 9 0 1 1 9-9'],
