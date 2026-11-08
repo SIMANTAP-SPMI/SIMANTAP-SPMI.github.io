@@ -13,6 +13,7 @@ export default function pengaturan(el) {
       <dl class="kv">${COLLECTIONS.map(c => `<dt>${c}</dt><dd>${c === 'settings' ? 1 : (S[c] || []).length} dokumen</dd>`).join('')}</dl>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
         <button class="btn" id="exp">${icon('download')} Unduh cadangan (JSON)</button>
+        ${DB.user ? `<button class="btn" id="lgo">Keluar (${esc(DB.user.email || '')})</button>` : ''}
         ${admin ? `<label class="btn">${icon('upload')} Pulihkan dari JSON<input type="file" id="imp" accept="application/json" hidden></label>` : ''}
         ${admin ? `<button class="btn danger" id="rst">${icon('loop')} Muat ulang data ilustratif</button>` : ''}
       </div>
@@ -32,10 +33,9 @@ export default function pengaturan(el) {
       <details style="margin-top:12px"><summary class="small" style="cursor:pointer;font-weight:700">Contoh aturan keamanan Firestore</summary><pre class="formula" style="margin-top:8px">rules_version = '2';
 service cloud.firestore {
   match /databases/{db}/documents {
-    // tahap uji: baca terbuka, tulis hanya pengguna masuk
+    // hanya akun yang dibuat Admin SPM (Authentication → Email/Password)
     match /{col}/{id} {
-      allow read: if true;
-      allow write: if request.auth != null;
+      allow read, write: if request.auth != null;
     }
   }
 }</pre><div class="note">Selama uji coba tanpa login, aturan <code>allow write: if true</code> dapat dipakai sementara. Tahap berikut: Firebase Authentication (akun @esdm.go.id) dan aturan per peran.</div></details>
@@ -56,6 +56,7 @@ service cloud.firestore {
     a.download = `simantap2_backup_${new Date().toISOString().slice(0, 10)}.json`; a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   };
+  const lgo = el.querySelector('#lgo'); if (lgo) lgo.onclick = async () => { await DB.logout(); location.reload(); };
   if (!admin) return;
   el.querySelector('#imp').onchange = async (e) => {
     const f = e.target.files[0]; if (!f) return;

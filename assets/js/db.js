@@ -10,7 +10,7 @@ const LS_PREFIX = 'simantap2web_';
 const LS_FBCFG = 'simantap2web_firebase_config';
 const FB_VER = '10.12.2';
 
-let mode = 'local', fs = null, lastError = null;
+let mode = 'local', fs = null, auth = null, lastError = null, user = null;
 
 function loadScript(src) {
   return new Promise((res, rej) => {
@@ -31,14 +31,31 @@ export function saveFirebaseConfig(cfg) {
 async function initFirebase(cfg) {
   await loadScript(`https://www.gstatic.com/firebasejs/${FB_VER}/firebase-app-compat.js`);
   await loadScript(`https://www.gstatic.com/firebasejs/${FB_VER}/firebase-firestore-compat.js`);
+  await loadScript(`https://www.gstatic.com/firebasejs/${FB_VER}/firebase-auth-compat.js`);
   const app = window.firebase.apps.length ? window.firebase.app() : window.firebase.initializeApp(cfg);
   fs = app.firestore();
+  auth = app.auth();
+  user = await new Promise(res => { const off = auth.onAuthStateChanged(u => { off(); res(u); }); });
+  if (!user) return; // uji koneksi dilakukan setelah masuk
   await fs.collection('settings').limit(1).get(); // uji koneksi & aturan akses
 }
 
 export const DB = {
   get mode() { return mode; },
   get error() { return lastError; },
+  get user() { return user; },
+  /** true bila basis data bersama aktif tetapi pengguna belum masuk. */
+  get needLogin() { return mode === 'firebase' && !user; },
+
+  async login(email, pass) {
+    const r = await auth.signInWithEmailAndPassword(email, pass);
+    user = r.user;
+    await fs.collection('settings').limit(1).get();
+    return user;
+  },
+  async resetPassword(email) { await auth.sendPasswordResetEmail(email); },
+  async logout() { if (auth) await auth.signOut(); user = null; },
+  useLocal() { mode = 'local'; },
 
   async init() {
     const cfg = getFirebaseConfig();

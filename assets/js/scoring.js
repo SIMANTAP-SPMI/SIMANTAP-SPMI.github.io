@@ -1,6 +1,7 @@
 /* SIMANTAP 2.0 · Mesin skor: capaian → skor butir → Nilai Akreditasi (LAM Teknik 2025)
    + status & syarat perlu, keputusan IABEE (A/C/W/D), dan proyeksi skenario. */
 import { LAM, IABEE, SKEMA_CAPAIAN } from './config.js';
+import { DTPS_PROJ, TAHUN } from './seed.js';
 
 export const BLN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 export const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
@@ -158,47 +159,56 @@ export function evalIABEE(rows) {
 /* ---------------- Skenario ---------------- */
 // Laju perbaikan per tahun untuk setiap tuas (key indikator prodi). Ilustratif; dapat diubah.
 export const LEVERS = [
-  { key: 'tatapamong', nama: 'Skor tata pamong prodi (0–4)', sp: 'SP1', min: 0, max: 4, step: 0.05, mod: 0.1, agr: 0.2 },
-  { key: 'kurikulum', nama: 'Skor kurikulum OBE (0–4)', sp: 'SP2', min: 0, max: 4, step: 0.05, mod: 0.15, agr: 0.3 },
-  { key: 'basic', nama: 'Basic sciences & matematika (SKS)', sp: 'SP3', min: 0, max: 16, step: 1, mod: 0, agr: 0 },
-  { key: 'doktor', nama: 'DTPS doktor (%)', sp: 'SP4', min: 0, max: 60, step: 0.5, mod: 2, agr: 4 },
-  { key: 'jabatan', nama: 'DTPS jabatan GB/LK/L (%)', sp: 'SP5', min: 0, max: 100, step: 1, mod: 3, agr: 6 },
-  { key: 'publikasi', nama: 'Rasio publikasi internasional DTPS', sp: 'SP6', min: 0, max: 2, step: 0.01, mod: 0.06, agr: 0.12 },
-  { key: 'waktutunggu', nama: 'Waktu tunggu lulusan (bulan)', sp: 'SP7', min: 0.5, max: 12, step: 0.1, mod: -0.3, agr: -0.6 },
-  { key: 'kesesuaian', nama: 'Kesesuaian bidang kerja (%)', sp: 'SP8', min: 0, max: 100, step: 1, mod: 2, agr: 4 },
-  { key: 'ltw', nama: 'Lulus tepat waktu (%)', min: 0, max: 100, step: 1, mod: 1.5, agr: 3 },
-  { key: 'kepuasan', nama: 'Kepuasan pengguna lulusan (skala 4)', min: 0, max: 4, step: 0.01, mod: 0.03, agr: 0.06 },
-  { key: 'rps', nama: 'RPS berbasis OBE (%)', min: 0, max: 100, step: 1, mod: 8, agr: 15 },
-  { key: 'cpl', nama: 'Ketercapaian CPL (%)', min: 0, max: 100, step: 1, mod: 3, agr: 6 },
-  { key: 'sertifikat', nama: 'Lulusan bersertifikat kompetensi (%)', min: 0, max: 100, step: 1, mod: 2, agr: 4 },
-  { key: 'mitra', nama: 'Mitra industri terimplementasi (mitra)', min: 0, max: 30, step: 1, mod: 1, agr: 2 },
-  { key: 'rasio', nama: 'Rasio mahasiswa per DTPS', min: 5, max: 40, step: 0.5, mod: -0.5, agr: -1 },
-  { key: 'rtl', nama: 'RTL AMI prodi tertutup tepat waktu (%)', min: 0, max: 100, step: 1, mod: 6, agr: 12 },
-  { key: 'monitor', nama: 'Pemutakhiran monitoring bulanan (%)', min: 0, max: 100, step: 1, mod: 6, agr: 12 }
+  { key: 'tatapamong', nama: 'Skor tata pamong prodi (0–4)', sp: 'SP1', min: 0, max: 4, step: 0.05, mod: 0.1, agr: 0.2, low: -0.05 },
+  { key: 'kurikulum', nama: 'Skor kurikulum OBE (0–4)', sp: 'SP2', min: 0, max: 4, step: 0.05, mod: 0.15, agr: 0.3, low: -0.05 },
+  { key: 'basic', nama: 'Basic sciences & matematika (SKS)', sp: 'SP3', min: 0, max: 16, step: 1, mod: 0, agr: 0, low: 0 },
+  { key: 'doktor', nama: 'DTPS doktor (%)', sp: 'SP4', min: 0, max: 60, step: 0.5, mod: 2, agr: 4, low: 0 },
+  { key: 'jabatan', nama: 'DTPS jabatan GB/LK/L (%)', sp: 'SP5', min: 0, max: 100, step: 1, mod: 3, agr: 6, low: 0 },
+  { key: 'publikasi', nama: 'Rasio publikasi internasional DTPS', sp: 'SP6', min: 0, max: 5, step: 0.01, mod: 0.06, agr: 0.12, low: -0.25 },
+  { key: 'waktutunggu', nama: 'Waktu tunggu lulusan (bulan)', sp: 'SP7', min: 0.5, max: 12, step: 0.1, mod: -0.3, agr: -0.6, low: 0.5 },
+  { key: 'kesesuaian', nama: 'Kesesuaian bidang kerja (%)', sp: 'SP8', min: 0, max: 100, step: 1, mod: 2, agr: 4, low: -3 },
+  { key: 'ltw', nama: 'Lulus tepat waktu (%)', min: 0, max: 100, step: 1, mod: 1.5, agr: 3, low: -2 },
+  { key: 'kepuasan', nama: 'Kepuasan pengguna lulusan (skala 4)', min: 0, max: 4, step: 0.01, mod: 0.03, agr: 0.06, low: -0.05 },
+  { key: 'rps', nama: 'RPS berbasis OBE (%)', min: 0, max: 100, step: 1, mod: 8, agr: 15, low: 0 },
+  { key: 'cpl', nama: 'Ketercapaian CPL (%)', min: 0, max: 100, step: 1, mod: 3, agr: 6, low: -2 },
+  { key: 'sertifikat', nama: 'Lulusan bersertifikat kompetensi (%)', min: 0, max: 100, step: 1, mod: 2, agr: 4, low: -2 },
+  { key: 'mitra', nama: 'Mitra industri terimplementasi (mitra)', min: 0, max: 30, step: 1, mod: 1, agr: 2, low: -1 },
+  { key: 'rasio', nama: 'Rasio mahasiswa per DTPS', min: 5, max: 40, step: 0.5, mod: -0.5, agr: -1, low: 1 },
+  { key: 'rtl', nama: 'RTL AMI prodi tertutup tepat waktu (%)', min: 0, max: 100, step: 1, mod: 6, agr: 12, low: -5 },
+  { key: 'monitor', nama: 'Pemutakhiran monitoring bulanan (%)', min: 0, max: 100, step: 1, mod: 6, agr: 12, low: -5 }
 ];
 export const SKENARIO = [
   { id: 'base', nama: 'Kondisi kini', ket: 'Capaian terakhir tanpa intervensi' },
-  { id: 'mod', nama: 'Moderat', ket: 'Perbaikan bertahap sesuai kapasitas anggaran' },
-  { id: 'agr', nama: 'Agresif', ket: 'Percepatan penuh: tubel S3, klinik publikasi, kemitraan' },
+  { id: 'low', nama: 'Terendah', ket: 'Kemungkinan terendah: tugas belajar belum selesai, pensiun tanpa pengganti, publikasi dan tracer menurun' },
+  { id: 'mod', nama: 'Moderat', ket: 'Hanya perubahan yang sudah pasti: pensiun dan kepulangan tugas belajar sesuai jadwal' },
+  { id: 'agr', nama: 'Agresif', ket: 'Percepatan penuh: tambahan doktor homebase, usulan jabatan terarah, klinik publikasi' },
   { id: 'hib', nama: 'Hibrida', ket: 'Agresif pada syarat perlu, moderat pada butir lain' }
 ];
 
-/** Nilai tuas untuk skenario tertentu pada tahun ke-n dari baseline. */
-export function scenarioValues(base, skenId, years) {
+/** Nilai tuas untuk skenario tertentu pada tahun ke-n dari baseline.
+    Bila prodi diberikan, doktor dan jabatan mengikuti proyeksi DTPS homebase (DTPS_PROJ). */
+export function scenarioValues(base, skenId, years, prodi = null) {
   const out = {};
   LEVERS.forEach(L => {
     const b = base[L.key];
     if (b == null) return;
     let d = 0;
-    if (skenId === 'mod') d = L.mod;
+    if (skenId === 'low') d = L.low || 0;
+    else if (skenId === 'mod') d = L.mod;
     else if (skenId === 'agr') d = L.agr;
     else if (skenId === 'hib') d = L.sp ? L.agr : L.mod;
     let v = b + d * years;
     out[L.key] = round(clamp(v, L.min, L.max), 2);
   });
+  const P = prodi && DTPS_PROJ[prodi];
+  if (P && skenId !== 'base' && years > 0) {
+    const k = skenId === 'hib' ? (prodi === 'TP' ? 'agr' : 'mod') : skenId;
+    const row = (P[k] || P.mod)[Math.min(4, Math.max(0, years))];
+    if (row) { out.doktor = row[0]; out.jabatan = row[1]; }
+  }
   return out;
 }
 export function sp9Scenario(base, skenId, years) {
-  const d = skenId === 'base' ? 0 : skenId === 'mod' ? 0.25 : 0.5;
+  const d = skenId === 'base' ? 0 : skenId === 'low' ? -0.1 : skenId === 'mod' ? 0.25 : 0.5;
   return round(clamp(base + d * years, 0, 4), 2);
 }

@@ -37,6 +37,37 @@ export const WADIR = [
 export const UNIT = Object.fromEntries(UNITS.map(u => [u.id, u]));
 export const PRODI = UNITS.filter(u => u.jenis === 'prodi');
 
+/* Data riil akreditasi terakhir (SK LAM Teknik, tanggapan AL, LKPS) */
+export const AKR_RIIL = {
+  TP: { na: 362, sk: '0381/SK/LAM Teknik/VST/XII/2023', sd: '20 Desember 2028' },
+  TO: { na: 373, sk: '0431/SK/LAM Teknik/VST/VIII/2024', sd: '20 Agustus 2029' },
+  TI: { na: 363, sk: '0430/SK/LAM Teknik/VST/VIII/2024', sd: '20 Agustus 2029' },
+  TM: { na: 367, sk: '0771/SK/LAM Teknik/VST/XII/2024', sd: '20 Desember 2029' },
+  LO: { na: 362, sk: '0780/SK/LAM Teknik/VST/XII/2025', sd: '20 Desember 2030' }
+};
+/* Proyeksi DTPS homebase (Kepegawaian 2026) per tahun 2026–2030: [doktor %, jabatan ≥ Lektor %].
+   low  = kemungkinan terendah: tugas belajar belum selesai, pensiun tanpa pengganti, tanpa kenaikan jabatan.
+   mod  = hanya perubahan yang sudah pasti (pensiun, kepulangan tugas belajar sesuai jadwal).
+   agr  = tambahan doktor homebase melalui rekrutmen/mutasi dan usulan jabatan terarah.
+   hib  = mengikuti agr untuk TP (pengganti dosen pensiun), mengikuti mod untuk prodi lain. */
+export const DTPS_PROJ = {
+  TP: { low: [[54.5, 72.7], [60, 80], [66.7, 77.8], [75, 75], [75, 75]],
+        mod: [[54.5, 72.7], [60, 80], [66.7, 77.8], [75, 75], [75, 75]],
+        agr: [[54.5, 72.7], [58.3, 83.3], [63.6, 81.8], [70, 80], [70, 80]] },
+  TO: { low: [[20, 80], [20, 80], [20, 80], [20, 80], [27.3, 81.8]],
+        mod: [[20, 80], [20, 80], [27.3, 81.8], [27.3, 81.8], [27.3, 81.8]],
+        agr: [[20, 80], [20, 80], [33.3, 83.3], [33.3, 83.3], [33.3, 83.3]] },
+  TI: { low: [[38.5, 92.3], [38.5, 92.3], [38.5, 92.3], [38.5, 92.3], [38.5, 92.3]],
+        mod: [[38.5, 92.3], [38.5, 92.3], [38.5, 92.3], [38.5, 92.3], [38.5, 92.3]],
+        agr: [[38.5, 92.3], [38.5, 92.3], [38.5, 92.3], [38.5, 92.3], [38.5, 92.3]] },
+  TM: { low: [[10, 70], [10, 70], [10, 70], [10, 70], [11.1, 66.7]],
+        mod: [[10, 70], [10, 70], [18.2, 72.7], [18.2, 72.7], [20, 70]],
+        agr: [[10, 70], [18.2, 72.7], [25, 75], [25, 75], [27.3, 72.7]] },
+  LO: { low: [[0, 75], [0, 75], [0, 75], [0, 75], [0, 75]],
+        mod: [[0, 75], [0, 75], [11.1, 77.8], [11.1, 77.8], [11.1, 77.8]],
+        agr: [[0, 75], [11.1, 77.8], [27.3, 81.8], [27.3, 81.8], [27.3, 81.8]] }
+};
+
 export const SUMBER = [
   { id: 'RSB', nama: 'Rencana Strategis Bisnis BLU', warna: '#6366f1', kebijakan: true },
   { id: 'BLU', nama: 'Target Kinerja BLU', warna: '#0ea5e9', kebijakan: true },
@@ -130,12 +161,15 @@ export function buildSeed() {
   };
 
   /* ---- Indikator tingkat prodi (dipakai simulator LAM & IABEE) ---- */
+  /* Kondisi kini: doktor, jabatan (homebase Kepegawaian 2026), publikasi internasional per DTPS,
+     waktu tunggu, kesesuaian (LKPS terverifikasi asesor), rasio mahasiswa/DTPS homebase.
+     Skor rubrik dan indikator lain dikalibrasi agar NA mendekati NA pada SK LAM Teknik terakhir. */
   const base = {
-    TP: { tp: 3.55, kur: 3.5, dok: 22, jab: 48, pub: .52, wt: 4.2, ks: 78, ltw: 84, kp: 3.42, rps: 92, cpl: 74, sert: 88, mitra: 12, rasio: 17, rtl: 70, mon: 86 },
-    TO: { tp: 3.4, kur: 3.3, dok: 20, jab: 44, pub: .44, wt: 4.8, ks: 72, ltw: 81, kp: 3.42, rps: 84, cpl: 70, sert: 85, mitra: 10, rasio: 20, rtl: 62, mon: 78 },
-    TI: { tp: 3.6, kur: 3.6, dok: 25, jab: 52, pub: .56, wt: 3.9, ks: 81, ltw: 86, kp: 3.51, rps: 95, cpl: 78, sert: 91, mitra: 14, rasio: 16, rtl: 80, mon: 90 },
-    TM: { tp: 3.25, kur: 2.9, dok: 17, jab: 41, pub: .36, wt: 5.1, ks: 69, ltw: 78, kp: 3.32, rps: 76, cpl: 66, sert: 81, mitra: 8, rasio: 22, rtl: 55, mon: 70 },
-    LO: { tp: 3.1, kur: 2.8, dok: 10, jab: 38, pub: .26, wt: 5.9, ks: 62, ltw: 76, kp: 3.28, rps: 70, cpl: 62, sert: 76, mitra: 7, rasio: 24, rtl: 50, mon: 66 }
+    TP: { tp: 3.6, kur: 3.6, dok: 54.5, jab: 72.7, pub: 1.75, wt: 3.1, ks: 79.2, ltw: 95, kp: 3.6, rps: 100, cpl: 78, sert: 88, mitra: 12, rasio: 20.5, rtl: 92, mon: 96 },
+    TO: { tp: 3.6, kur: 3.6, dok: 20, jab: 80, pub: 1.92, wt: 3.0, ks: 80.3, ltw: 88, kp: 3.6, rps: 100, cpl: 78, sert: 90, mitra: 12, rasio: 25.8, rtl: 92, mon: 96 },
+    TI: { tp: 3.6, kur: 3.6, dok: 38.5, jab: 92.3, pub: 1.78, wt: 3.1, ks: 88.6, ltw: 76.3, kp: 3.6, rps: 100, cpl: 78, sert: 91, mitra: 14, rasio: 17.6, rtl: 92, mon: 96 },
+    TM: { tp: 3.6, kur: 3.6, dok: 10, jab: 70, pub: 1.5, wt: 3.3, ks: 94.8, ltw: 91.7, kp: 3.6, rps: 100, cpl: 78, sert: 88, mitra: 12, rasio: 22, rtl: 92, mon: 96 },
+    LO: { tp: 3.6, kur: 3.55, dok: 0, jab: 75, pub: 4.1, wt: 2.3, ks: 92.7, ltw: 94.3, kp: 3.6, rps: 100, cpl: 78, sert: 88, mitra: 12, rasio: 29.3, rtl: 92, mon: 96 }
   };
   PRODI.forEach(p => {
     const b = base[p.id];
@@ -143,8 +177,8 @@ export function buildSeed() {
     A({ key: 'tatapamong', std: 'S07', teks: 'Skor sistem tata pamong prodi (struktur, kebijakan, VMTS, GUG) hasil asesmen rubrik', target: 3.5, satuan: 'skor 0–4', arah: '>=', jenis: 'IK', iku: 'IKU-8', sumber: ['LAM', 'IAPT'], lam: 'K2', komp: 'P', iapt: 'AK', sp: 'SP1', risk: 'Sedang', b: b.tp, dr: .05, nz: 0, dec: 2 });
     A({ key: 'kurikulum', std: 'S02', teks: 'Skor kurikulum: ditinjau bersama pemangku kepentingan, profil lulusan & CPL diturunkan dan ditinjau berkala', target: 3.5, satuan: 'skor 0–4', arah: '>=', jenis: 'IK', iku: 'IKU-4', sumber: ['LAM', 'IABEE'], lam: 'K3', komp: 'P', iabee: ['K1', 'K2'], sp: 'SP2', risk: 'Tinggi', b: b.kur, dr: .1, nz: 0, dec: 2 });
     A({ key: 'basic', std: 'S02', teks: 'Mata kuliah basic sciences dan matematika dalam kurikulum', target: 4, satuan: 'SKS', arah: '>=', jenis: 'IK', sumber: ['LAM', 'IABEE'], lam: 'K3', komp: 'I', iabee: ['K5'], sp: 'SP3', risk: 'Rendah', b: 8, dr: 0, nz: 0 });
-    A({ key: 'doktor', std: 'S05', teks: 'Proporsi DTPS berpendidikan doktor/doktor terapan', target: 15, satuan: '%', arah: '>=', jenis: 'IKU', iku: 'IKU-6', sumber: ['LAM', 'RSB'], lam: 'K2', komp: 'I', iapt: 'AK', sp: 'SP4', risk: 'Tinggi', b: b.dok, dr: 1, nz: 0, dec: 1 });
-    A({ key: 'jabatan', std: 'S05', teks: 'Proporsi DTPS berjabatan Guru Besar, Lektor Kepala, atau Lektor', target: 40, satuan: '%', arah: '>=', jenis: 'IKU', iku: 'IKU-6', sumber: ['LAM', 'RSB'], lam: 'K2', komp: 'I', sp: 'SP5', risk: 'Tinggi', b: b.jab, dr: 2, nz: 0, dec: 1 });
+    A({ key: 'doktor', std: 'S05', teks: 'Proporsi DTPS berpendidikan doktor/doktor terapan', target: 15, satuan: '%', arah: '>=', jenis: 'IKU', iku: 'IKU-6', sumber: ['LAM', 'RSB'], lam: 'K2', komp: 'I', iapt: 'AK', sp: 'SP4', risk: 'Tinggi', b: b.dok, dr: 0, nz: 0, dec: 1 });
+    A({ key: 'jabatan', std: 'S05', teks: 'Proporsi DTPS berjabatan Guru Besar, Lektor Kepala, atau Lektor', target: 40, satuan: '%', arah: '>=', jenis: 'IKU', iku: 'IKU-6', sumber: ['LAM', 'RSB'], lam: 'K2', komp: 'I', sp: 'SP5', risk: 'Tinggi', b: b.jab, dr: 0, nz: 0, dec: 1 });
     A({ key: 'publikasi', std: 'S09', teks: 'Rasio publikasi/pagelaran internasional DTPS terhadap jumlah DTPS', target: .5, satuan: 'rasio', arah: '>=', jenis: 'IKU', iku: 'IKU-5', sumber: ['LAM', 'IAPT'], lam: 'K3', komp: 'O', iapt: 'RP', sp: 'SP6', risk: 'Tinggi', b: b.pub * .8, dr: b.pub * .25, nz: .02, dec: 2 });
     A({ key: 'waktutunggu', std: 'S01', teks: 'Rata-rata waktu tunggu lulusan memperoleh pekerjaan pertama', target: 6, satuan: 'bulan', arah: '<=', jenis: 'IKU', iku: 'IKU-1', sumber: ['LAM', 'KOKIN'], lam: 'K3', komp: 'O', iapt: 'RD', sp: 'SP7', risk: 'Sedang', b: b.wt + .3, dr: -.4, nz: .15, dec: 1 });
     A({ key: 'kesesuaian', std: 'S01', teks: 'Kesesuaian bidang kerja lulusan dengan bidang prodi', target: 50, satuan: '%', arah: '>=', jenis: 'IKU', iku: 'IKU-1', sumber: ['LAM', 'KOKIN'], lam: 'K3', komp: 'O', iapt: 'RD', sp: 'SP8', risk: 'Sedang', b: b.ks - 3, dr: 3, nz: 1.5 });
@@ -320,7 +354,7 @@ export function buildSeed() {
     { id: 'RTM-25', judul: 'RTM Tahunan 2025', tgl: '2026-02-24', status: 'Selesai', pimpinan: 'Direktur PEM Akamigas', keputusan: ['Menetapkan target IKU/IKT 2026 selaras RSB & Kokin', 'Meningkatkan standar luaran riset prodi TI', 'Menetapkan pilot IABEE: TP & TI'] },
     { id: 'RTM-26', judul: 'RTM Tahunan 2026', tgl: '2026-12-18', status: 'Terjadwal', pimpinan: 'Direktur PEM Akamigas', keputusan: [] }
   ];
-  const settings = [{ id: 'app', bulan: partial, tahun: TAHUN, jenjang: Object.fromEntries(PRODI.map(p => [p.id, 'STr'])), seedVersi: 5 }];
+  const settings = [{ id: 'app', bulan: partial, tahun: TAHUN, jenjang: Object.fromEntries(PRODI.map(p => [p.id, 'STr'])), seedVersi: 6 }];
   const log = [{ id: 'LO' + Date.now(), t: new Date().toISOString(), user: 'Sistem', aksi: 'Inisialisasi data ilustratif SIMANTAP 2.0' }];
   return { indikator: inds, ami, rtl, rtm, dokumen: docs, log, settings };
 }

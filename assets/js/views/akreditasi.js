@@ -1,6 +1,6 @@
 import { S, icon, esc } from '../app.js';
 import { chart, AX, countUp } from '../charts.js';
-import { UNIT, PRODI } from '../seed.js';
+import { UNIT, PRODI, AKR_RIIL } from '../seed.js';
 import { LAM, IABEE } from '../config.js';
 import { fmt } from '../scoring.js';
 import { evalAll } from './common.js';
@@ -17,7 +17,7 @@ export default function akreditasi(el) {
     <div class="status-card tilt" style="--c:${e.status.warna}">
       <div class="lb">${e.prodi}${u.pilot ? ' · pilot IABEE' : ''}</div>
       <div class="big" style="font-size:38px"><span data-n="${e.NA}">0</span></div>
-      <div class="lb">NA simulasi kondisi kini / 400</div>
+      <div class="lb">NA simulasi kondisi kini / 400${AKR_RIIL[e.prodi] ? ' · NA SK ' + AKR_RIIL[e.prodi].na : ''}</div>
       <div class="nm" style="font-size:14px">${e.status.nama}</div>
       <div class="lb" style="margin-top:6px">${icon('calendar')} Re-akreditasi ${u.reakr} · ${bln} bulan lagi</div>
     </div>`; }).join('')}

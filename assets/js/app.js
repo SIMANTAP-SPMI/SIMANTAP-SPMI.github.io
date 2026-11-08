@@ -81,7 +81,7 @@ export async function saveSettings() {
   try { await DB.put('settings', doc, [doc]); } catch (e) { toast('Gagal menyimpan pengaturan'); }
 }
 export async function addLog(aksi) {
-  const doc = { id: 'LOG' + Date.now() + Math.floor(Math.random() * 1000), t: new Date().toISOString(), user: userName(), aksi };
+  const doc = { id: 'LOG' + Date.now() + Math.floor(Math.random() * 1000), t: new Date().toISOString(), user: userName() + (DB.user && DB.user.email ? ' · ' + DB.user.email : ''), aksi };
   S.log.unshift(doc);
   if (S.log.length > 300) S.log.length = 300;
   try { await DB.put('log', doc, S.log); } catch (e) { /* abaikan */ }
@@ -137,7 +137,7 @@ function renderSide(cur) {
     if (r.sec !== sec) { sec = r.sec; h += `<div class="nav-sec">${sec}</div>`; }
     h += `<a href="#/${r.id}" class="${r.id === cur ? 'on' : ''}" style="--c:${r.c}"><span class="chip">${icon(r.ic)}</span><span>${r.t}${r.sub ? `<small class="nsub">${r.sub}</small>` : ''}</span></a>`;
   });
-  h += `</nav><div class="side-foot">${APP.institusi}<br>Data ilustratif · ${BULAN[S.settings.bulan]} ${S.settings.tahun}</div>`;
+  h += `</nav><div class="side-foot">${APP.institusi}<br>Data prodi terkalibrasi · ${BULAN[S.settings.bulan]} ${S.settings.tahun}</div>`;
   $('#side').innerHTML = h;
   $$('#side a').forEach(a => a.addEventListener('click', () => $('#side').classList.remove('open')));
 }
@@ -170,18 +170,46 @@ export function route_() {
   renderSide(r.id); renderTop(r);
   const view = $('#view');
   view.style.animation = 'none'; void view.offsetWidth; view.style.animation = '';
-  view.innerHTML = APP.dataIlustratif ? `<div class="ribbon">${icon('info')} Angka pada sistem ini <b>ilustratif</b> untuk demonstrasi; kalibrasi dengan data resmi PEM Akamigas (RSB, PK BLU, Kokin, PDDikti) sebelum dipakai mengambil keputusan.</div>` : '';
+  view.innerHTML = APP.dataIlustratif ? `<div class="ribbon">${icon('info')} Data dosen, publikasi, waktu tunggu, dan kesesuaian bidang kerja lima prodi dikalibrasi dengan SK LAM Teknik, LKPS terverifikasi asesor, dan Kepegawaian 2026. Indikator unit dan proses masih contoh sampai diisi data resmi (RSB, PK BLU, Kokin, PDDikti).</div>` : '';
   const holder = document.createElement('div'); view.appendChild(holder);
   try { r.v(holder); } catch (e) { console.error(e); holder.innerHTML = `<div class="card empty">Terjadi kesalahan saat memuat halaman: ${esc(e.message)}</div>`; }
   tilt(view);
   window.scrollTo({ top: 0 });
 }
 
+function loginForm() {
+  return new Promise(resolve => {
+    const v = $('#view');
+    v.innerHTML = `<div class="card" style="max-width:440px;margin:40px auto">
+      <div class="card-h"><span class="ico-badge" style="--c:#0ea5e9">${icon('db')}</span><div><h3>Masuk ke SIMANTAP 2.0</h3><div class="sub">Basis data bersama (Cloud Firestore). Akun dibuat oleh Admin SPM.</div></div></div>
+      <form id="lgn" style="display:grid;gap:10px;margin-top:12px">
+        <input class="inp" id="lg-e" type="email" placeholder="Email" autocomplete="username" required>
+        <input class="inp" id="lg-p" type="password" placeholder="Kata sandi" autocomplete="current-password" required>
+        <button class="btn pri" type="submit">Masuk</button>
+        <div class="muted small" id="lg-msg"></div>
+        <div class="small"><a href="#" id="lg-fp">Lupa kata sandi</a> · <a href="#" id="lg-local">Buka mode demo lokal</a></div>
+      </form></div>`;
+    const msg = t => { v.querySelector('#lg-msg').textContent = t; };
+    v.querySelector('#lgn').onsubmit = async ev => {
+      ev.preventDefault(); msg('Memeriksa akun...');
+      try { await DB.login(v.querySelector('#lg-e').value.trim(), v.querySelector('#lg-p').value); resolve(); }
+      catch (e) { msg('Gagal masuk: ' + (e.code === 'permission-denied' ? 'akun belum diberi akses' : e.message)); }
+    };
+    v.querySelector('#lg-fp').onclick = async ev => {
+      ev.preventDefault(); const em = v.querySelector('#lg-e').value.trim();
+      if (!em) return msg('Isi email terlebih dahulu.');
+      try { await DB.resetPassword(em); msg('Tautan atur ulang kata sandi telah dikirim ke ' + em); } catch (e) { msg(e.message); }
+    };
+    v.querySelector('#lg-local').onclick = ev => { ev.preventDefault(); DB.useLocal(); resolve(); };
+  });
+}
+
 async function boot() {
   await DB.init();
+  if (DB.needLogin) await loginForm();
   let d = await DB.loadAll();
   const st = d.settings && d.settings[0];
-  if (!d.indikator.length || !st || (st.seedVersi || 0) < 5) {
+  if (!d.indikator.length || !st || (st.seedVersi || 0) < 6) {
     d = buildSeed();
     for (const c of Object.keys(d)) await DB.replaceAll(c, d[c]);
   }

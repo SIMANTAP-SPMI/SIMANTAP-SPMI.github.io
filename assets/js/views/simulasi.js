@@ -1,6 +1,6 @@
 import { S, icon, esc } from '../app.js';
 import { chart, AX, grad, PAL } from '../charts.js';
-import { PRODI, UNIT } from '../seed.js';
+import { PRODI, UNIT, AKR_RIIL } from '../seed.js';
 import { LAM, IABEE } from '../config.js';
 import { evalProdi, LEVERS, SKENARIO, scenarioValues, sp9Scenario, fmt, round } from '../scoring.js';
 
@@ -16,7 +16,7 @@ function reakrYear(prodi) { return Math.min(2030, Math.max(S.settings.tahun, +(U
 function applySken() {
   const { b, sp9 } = baseline(ST.prodi);
   const n = ST.year - S.settings.tahun;
-  ST.vals = scenarioValues(b, ST.sken, n);
+  ST.vals = scenarioValues(b, ST.sken, n, ST.prodi);
   ST.sp9 = sp9Scenario(sp9, ST.sken, n);
   ST.custom = false;
 }
@@ -36,7 +36,7 @@ export default function simulasi(el) {
       <div class="field" style="min-width:200px;flex:1"><label>Tahun proyeksi: <b id="yv">${ST.year}</b> ${ST.year === reakrYear(ST.prodi) ? '<span class="tag" style="--c:#8b5cf6">tahun re-akreditasi</span>' : ''}</label><input type="range" id="yr" min="${S.settings.tahun}" max="2030" step="1" value="${ST.year}" style="accent-color:#8b5cf6"></div>
       <button class="btn" id="reset">${icon('loop')} Kembali ke skenario</button>
     </div>
-    <div class="note" style="margin-top:8px">${esc(UNIT[ST.prodi].nama)} · jenjang Sarjana Terapan · re-akreditasi ${UNIT[ST.prodi].reakr || '–'} · ${esc((SKENARIO.find(s => s.id === ST.sken) || {}).ket || '')}</div>
+    <div class="note" style="margin-top:8px">${esc(UNIT[ST.prodi].nama)} · jenjang Sarjana Terapan · re-akreditasi ${UNIT[ST.prodi].reakr || '–'} · NA SK terakhir ${AKR_RIIL[ST.prodi] ? AKR_RIIL[ST.prodi].na : '–'} · SP4 dan SP5 dihitung dari dosen homebase · ${esc((SKENARIO.find(s => s.id === ST.sken) || {}).ket || '')}</div>
   </div>
 
   <div class="grid g-12">
@@ -84,7 +84,7 @@ export default function simulasi(el) {
   <div class="card" style="margin-top:18px">
     <div class="card-h"><span class="ico-badge" style="--c:#10b981">${icon('grid4')}</span><div><h3>Perbandingan skenario seluruh prodi pada tahun re-akreditasi</h3><div class="sub">Status yang diperoleh jika skenario dijalankan sampai tahun re-akreditasi</div></div></div>
     <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Prodi</th><th>Re-akreditasi</th>${SKENARIO.map(s => `<th>${s.nama}</th>`).join('')}</tr></thead><tbody>
-    ${PRODI.map(p => { const { b: bb, sp9 } = baseline(p.id); const n = reakrYear(p.id) - S.settings.tahun; return `<tr><td><b>${p.id}</b><div class="muted small">${esc(p.nama)}</div></td><td>${p.reakr || '–'}</td>${SKENARIO.map(s => { const r = evalProdi(S, p.id, scenarioValues(bb, s.id, n), sp9Scenario(sp9, s.id, n)); return `<td><span class="tag" style="--c:${r.status.warna}">${r.status.kode}</span> <b>${fmt(r.NA, 1)}</b><div class="muted small">${r.status.nama}</div></td>`; }).join('')}</tr>`; }).join('')}
+    ${PRODI.map(p => { const { b: bb, sp9 } = baseline(p.id); const n = reakrYear(p.id) - S.settings.tahun; return `<tr><td><b>${p.id}</b><div class="muted small">${esc(p.nama)}</div></td><td>${p.reakr || '–'}</td>${SKENARIO.map(s => { const r = evalProdi(S, p.id, scenarioValues(bb, s.id, n, p.id), sp9Scenario(sp9, s.id, n)); return `<td><span class="tag" style="--c:${r.status.warna}">${r.status.kode}</span> <b>${fmt(r.NA, 1)}</b><div class="muted small">${r.status.nama}</div></td>`; }).join('')}</tr>`; }).join('')}
     </tbody></table></div>
   </div>`;
 
@@ -149,7 +149,7 @@ export default function simulasi(el) {
     series: [{ id: 'base', nama: 'Tanpa intervensi' }, ...scen.map(s => ({ id: s.id, nama: s.nama }))].map((s, si) => ({
       name: s.nama, type: 'line', smooth: true, symbolSize: 9, lineStyle: { width: si === 0 ? 2 : 3.5, type: si === 0 ? 'dashed' : 'solid' },
       itemStyle: { color: si === 0 ? '#94a3b8' : PAL[[2, 0, 1][si - 1]] },
-      data: yrs.map(y => { const r = evalProdi(S, ST.prodi, scenarioValues(bb, s.id, y - S.settings.tahun), sp9Scenario(s9, s.id, y - S.settings.tahun)); return { value: r.NA, st: r.status.kode }; }),
+      data: yrs.map(y => { const r = evalProdi(S, ST.prodi, scenarioValues(bb, s.id, y - S.settings.tahun, ST.prodi), sp9Scenario(s9, s.id, y - S.settings.tahun)); return { value: r.NA, st: r.status.kode }; }),
       markArea: si === 0 ? { silent: true, label: { position: 'right', fontSize: 10.5, fontWeight: 700 }, data: [
         [{ name: 'Unggul', yAxis: A.unggul, itemStyle: { color: 'rgba(16,185,129,.08)' }, label: { color: '#047857' } }, { yAxis: 400 }],
         [{ name: 'Unggul*', yAxis: A.unggulBawah, itemStyle: { color: 'rgba(22,163,184,.07)' }, label: { color: '#0e7490' } }, { yAxis: A.unggul }],
