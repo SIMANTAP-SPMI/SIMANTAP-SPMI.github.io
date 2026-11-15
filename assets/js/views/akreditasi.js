@@ -44,6 +44,7 @@ export default function akreditasi(el) {
     </div>
   </div>`;
   el.querySelectorAll('[data-n]').forEach(n => countUp(n, +n.dataset.n, 1));
+  el.insertAdjacentHTML('beforeend', kesiapanKurekam());
 
   chart(el.querySelector('#na'), {
     tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } }, legend: { bottom: 0, icon: 'circle', itemWidth: 8, textStyle: { fontSize: 11 } },
@@ -66,4 +67,19 @@ export default function akreditasi(el) {
     series: [{ type: 'heatmap', data: hm, itemStyle: { borderColor: '#fff', borderWidth: 3, borderRadius: 8 }, label: { show: true, formatter: p => p.value[3] == null ? '–' : fmt(p.value[3], p.value[3] % 1 ? 1 : 0), fontSize: 10, color: '#fff', fontWeight: 700 } }]
   });
   void PRODI;
+}
+
+/* Kesiapan 10 indikator IABEE per prodi, dibaca dari umpan KUREKAM (koleksi kur_umpan). */
+const NAMA_IND = ['MK inti dengan PI dan CPMK terpetakan', 'CPL terpetakan ke butir IABEE (a) sampai (j)', 'CPL terukur per angkatan', 'Ketercapaian CPL terhadap kriteria', 'Capstone: bobot, rubrik, proyek nyata', 'Jumlah lulusan OBE', 'Tindak lanjut perbaikan dari hasil CPL', 'Tracer dan survei pengguna', 'Dokumen kelayakan dan evaluasi diri (dipantau di SIMANTAP)', 'Kompetensi dosen untuk MK inti'];
+const WARNA_ST = { sesuai: '#10b981', sebagian: '#f5a524', jauh: '#f0616d', belum_diukur: '#94a3b8' };
+const TXT_ST = { sesuai: 'Sesuai', sebagian: 'Sebagian', jauh: 'Jauh', belum_diukur: 'Belum diukur' };
+function kesiapanKurekam() {
+  const U = S.kurekam || [];
+  if (!U.length) return `<div class="card" style="margin-top:18px"><div class="card-h"><span class="ico-badge" style="--c:#8b5cf6">${icon('globe')}</span><div><h3>Kesiapan 10 indikator IABEE (dari KUREKAM)</h3><div class="sub">Belum ada umpan</div></div></div><div class="muted small">Data akan muncul otomatis setelah KUREKAM terisi dan terhubung ke basis data yang sama.</div></div>`;
+  const per = U[0].periode;
+  return `<div class="card" style="margin-top:18px"><div class="card-h"><span class="ico-badge" style="--c:#8b5cf6">${icon('globe')}</span><div><h3>Kesiapan 10 indikator IABEE (dari KUREKAM)</h3><div class="sub">Terbaca otomatis · pembaruan terakhir ${esc((U.map(u => u.waktu || '').sort().pop() || '').slice(0, 10))}${per ? ' · ' + esc(per) : ''}</div></div></div>
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>No</th><th>Indikator</th>${U.map(u => `<th>${esc(u.unit)}</th>`).join('')}</tr></thead><tbody>
+    ${NAMA_IND.map((n, i) => { const k = 'iabee_' + String(i + 1).padStart(2, '0'); return `<tr><td class="num">${i + 1}</td><td class="small">${esc(n)}</td>${U.map(u => { const st = (u.status || {})[k] || 'belum_diukur', v = (u.indikator || {})[k]; return `<td title="${esc((u.keterangan || {})[k] || '')}"><span class="tag" style="--c:${WARNA_ST[st]}">${TXT_ST[st]}</span>${v != null ? `<div class="small">${fmt(v, 0)}${i === 5 ? '' : '%'}</div>` : ''}</td>`; }).join('')}</tr>`; }).join('')}
+    </tbody></table></div>
+    <div class="note" style="margin-top:8px">Indikator 9 diisi dan dipantau di SIMANTAP. Nilai indikator prodi seperti RPS, ketercapaian CPL, dan mitra capstone juga masuk otomatis ke Katalog Indikator (bertanda "Otomatis dari KUREKAM").</div></div>`;
 }

@@ -69,7 +69,7 @@ export function detail(id, after) {
   const rtls = S.rtl.filter(r => r.ind === i.id);
   const canCap = can('capaian', i), canAudit = can('audit', i), canPn = ctx.role === 'admin' || ctx.role === 'pimpinan';
   const bukti = (i.bukti && i.bukti[m]) || [];
-  const tagsLam = [i.lam && `LAM ${i.lam} · ${(LAM.kriteria.find(k => k.id === i.lam) || {}).nama}`, i.komp && `Komponen ${(LAM.komponen.find(k => k.id === i.komp) || {}).nama}`, i.sp && `Syarat perlu ${i.sp}`, ...(i.iabee || []).map(k => `IABEE ${k}`), i.iapt && `IAPT ${i.iapt}`].filter(Boolean);
+  const tagsLam = [i.lam && `LAM ${i.lam} · ${(LAM.kriteria.find(k => k.id === i.lam) || {}).nama}`, i.komp && `Komponen ${(LAM.komponen.find(k => k.id === i.komp) || {}).nama}`, i.sp && `Syarat perlu ${i.sp}`, ...(i.iabee || []).map(k => `IABEE ${k}`), i.kurekam && 'Otomatis dari KUREKAM', i.iapt && `IAPT ${i.iapt}`].filter(Boolean);
   openDrawer(`
     <div class="card-h"><span class="ico-badge" style="--c:#14b8a6">${icon('target')}</span><div><div class="muted small">${i.kode} · ${i.jenis} · ${esc(UNIT[i.unit].nama)}</div><h3>${esc(i.teks)}</h3></div><div class="sp"></div><button class="btn ghost" data-close aria-label="Tutup">${icon('close')}</button></div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">${sumberTags(i)} ${tagsLam.map(t => `<span class="tag" style="--c:#0f766e">${esc(t)}</span>`).join(' ')} ${akrTag(i)}</div>

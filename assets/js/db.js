@@ -86,6 +86,13 @@ export const DB = {
     else this._saveLocal(col, all);
   },
 
+  /** Baca koleksi milik aplikasi lain (hanya baca, mis. umpan dari KUREKAM). Gagal = daftar kosong. */
+  async bacaLuar(col) {
+    if (mode !== 'firebase') return [];
+    try { const snap = await fs.collection(col).get(); return snap.docs.map(d => d.data()); }
+    catch (e) { console.warn('Koleksi ' + col + ' tidak terbaca:', e.message); return []; }
+  },
+
   async del(col, id, all) {
     if (mode === 'firebase') await fs.collection(col).doc(String(id)).delete();
     else this._saveLocal(col, all);

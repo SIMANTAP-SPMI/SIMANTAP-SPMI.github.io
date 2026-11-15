@@ -20,7 +20,7 @@ import wadir from './views/wadir.js';
 import laporan from './views/laporan.js';
 
 /* ---------------- state ---------------- */
-export const S = { indikator: [], ami: [], rtl: [], rtm: [], dokumen: [], log: [], settings: {} };
+export const S = { indikator: [], ami: [], rtl: [], rtm: [], dokumen: [], log: [], settings: {}, kurekam: [] };
 const CTX_KEY = 'simantap2web_ctx';
 export const ctx = (() => {
   try { return Object.assign({ role: 'pimpinan', unit: 'TP', auditor: 'AU01' }, JSON.parse(localStorage.getItem(CTX_KEY) || '{}')); }
@@ -95,6 +95,22 @@ function load(d) {
   ['indikator', 'ami', 'rtl', 'rtm', 'dokumen', 'log'].forEach(k => { S[k] = d[k] || []; });
   S.settings = (d.settings && d.settings[0]) || { bulan: 10, tahun: APP.tahun, jenjang: {} };
   S.log.sort((a, b) => (b.t || '').localeCompare(a.t || ''));
+}
+
+/* ---------------- umpan dari KUREKAM ----------------
+   KUREKAM menulis ringkasan kesiapan IABEE per prodi ke koleksi kur_umpan (satu dokumen per prodi).
+   Di sini umpan itu hanya DIBACA: nilai indikator prodi yang bersumber dari KUREKAM menimpa tampilan
+   pada bulan berjalan (di memori), tanpa mengubah dokumen indikator di basis data. */
+export async function muatKurekam() {
+  S.kurekam = await DB.bacaLuar('kur_umpan');
+  const m = S.settings.bulan;
+  S.kurekam.forEach(u => {
+    const nilai = u.simantap || {};
+    S.indikator.filter(i => i.unit === u.unit && nilai[i.key] != null).forEach(i => {
+      const cap = (i.cap || []).slice(); cap[m] = +nilai[i.key];
+      i.cap = cap; i.kurekam = { periode: u.periode, waktu: u.waktu };
+    });
+  });
 }
 
 /* ---------------- drawer ---------------- */
@@ -219,6 +235,7 @@ async function boot() {
     for (const c of Object.keys(d)) await DB.replaceAll(c, d[c]);
   }
   load(d);
+  await muatKurekam();
   window.addEventListener('hashchange', route_);
   route_();
 }
