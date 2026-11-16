@@ -112,3 +112,18 @@ export const SKEMA_CAPAIAN = [
   { min: 0.50, skor: 1, label: "Kurang", ket: "50–69% target" },
   { min: 0, skor: 0, label: "Tidak tercapai", ket: "< 50% target / tidak ada bukti" }
 ];
+
+/* Sepuluh indikator kesiapan IABEE. Dihitung di KUREKAM, SIMANTAP hanya membaca ringkasannya (koleksi kur_umpan).
+   Kunci umpan: iabee_01 sampai iabee_10. */
+export const INDIKATOR_IABEE = [
+  { no: 1, nama: 'Mata kuliah inti dengan PI dan CPMK terpetakan', sumber: 'KUREKAM', target: 'PI untuk 100% CPL, Desember 2026' },
+  { no: 2, nama: 'CPL terpetakan ke butir IABEE (a) sampai (k)', sumber: 'KUREKAM', target: 'Lima prodi terpetakan, Desember 2026' },
+  { no: 3, nama: 'CPL yang datanya terukur per angkatan', sumber: 'KUREKAM', target: 'Pengukuran mulai Januari 2027' },
+  { no: 4, nama: 'Ketercapaian CPL terhadap kriteria', sumber: 'KUREKAM', target: 'Semua CPL prodi pilot di atas kriteria' },
+  { no: 5, nama: 'Capstone: bobot, rubrik, proyek nyata', sumber: 'KUREKAM', target: 'Terdokumentasi 2027 sampai 2028' },
+  { no: 6, nama: 'Jumlah lulusan OBE per prodi', sumber: 'KUREKAM', target: 'Terdata semua prodi' },
+  { no: 7, nama: 'Tindak lanjut perbaikan dari hasil CPL', sumber: 'KUREKAM', target: 'Minimal 1 siklus per prodi pilot' },
+  { no: 8, nama: 'Tracer dan survei pengguna lulusan', sumber: 'KUREKAM', target: 'Respons minimal 70%' },
+  { no: 9, nama: 'Kelengkapan dokumen kelayakan dan evaluasi diri', sumber: 'SIMANTAP', target: '100% prodi pilot sebelum SER' },
+  { no: 10, nama: 'Kompetensi dosen untuk mata kuliah inti', sumber: 'KUREKAM', target: 'Tidak ada mata kuliah inti tanpa dosen sesuai' }
+];

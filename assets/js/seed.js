@@ -112,10 +112,12 @@ export const IKU = [
 export const IKUMAP = Object.fromEntries(IKU.map(k => [k.id, k]));
 
 export const ROLES = {
-  admin: { nama: 'Admin SPM' },
-  pimpinan: { nama: 'Pimpinan (Direktur/Kepala Badan)' },
-  auditor: { nama: 'Auditor Internal' },
-  auditee: { nama: 'Auditee (Prodi/Unit)' }
+  admin: { nama: 'Admin SPM', ket: 'Mengatur jadwal dan pengguna, mengawal mutu' },
+  pimpinan: { nama: 'Pimpinan (Direktur/Kepala Badan)', ket: 'Memantau dashboard dan progres, mengesahkan' },
+  wadir1: { nama: 'Wakil Direktur I', ket: 'Mengesahkan penetapan, memantau progres akademik' },
+  auditee: { nama: 'Prodi / Unit (pengisi)', ket: 'Mengisi capaian, evaluasi diri, dan tindak lanjut' },
+  auditor: { nama: 'Auditor Internal', ket: 'Mengaudit dan memberi penilaian' },
+  tamu: { nama: 'Pembaca', ket: 'Hanya melihat' }
 };
 export const AUDITORS = [
   { id: 'AU01', nama: 'Auditor 01', home: 'TM' }, { id: 'AU02', nama: 'Auditor 02', home: 'TO' },

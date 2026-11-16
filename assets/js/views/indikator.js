@@ -67,7 +67,7 @@ export function detail(id, after) {
   const m = S.settings.bulan, st = indStat(i);
   const ed = i.ed || {}, ami = i.ami || {}, pg = i.pengendalian || {}, pn = i.peningkatan || {};
   const rtls = S.rtl.filter(r => r.ind === i.id);
-  const canCap = can('capaian', i), canAudit = can('audit', i), canPn = ctx.role === 'admin' || ctx.role === 'pimpinan';
+  const canCap = can('capaian', i), canAudit = can('audit', i), canPn = ctx.role === 'admin' || ctx.role === 'pimpinan' || ctx.role === 'wadir1';
   const bukti = (i.bukti && i.bukti[m]) || [];
   const tagsLam = [i.lam && `LAM ${i.lam} · ${(LAM.kriteria.find(k => k.id === i.lam) || {}).nama}`, i.komp && `Komponen ${(LAM.komponen.find(k => k.id === i.komp) || {}).nama}`, i.sp && `Syarat perlu ${i.sp}`, ...(i.iabee || []).map(k => `IABEE ${k}`), i.kurekam && 'Otomatis dari KUREKAM', i.iapt && `IAPT ${i.iapt}`].filter(Boolean);
   openDrawer(`

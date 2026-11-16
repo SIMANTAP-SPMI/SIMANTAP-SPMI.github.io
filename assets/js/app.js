@@ -17,16 +17,17 @@ import akreditasi from './views/akreditasi.js';
 import dokumen from './views/dokumen.js';
 import pengaturan from './views/pengaturan.js';
 import wadir from './views/wadir.js';
+import penggunaView from './views/pengguna.js';
 import laporan from './views/laporan.js';
 
 /* ---------------- state ---------------- */
-export const S = { indikator: [], ami: [], rtl: [], rtm: [], dokumen: [], log: [], settings: {}, kurekam: [] };
+export const S = { indikator: [], ami: [], rtl: [], rtm: [], dokumen: [], log: [], settings: {}, kurekam: [], pengguna: [] };
 const CTX_KEY = 'simantap2web_ctx';
 export const ctx = (() => {
   try { return Object.assign({ role: 'pimpinan', unit: 'TP', auditor: 'AU01' }, JSON.parse(localStorage.getItem(CTX_KEY) || '{}')); }
   catch (e) { return { role: 'pimpinan', unit: 'TP', auditor: 'AU01' }; }
 })();
-function saveCtx() { try { localStorage.setItem(CTX_KEY, JSON.stringify(ctx)); } catch (e) { /* abaikan */ } }
+export function saveCtx() { try { localStorage.setItem(CTX_KEY, JSON.stringify(ctx)); } catch (e) { /* abaikan */ } }
 
 export const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 export const $ = (sel, root = document) => root.querySelector(sel);
@@ -38,9 +39,32 @@ export function toast(msg) {
 }
 
 export function userName() {
+  if (ctx.me && (ctx.me.nama || ctx.me.email)) return ctx.me.nama || ctx.me.email;
   if (ctx.role === 'auditor') return (AUDITORS.find(a => a.id === ctx.auditor) || {}).nama || 'Auditor';
   if (ctx.role === 'auditee') return 'Auditee ' + ctx.unit;
   return ROLES[ctx.role].nama;
+}
+
+/* Peran dari daftar pengguna (mode masuk). Mode demo tetap memakai penukar peran bebas. */
+export function terapkanPeran() {
+  ctx.tersedia = Object.keys(ROLES).filter(k => k !== 'tamu'); ctx.tetap = false; ctx.bootstrap = false; ctx.me = null;
+  S.pengguna.filter(p => (p.peran || []).includes('auditor')).forEach(p => {
+    if (!AUDITORS.some(a => a.id === p.id)) AUDITORS.push({ id: p.id, nama: p.nama || p.email, home: p.home || '' });
+  });
+  if (!DB.user || !DB.user.email) return;
+  const em = DB.user.email.toLowerCase();
+  const me = S.pengguna.find(p => (p.email || '').toLowerCase() === em);
+  if (!S.pengguna.length) { ctx.bootstrap = true; ctx.tersedia = ['admin']; ctx.role = 'admin'; return; } // daftar masih kosong: pengguna pertama menjadi admin
+  const peran = me ? (me.peran || []).filter(k => ROLES[k]) : [];
+  if (!peran.length) { ctx.tersedia = ['tamu']; ctx.role = 'tamu'; ctx.tetap = true; return; }
+  ctx.me = me;
+  const admin = peran.includes('admin');
+  ctx.tersedia = admin ? Object.keys(ROLES).filter(k => k !== 'tamu') : peran;
+  ctx.tetap = !admin;
+  if (!ctx.tersedia.includes(ctx.role)) ctx.role = ctx.tersedia[0];
+  if (me.unit && !admin) ctx.unit = me.unit;
+  if (peran.includes('auditor') && !admin) ctx.auditor = me.id;
+  saveCtx();
 }
 
 /** Hak akses per peran. */
@@ -56,7 +80,8 @@ export function can(action, obj) {
     }
     case 'rtl': return (r === 'auditee' && obj && obj.unit === ctx.unit);
     case 'verifikasi': return r === 'auditor';
-    case 'rtm': return r === 'pimpinan';
+    case 'rtm': case 'sahkan': return r === 'pimpinan' || r === 'wadir1';
+    case 'jadwal': case 'pengguna': return false; // hanya Admin SPM
     case 'dokumen': return false;
     case 'indikator': return false;
     default: return false;
@@ -93,6 +118,7 @@ export async function resetData() {
 }
 function load(d) {
   ['indikator', 'ami', 'rtl', 'rtm', 'dokumen', 'log'].forEach(k => { S[k] = d[k] || []; });
+  S.pengguna = d.pengguna || [];
   S.settings = (d.settings && d.settings[0]) || { bulan: 10, tahun: APP.tahun, jenjang: {} };
   S.log.sort((a, b) => (b.t || '').localeCompare(a.t || ''));
 }
@@ -143,11 +169,12 @@ export const ROUTES = [
   { id: 'skema', t: 'Skema Capaian & Metode', ic: 'layers', c: '#0ea5e9', sec: 'Akreditasi', v: skema },
   { id: 'laporan', t: 'Laporan', ic: 'download', c: '#14b8a6', sec: 'Evaluasi & Pengendalian', v: laporan },
   { id: 'dokumen', t: 'Dokumen SPMI', ic: 'folder', c: '#f5a524', sec: 'Sistem', v: dokumen },
+  { id: 'pengguna', t: 'Pengguna & Peran', ic: 'users', c: '#6366f1', sec: 'Sistem', v: penggunaView },
   { id: 'pengaturan', t: 'Database & Pengaturan', ic: 'db', c: '#64748b', sec: 'Sistem', v: pengaturan }
 ];
 
 // Menu Database & Pengaturan hanya untuk pengguna yang sudah masuk (bukan mode demo)
-const navRoutes = () => ROUTES.filter(r => r.id !== 'pengaturan' || DB.user);
+const navRoutes = () => ROUTES.filter(r => (r.id !== 'pengaturan' || DB.user) && (r.id !== 'pengguna' || ctx.role === 'admin'));
 
 function renderSide(cur) {
   let sec = '', h = `<div class="brand-logos"><img src="assets/img/logo-pem-akamigas.png" alt="PEM Akamigas" class="lg-pem"><img src="assets/img/logo-esdm.png" alt="Kementerian ESDM" class="lg-esdm"></div>
@@ -171,14 +198,16 @@ function renderTop(route) {
     ${DB.user ? `<span class="pill-db ${DB.mode === 'firebase' ? 'fb' : ''}" title="${DB.mode === 'firebase' ? 'Terhubung ke Cloud Firestore' : 'Database lokal peramban'}"><i></i><span>${DB.mode === 'firebase' ? 'Firestore' : 'Lokal'}</span></span>` : ''}
     <div class="role-box">
       <span class="ico-badge" style="--c:#6366f1;width:32px;height:32px">${icon('user')}</span>
-      <select class="inp" id="roleSel" aria-label="Peran">${Object.entries(ROLES).map(([k, v]) => `<option value="${k}" ${k === ctx.role ? 'selected' : ''}>${v.nama}</option>`).join('')}</select>
-      ${ctx.role === 'auditee' ? `<select class="inp rl" id="unitSel" aria-label="Unit">${unitOpts}</select>` : ''}
-      ${ctx.role === 'auditor' ? `<select class="inp rl" id="audSel" aria-label="Auditor">${audOpts}</select>` : ''}
+      ${ctx.tetap && ctx.tersedia.length === 1
+        ? `<span class="tag" style="--c:#6366f1" title="${esc(ROLES[ctx.role].ket || '')}">${esc(userName())} · ${ROLES[ctx.role].nama}${ctx.role === 'auditee' ? ' ' + esc(ctx.unit) : ''}</span>`
+        : `<select class="inp" id="roleSel" aria-label="Peran">${ctx.tersedia.map(k => `<option value="${k}" ${k === ctx.role ? 'selected' : ''}>${ROLES[k].nama}</option>`).join('')}</select>`}
+      ${ctx.role === 'auditee' && !ctx.tetap ? `<select class="inp rl" id="unitSel" aria-label="Unit">${unitOpts}</select>` : ''}
+      ${ctx.role === 'auditor' && !ctx.tetap ? `<select class="inp rl" id="audSel" aria-label="Auditor">${audOpts}</select>` : ''}
     </div>
     ${DB.user ? `<button class="btn" id="logoutBtn" title="Keluar dari ${esc(DB.user.email || '')}">${icon('logout')} Keluar</button>` : ''}`;
   $('#menuBtn').onclick = () => $('#side').classList.toggle('open');
   const lo = $('#logoutBtn'); if (lo) lo.onclick = async () => { if (!confirm('Keluar dari SIMANTAP 2.0?')) return; await DB.logout(); location.reload(); };
-  $('#roleSel').onchange = e => { ctx.role = e.target.value; saveCtx(); route_(); };
+  const rs = $('#roleSel'); if (rs) rs.onchange = e => { ctx.role = e.target.value; saveCtx(); route_(); };
   const us = $('#unitSel'); if (us) us.onchange = e => { ctx.unit = e.target.value; saveCtx(); route_(); };
   const as = $('#audSel'); if (as) as.onchange = e => { ctx.auditor = e.target.value; saveCtx(); route_(); };
 }
@@ -235,6 +264,7 @@ async function boot() {
     for (const c of Object.keys(d)) await DB.replaceAll(c, d[c]);
   }
   load(d);
+  terapkanPeran();
   await muatKurekam();
   window.addEventListener('hashchange', route_);
   route_();

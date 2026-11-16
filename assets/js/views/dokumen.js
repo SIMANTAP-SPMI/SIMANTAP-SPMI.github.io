@@ -6,7 +6,7 @@ const STC = { 'Disetujui': 'ok', 'Review SPM': 'near', 'Draft': 'na', 'Referensi
 let fj = 'ALL';
 
 export default function dokumen(el) {
-  const admin = ctx.role === 'admin', pimp = ctx.role === 'pimpinan';
+  const admin = ctx.role === 'admin', pimp = ctx.role === 'pimpinan' || ctx.role === 'wadir1';
   const list = S.dokumen.filter(d => fj === 'ALL' || d.jenis === fj);
   el.innerHTML = `
   <div class="grid g-12">
