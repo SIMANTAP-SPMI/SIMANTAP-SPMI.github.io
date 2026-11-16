@@ -23,10 +23,12 @@ import ledView from './views/led.js';
 import amiIabeeView from './views/amiiabee.js';
 import amiLamView from './views/amilam.js';
 import { LAM_AWAL } from './lam-awal.js';
+import ppeppView from './views/ppepp.js';
+import { PPEPP_AWAL } from './ppepp-awal.js';
 import laporan from './views/laporan.js';
 
 /* ---------------- state ---------------- */
-export const S = { indikator: [], ami: [], rtl: [], rtm: [], dokumen: [], log: [], settings: {}, kurekam: [], pengguna: [], iabee: [], led: [], lam: [] };
+export const S = { indikator: [], ami: [], rtl: [], rtm: [], dokumen: [], log: [], settings: {}, kurekam: [], pengguna: [], iabee: [], led: [], lam: [], ppepp: [] };
 const CTX_KEY = 'simantap2web_ctx';
 export const ctx = (() => {
   try { return Object.assign({ role: 'pimpinan', unit: 'TP', auditor: 'AU01' }, JSON.parse(localStorage.getItem(CTX_KEY) || '{}')); }
@@ -129,6 +131,7 @@ function load(d) {
   S.iabee = d.iabee || [];
   S.led = d.led || [];
   S.lam = d.lam || [];
+  S.ppepp = d.ppepp || [];
   S.settings = (d.settings && d.settings[0]) || { bulan: 10, tahun: APP.tahun, jenjang: {} };
   S.log.sort((a, b) => (b.t || '').localeCompare(a.t || ''));
 }
@@ -175,6 +178,7 @@ export const ROUTES = [
   { id: 'ami', t: 'Audit Mutu Internal', ic: 'audit', c: '#f0616d', sec: 'Evaluasi & Pengendalian', v: amiView },
   { id: 'rtl', t: 'Rencana Tindak Lanjut', ic: 'loop', c: '#6366f1', sec: 'Evaluasi & Pengendalian', v: rtlView },
   { id: 'rtm', t: 'Tinjauan Manajemen', ic: 'meet', c: '#f472b6', sec: 'Evaluasi & Pengendalian', v: rtmView },
+  { id: 'ppepp', t: 'Riwayat Siklus PPEPP', sub: '2022–2026: temuan, RTM, RTL, risiko', ic: 'loop', c: '#f0616d', sec: 'Evaluasi & Pengendalian', v: ppeppView },
   { id: 'akreditasi', t: 'Akreditasi LAM & IABEE', ic: 'medal', c: '#10b981', sec: 'Akreditasi', v: akreditasi },
   { id: 'jalur', t: 'Jalur IABEE', sub: 'Dari pemahaman sampai keputusan', ic: 'flag', c: '#8b5cf6', sec: 'Akreditasi', v: jalurView },
   { id: 'led', t: 'LED IABEE', sub: '53 aitem: narasi, bukti, kelengkapan', ic: 'book', c: '#0ea5e9', sec: 'Akreditasi', v: ledView },
@@ -297,6 +301,7 @@ async function boot() {
     for (const c of Object.keys(d)) await DB.replaceAll(c, d[c]);
   }
   load(d);
+  if (DB.mode !== 'firebase' && !S.ppepp.length) { for (const a of PPEPP_AWAL) { const c = JSON.parse(JSON.stringify(a)); S.ppepp.push(c); try { await DB.put('ppepp', c, S.ppepp); } catch (e) { /* abaikan */ } } }
   if (DB.mode !== 'firebase' && !S.lam.length) { for (const a of LAM_AWAL) { const c = JSON.parse(JSON.stringify(a)); S.lam.push(c); try { await DB.put('lam', c, S.lam); } catch (e) { /* abaikan */ } } }
   terapkanPeran();
   await muatKurekam();
