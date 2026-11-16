@@ -47,8 +47,8 @@ export function userName() {
 
 /* Peran dari daftar pengguna (mode masuk). Mode demo tetap memakai penukar peran bebas. */
 export function terapkanPeran() {
-  // Mode demo (tanpa akun): fitur admin tidak ditampilkan. Admin hanya untuk pengguna yang didaftarkan dan masuk dengan akun.
-  ctx.tersedia = Object.keys(ROLES).filter(k => k !== 'tamu' && (DB.user || k !== 'admin')); ctx.tetap = false; ctx.bootstrap = false; ctx.me = null;
+  // Mode demo (tanpa akun): semua peran bisa diperagakan, tetapi menu pengelolaan (Pengguna & Peran, Pengaturan) tidak ditampilkan.
+  ctx.tersedia = Object.keys(ROLES).filter(k => k !== 'tamu'); ctx.tetap = false; ctx.bootstrap = false; ctx.me = null;
   if (!ctx.tersedia.includes(ctx.role)) { ctx.role = 'pimpinan'; saveCtx(); }
   S.pengguna.filter(p => (p.peran || []).includes('auditor')).forEach(p => {
     if (!AUDITORS.some(a => a.id === p.id)) AUDITORS.push({ id: p.id, nama: p.nama || p.email, home: p.home || '' });
@@ -176,7 +176,7 @@ export const ROUTES = [
 ];
 
 // Menu Database & Pengaturan hanya untuk pengguna yang sudah masuk (bukan mode demo)
-const navRoutes = () => ROUTES.filter(r => (r.id !== 'pengaturan' || DB.user) && (r.id !== 'pengguna' || ctx.role === 'admin'));
+const navRoutes = () => ROUTES.filter(r => (r.id !== 'pengaturan' || DB.user) && (r.id !== 'pengguna' || (DB.user && ctx.role === 'admin')));
 
 function renderSide(cur) {
   let sec = '', h = `<div class="brand-logos"><img src="assets/img/logo-pem-akamigas.png" alt="PEM Akamigas" class="lg-pem"><img src="assets/img/logo-esdm.png" alt="Kementerian ESDM" class="lg-esdm"></div>
