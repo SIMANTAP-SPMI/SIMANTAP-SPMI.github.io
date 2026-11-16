@@ -18,10 +18,11 @@ import dokumen from './views/dokumen.js';
 import pengaturan from './views/pengaturan.js';
 import wadir from './views/wadir.js';
 import penggunaView from './views/pengguna.js';
+import jalurView from './views/jalur.js';
 import laporan from './views/laporan.js';
 
 /* ---------------- state ---------------- */
-export const S = { indikator: [], ami: [], rtl: [], rtm: [], dokumen: [], log: [], settings: {}, kurekam: [], pengguna: [] };
+export const S = { indikator: [], ami: [], rtl: [], rtm: [], dokumen: [], log: [], settings: {}, kurekam: [], pengguna: [], iabee: [] };
 const CTX_KEY = 'simantap2web_ctx';
 export const ctx = (() => {
   try { return Object.assign({ role: 'pimpinan', unit: 'TP', auditor: 'AU01' }, JSON.parse(localStorage.getItem(CTX_KEY) || '{}')); }
@@ -121,6 +122,7 @@ export async function resetData() {
 function load(d) {
   ['indikator', 'ami', 'rtl', 'rtm', 'dokumen', 'log'].forEach(k => { S[k] = d[k] || []; });
   S.pengguna = d.pengguna || [];
+  S.iabee = d.iabee || [];
   S.settings = (d.settings && d.settings[0]) || { bulan: 10, tahun: APP.tahun, jenjang: {} };
   S.log.sort((a, b) => (b.t || '').localeCompare(a.t || ''));
 }
@@ -168,6 +170,7 @@ export const ROUTES = [
   { id: 'rtl', t: 'Rencana Tindak Lanjut', ic: 'loop', c: '#6366f1', sec: 'Evaluasi & Pengendalian', v: rtlView },
   { id: 'rtm', t: 'Tinjauan Manajemen', ic: 'meet', c: '#f472b6', sec: 'Evaluasi & Pengendalian', v: rtmView },
   { id: 'akreditasi', t: 'Akreditasi LAM & IABEE', ic: 'medal', c: '#10b981', sec: 'Akreditasi', v: akreditasi },
+  { id: 'jalur', t: 'Jalur IABEE', sub: 'Dari pemahaman sampai keputusan', ic: 'flag', c: '#8b5cf6', sec: 'Akreditasi', v: jalurView },
   { id: 'skema', t: 'Skema Capaian & Metode', ic: 'layers', c: '#0ea5e9', sec: 'Akreditasi', v: skema },
   { id: 'laporan', t: 'Laporan', ic: 'download', c: '#14b8a6', sec: 'Evaluasi & Pengendalian', v: laporan },
   { id: 'dokumen', t: 'Dokumen SPMI', ic: 'folder', c: '#f5a524', sec: 'Sistem', v: dokumen },

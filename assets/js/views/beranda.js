@@ -4,6 +4,7 @@ import { mountHero } from '../hero3d.js';
 import { SUMBER, PRODI } from '../seed.js';
 import { BULAN, BLN } from '../scoring.js';
 import { active, summary, evalAll, indStat } from './common.js';
+import { kartuProgres } from './jalur.js';
 
 export default function beranda(el) {
   const m = S.settings.bulan;
@@ -96,4 +97,5 @@ export default function beranda(el) {
     polar: { radius: ['14%', '86%'] },
     series: [{ type: 'bar', coordinateSystem: 'polar', roundCap: true, barWidth: 9, showBackground: true, backgroundStyle: { color: 'rgba(24,35,58,.05)' }, data: bySum.map(x => ({ value: x.pct, itemStyle: { color: x.s.warna } })), label: { show: false } }]
   });
+  el.insertAdjacentHTML('beforeend', kartuProgres());
 }
