@@ -127,3 +127,6 @@ export const INDIKATOR_IABEE = [
   { no: 9, nama: 'Kelengkapan dokumen kelayakan dan evaluasi diri', sumber: 'SIMANTAP', target: '100% prodi pilot sebelum SER' },
   { no: 10, nama: 'Kompetensi dosen untuk mata kuliah inti', sumber: 'KUREKAM', target: 'Tidak ada mata kuliah inti tanpa dosen sesuai' }
 ];
+
+/* Aplikasi pendamping. Akun masuk sama (satu proyek Firebase), tetapi sesi masuk dipisah per situs. */
+export const APP_LAIN = { kurekam: { nama: 'KUREKAM', url: 'https://kurekam-pemakamigas.github.io/' } };

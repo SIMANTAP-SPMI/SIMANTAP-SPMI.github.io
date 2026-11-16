@@ -1,5 +1,5 @@
 /* SIMANTAP 2.0 · Aplikasi utama: state, peran, router, dan utilitas bersama. */
-import { APP } from './config.js';
+import { APP, APP_LAIN } from './config.js';
 import { DB } from './db.js';
 import { buildSeed, UNITS, UNIT, ROLES, AUDITORS } from './seed.js';
 import { icon } from './icons.js';
@@ -183,6 +183,7 @@ function renderSide(cur) {
     if (r.sec !== sec) { sec = r.sec; h += `<div class="nav-sec">${sec}</div>`; }
     h += `<a href="#/${r.id}" class="${r.id === cur ? 'on' : ''}" style="--c:${r.c}"><span class="chip">${icon(r.ic)}</span><span>${r.t}${r.sub ? `<small class="nsub">${r.sub}</small>` : ''}</span></a>`;
   });
+  h += `<div class="nav-sec">Aplikasi lain</div><a href="${APP_LAIN.kurekam.url}" target="_blank" rel="noopener" style="--c:#10b981"><span class="chip">${icon('book')}</span><span>KUREKAM<small class="nsub">Kurikulum dan kesiapan IABEE</small></span></a>`;
   h += `</nav><div class="side-foot">${APP.institusi}<br>Data prodi terkalibrasi · ${BULAN[S.settings.bulan]} ${S.settings.tahun}</div>`;
   $('#side').innerHTML = h;
   $$('#side a').forEach(a => a.addEventListener('click', () => $('#side').classList.remove('open')));
@@ -226,28 +227,46 @@ export function route_() {
   window.scrollTo({ top: 0 });
 }
 
+const kolomSandi = (id, ph) => `<div style="position:relative"><input class="inp" id="${id}" type="password" placeholder="${ph}" required autocomplete="current-password" style="width:100%;padding-right:112px"><button type="button" class="btn ghost sm" data-mata="${id}" style="position:absolute;right:4px;top:50%;transform:translateY(-50%)">${icon('eye')} Lihat</button></div>`;
+function pasangMata(root) {
+  root.querySelectorAll('[data-mata]').forEach(b => b.onclick = () => {
+    const i = root.querySelector('#' + b.dataset.mata), buka = i.type === 'password';
+    i.type = buka ? 'text' : 'password'; b.innerHTML = `${icon('eye')} ${buka ? 'Sembunyikan' : 'Lihat'}`;
+  });
+}
+function pesanMasuk(e) {
+  const c = e.code || '';
+  if (/wrong-password|invalid-credential|invalid-login|user-not-found/.test(c)) return 'Email atau kata sandi tidak cocok. Akun yang dipakai sama dengan KUREKAM. Bila lupa, klik "Lupa kata sandi".';
+  if (c === 'permission-denied') return 'Akun berhasil masuk, tetapi aturan database belum mengizinkan akses. Hubungi Admin SPM.';
+  if (c === 'auth/too-many-requests') return 'Terlalu banyak percobaan. Tunggu beberapa menit atau pakai "Lupa kata sandi".';
+  if (c === 'auth/network-request-failed') return 'Koneksi internet bermasalah. Coba lagi.';
+  return 'Gagal masuk: ' + (e.message || c);
+}
 function loginForm() {
   return new Promise(resolve => {
     const v = $('#view');
     v.innerHTML = `<div class="card" style="max-width:440px;margin:40px auto">
-      <div class="card-h"><span class="ico-badge" style="--c:#0ea5e9">${icon('db')}</span><div><h3>Masuk ke SIMANTAP 2.0</h3><div class="sub">Basis data bersama (Cloud Firestore). Akun dibuat oleh Admin SPM.</div></div></div>
+      <div class="card-h"><span class="ico-badge" style="--c:#0ea5e9">${icon('db')}</span><div><h3>Masuk ke SIMANTAP 2.0</h3><div class="sub">Akun sama dengan KUREKAM (Firebase). Akun dibuat oleh Admin SPM.</div></div></div>
       <form id="lgn" style="display:grid;gap:10px;margin-top:12px">
         <input class="inp" id="lg-e" type="email" placeholder="Email" autocomplete="username" required>
-        <input class="inp" id="lg-p" type="password" placeholder="Kata sandi" autocomplete="current-password" required>
+        ${kolomSandi('lg-p', 'Kata sandi')}
         <button class="btn pri" type="submit">Masuk</button>
         <div class="muted small" id="lg-msg"></div>
-        <div class="small"><a href="#" id="lg-fp">Lupa kata sandi</a> · <a href="#" id="lg-local">Buka mode demo lokal</a></div>
+        <button class="btn" type="button" id="lg-fp">Lupa kata sandi? Kirim tautan ke email saya</button>
+        <div class="small muted">Pengguna baru: kata sandi awal sama dengan alamat email (huruf kecil), seperti di KUREKAM.</div>
+        <div class="small"><a href="#" id="lg-local">Buka mode demo lokal</a></div>
       </form></div>`;
+    pasangMata(v);
     const msg = t => { v.querySelector('#lg-msg').textContent = t; };
     v.querySelector('#lgn').onsubmit = async ev => {
       ev.preventDefault(); msg('Memeriksa akun...');
-      try { await DB.login(v.querySelector('#lg-e').value.trim(), v.querySelector('#lg-p').value); resolve(); }
-      catch (e) { msg('Gagal masuk: ' + (e.code === 'permission-denied' ? 'akun belum diberi akses' : e.message)); }
+      try { await DB.login(v.querySelector('#lg-e').value.trim().toLowerCase(), v.querySelector('#lg-p').value); resolve(); }
+      catch (e) { msg(pesanMasuk(e) + (e.code ? ' (' + e.code + ')' : '')); }
     };
     v.querySelector('#lg-fp').onclick = async ev => {
-      ev.preventDefault(); const em = v.querySelector('#lg-e').value.trim();
-      if (!em) return msg('Isi email terlebih dahulu.');
-      try { await DB.resetPassword(em); msg('Tautan atur ulang kata sandi telah dikirim ke ' + em); } catch (e) { msg(e.message); }
+      ev.preventDefault(); const em = v.querySelector('#lg-e').value.trim().toLowerCase();
+      if (!em) return msg('Isi email lebih dulu, lalu klik Lupa kata sandi.');
+      try { await DB.resetPassword(em); msg('Tautan membuat kata sandi baru dikirim ke ' + em + ' bila email itu sudah punya akun. Periksa juga folder spam.'); } catch (e) { msg(pesanMasuk(e)); }
     };
     v.querySelector('#lg-local').onclick = ev => { ev.preventDefault(); DB.useLocal(); resolve(); };
   });
