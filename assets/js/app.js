@@ -47,7 +47,9 @@ export function userName() {
 
 /* Peran dari daftar pengguna (mode masuk). Mode demo tetap memakai penukar peran bebas. */
 export function terapkanPeran() {
-  ctx.tersedia = Object.keys(ROLES).filter(k => k !== 'tamu'); ctx.tetap = false; ctx.bootstrap = false; ctx.me = null;
+  // Mode demo (tanpa akun): fitur admin tidak ditampilkan. Admin hanya untuk pengguna yang didaftarkan dan masuk dengan akun.
+  ctx.tersedia = Object.keys(ROLES).filter(k => k !== 'tamu' && (DB.user || k !== 'admin')); ctx.tetap = false; ctx.bootstrap = false; ctx.me = null;
+  if (!ctx.tersedia.includes(ctx.role)) { ctx.role = 'pimpinan'; saveCtx(); }
   S.pengguna.filter(p => (p.peran || []).includes('auditor')).forEach(p => {
     if (!AUDITORS.some(a => a.id === p.id)) AUDITORS.push({ id: p.id, nama: p.nama || p.email, home: p.home || '' });
   });
