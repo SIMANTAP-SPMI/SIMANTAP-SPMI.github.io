@@ -22,6 +22,7 @@ import jalurView from './views/jalur.js';
 import ledView from './views/led.js';
 import amiIabeeView from './views/amiiabee.js';
 import amiLamView from './views/amilam.js';
+import { LAM_AWAL } from './lam-awal.js';
 import laporan from './views/laporan.js';
 
 /* ---------------- state ---------------- */
@@ -296,6 +297,7 @@ async function boot() {
     for (const c of Object.keys(d)) await DB.replaceAll(c, d[c]);
   }
   load(d);
+  if (DB.mode !== 'firebase' && !S.lam.length) { for (const a of LAM_AWAL) { const c = JSON.parse(JSON.stringify(a)); S.lam.push(c); try { await DB.put('lam', c, S.lam); } catch (e) { /* abaikan */ } } }
   terapkanPeran();
   await muatKurekam();
   window.addEventListener('hashchange', route_);
