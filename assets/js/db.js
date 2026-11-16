@@ -5,9 +5,9 @@
    Seluruh data dimuat ke memori saat start; setiap perubahan ditulis per dokumen. */
 import { FIREBASE_CONFIG } from './config.js';
 
-export const COLLECTIONS = ['indikator', 'ami', 'rtl', 'rtm', 'dokumen', 'log', 'settings', 'pengguna', 'iabee', 'led'];
+export const COLLECTIONS = ['indikator', 'ami', 'rtl', 'rtm', 'dokumen', 'log', 'settings', 'pengguna', 'iabee', 'led', 'lam'];
 /* Koleksi yang boleh kosong atau belum diizinkan aturan Firestore: kegagalan baca tidak menghentikan aplikasi. */
-const OPSIONAL = ['pengguna', 'iabee', 'led'];
+const OPSIONAL = ['pengguna', 'iabee', 'led', 'lam'];
 const LS_PREFIX = 'simantap2web_';
 const LS_FBCFG = 'simantap2web_firebase_config';
 const FB_VER = '10.12.2';

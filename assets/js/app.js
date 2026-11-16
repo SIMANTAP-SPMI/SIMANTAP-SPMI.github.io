@@ -21,10 +21,11 @@ import penggunaView from './views/pengguna.js';
 import jalurView from './views/jalur.js';
 import ledView from './views/led.js';
 import amiIabeeView from './views/amiiabee.js';
+import amiLamView from './views/amilam.js';
 import laporan from './views/laporan.js';
 
 /* ---------------- state ---------------- */
-export const S = { indikator: [], ami: [], rtl: [], rtm: [], dokumen: [], log: [], settings: {}, kurekam: [], pengguna: [], iabee: [], led: [] };
+export const S = { indikator: [], ami: [], rtl: [], rtm: [], dokumen: [], log: [], settings: {}, kurekam: [], pengguna: [], iabee: [], led: [], lam: [] };
 const CTX_KEY = 'simantap2web_ctx';
 export const ctx = (() => {
   try { return Object.assign({ role: 'pimpinan', unit: 'TP', auditor: 'AU01' }, JSON.parse(localStorage.getItem(CTX_KEY) || '{}')); }
@@ -126,6 +127,7 @@ function load(d) {
   S.pengguna = d.pengguna || [];
   S.iabee = d.iabee || [];
   S.led = d.led || [];
+  S.lam = d.lam || [];
   S.settings = (d.settings && d.settings[0]) || { bulan: 10, tahun: APP.tahun, jenjang: {} };
   S.log.sort((a, b) => (b.t || '').localeCompare(a.t || ''));
 }
@@ -176,6 +178,7 @@ export const ROUTES = [
   { id: 'jalur', t: 'Jalur IABEE', sub: 'Dari pemahaman sampai keputusan', ic: 'flag', c: '#8b5cf6', sec: 'Akreditasi', v: jalurView },
   { id: 'led', t: 'LED IABEE', sub: '53 aitem: narasi, bukti, kelengkapan', ic: 'book', c: '#0ea5e9', sec: 'Akreditasi', v: ledView },
   { id: 'amiiabee', t: 'AMI Kesiapan IABEE', sub: 'Auditor, temuan, matriks prediksi', ic: 'audit', c: '#f0616d', sec: 'Akreditasi', v: amiIabeeView },
+  { id: 'amilam', t: 'AMI Akreditasi LAM Teknik', sub: '64 butir, rumus resmi instrumen 2025', ic: 'audit', c: '#14b8a6', sec: 'Akreditasi', v: amiLamView },
   { id: 'skema', t: 'Skema Capaian & Metode', ic: 'layers', c: '#0ea5e9', sec: 'Akreditasi', v: skema },
   { id: 'laporan', t: 'Laporan', ic: 'download', c: '#14b8a6', sec: 'Evaluasi & Pengendalian', v: laporan },
   { id: 'dokumen', t: 'Dokumen SPMI', ic: 'folder', c: '#f5a524', sec: 'Sistem', v: dokumen },
