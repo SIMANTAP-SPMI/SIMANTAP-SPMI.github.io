@@ -19,12 +19,19 @@ export function dokIabee(pid) {
   const pilot = !!(UNIT[pid] && UNIT[pid].pilot);
   return { id: pid, jalur: pilot ? 'PA' : '', tahun: pilot ? 2027 : 0, penetapan: 'Usulan', kelayakan: {}, registrasi: {}, langkah: {}, obe: {}, _baru: true };
 }
+/** Data OBE efektif: isian manual menang, bila kosong dipakai umpan dari KUREKAM. */
+export function obeEf(d) {
+  const k = ((S.kurekam || []).find(u => u.unit === d.id) || {}).obe || {}, m = d.obe || {};
+  const pil = (a, b) => (a !== undefined && a !== null && a !== '') ? [a, 'manual'] : (b !== undefined && b !== null && b !== '' ? [b, 'KUREKAM'] : ['', '']);
+  const [angkatan, sa] = pil(m.angkatan, k.angkatan), [wisuda, sw] = pil(m.wisuda, k.wisuda), [lulusan, sl] = pil(m.lulusan, k.lulusan && k.lulusan > 0 ? k.lulusan : '');
+  return { angkatan, wisuda, lulusan, dari: [sa, sw, sl].includes('KUREKAM') ? 'KUREKAM' : '' };
+}
 const tglLangkah = (d, l, k) => { const o = (d.langkah[l.no] || {})[k]; if (o) return o; const [off, md] = l[k]; return `${d.tahun + off}-${md}`; };
 
 /* Syarat kelayakan: butir lulusan OBE terhitung otomatis dari tanggal wisuda pertama. */
 const syaratList = (d) => (IABEE_JALUR.syarat[d.jalur] || []).map((t, i) => {
   const k = String(i); const x = d.kelayakan[k] || {};
-  const auto = /lulusan OBE sebelum kunjungan/.test(t) && d.obe && d.obe.wisuda && d.obe.wisuda <= `${d.tahun}-09-30`;
+  const auto = /lulusan OBE sebelum kunjungan/.test(t) && obeEf(d).wisuda && obeEf(d).wisuda <= `${d.tahun}-09-30`;
   return { k, t, ok: !!x.ok || !!auto, auto: !!auto && !x.ok, bukti: x.bukti || [] };
 });
 const regItems = (d) => { const r = d.registrasi || {}; return [
@@ -158,8 +165,8 @@ function kelayakanHtml(d, isi) {
   const s = syaratList(d), n = s.filter(x => x.ok).length;
   return `<div class="card" style="margin-top:18px"><div class="card-h"><span class="ico-badge" style="--c:#10b981">${icon('check')}</span><div><h3>Kelayakan jalur ${d.jalur}</h3><div class="sub">${n} dari ${s.length} syarat terpenuhi</div></div></div>
   <div class="tbl-wrap"><table class="tbl"><tbody>${s.map(x => `<tr><td style="width:34px"><input type="checkbox" data-sy="${x.k}" ${x.ok ? 'checked' : ''} ${isi && !x.auto ? '' : 'disabled'}></td><td class="small">${esc(x.t)}${x.auto ? ' <span class="tag" style="--c:#0ea5e9">otomatis dari tanggal wisuda</span>' : ''}</td><td class="small">${links(x.bukti)}</td><td>${isi ? `<button class="btn sm" data-sb="${x.k}">${icon('link')}</button>` : ''}</td></tr>`).join('')}</tbody></table></div>
-  <div class="card" style="margin-top:12px;background:rgba(14,165,233,.05)"><div class="small" style="margin-bottom:8px"><b>Data OBE</b>. Akan terisi otomatis dari KUREKAM setelah fiturnya tersedia. Wisuda PEM Akamigas umumnya sekali setahun pada bulan Juli.</div>
-    <div class="grid g3" style="gap:12px;align-items:end"><div class="field"><label>Angkatan OBE pertama</label><input class="inp" id="o-a" placeholder="mis. 2023" value="${esc((d.obe || {}).angkatan || '')}" ${isi ? '' : 'disabled'}></div><div class="field"><label>Tanggal wisuda pertama</label><input class="inp" type="date" id="o-w" value="${esc((d.obe || {}).wisuda || '')}" ${isi ? '' : 'disabled'}></div><div class="field"><label>Jumlah lulusan OBE</label><input class="inp" type="number" min="0" id="o-l" value="${esc((d.obe || {}).lulusan == null ? '' : d.obe.lulusan)}" ${isi ? '' : 'disabled'}></div></div>
+  <div class="card" style="margin-top:12px;background:rgba(14,165,233,.05)"><div class="small" style="margin-bottom:8px"><b>Data OBE</b>. ${obeEf(d).dari ? 'Sebagian terisi otomatis dari KUREKAM (menu Bahan LED); isian di sini mengutamakan data yang Anda ketik.' : 'Terisi otomatis dari KUREKAM (menu Bahan LED) bila Prodi sudah mengisinya.'} Wisuda PEM Akamigas umumnya sekali setahun pada bulan Juli.</div>
+    <div class="grid g3" style="gap:12px;align-items:end"><div class="field"><label>Angkatan OBE pertama</label><input class="inp" id="o-a" placeholder="mis. 2023" value="${esc(obeEf(d).angkatan)}" ${isi ? '' : 'disabled'}></div><div class="field"><label>Tanggal wisuda pertama</label><input class="inp" type="date" id="o-w" value="${esc(obeEf(d).wisuda)}" ${isi ? '' : 'disabled'}></div><div class="field"><label>Jumlah lulusan OBE</label><input class="inp" type="number" min="0" id="o-l" value="${esc(obeEf(d).lulusan)}" ${isi ? '' : 'disabled'}></div></div>
     ${isi ? `<button class="btn pri" id="o-s" style="margin-top:10px">${icon('check')} Simpan data OBE</button>` : ''}</div></div>`;
 }
 function registrasiHtml(d, isi) {

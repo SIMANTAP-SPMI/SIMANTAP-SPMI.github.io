@@ -174,3 +174,6 @@ export const IABEE_JALUR = {
       panduan: ['Tanggapi laporan evaluator sesuai tenggat (laporan akhir sekitar 15 Januari).', 'Pantau keputusan (sekitar 15 Maret) dan pengumuman (31 Maret).', 'Bawa hasilnya ke Tinjauan Manajemen untuk rencana perbaikan.'] }
   ]
 };
+
+/* Tabel Suplemen LED IABEE (templat SER 2023), urut hulu ke hilir. */
+export const NAMA_BAHAN = { A1: 'Profil profesional mandiri dan CPL', A2: 'CPL dan butir IABEE (a)-(k)', B1: 'Komposisi mata kuliah per bidang kajian', B2: 'Peta jalan pembentukan CPL', C1: 'Indikator kinerja dan kriteria pemenuhan', C2: 'Jadwal asesmen CPL', B3: 'Daftar dosen', B4: 'Kegiatan dosen', B5: 'CV singkat dosen' };

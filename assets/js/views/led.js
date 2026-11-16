@@ -5,6 +5,7 @@ import { DB } from '../db.js';
 import { PRODI, UNIT, AUDITORS } from '../seed.js';
 import { LED_KRITERIA, LED_SUB, LED_SS, LED_AITEM } from '../led-data.js';
 import { aksesLed, ringkas, dokIabee } from './jalur.js';
+import { NAMA_BAHAN } from '../config.js';
 import { xlsx, docx, unduh } from '../ekspor.js';
 
 const urlOk = (u) => /^https?:\/\/\S+$/i.test(u || '');
@@ -76,6 +77,24 @@ export function auditorBerhak(pid) {
 }
 export const pilihLed = (pid) => { pilih = pid; fK = ''; fS = ''; fQ = ''; };
 const bolehAudit = (pid) => auditorBerhak(pid);
+
+/** Ringkasan angka LED prodi dikirim ke koleksi simantap_led agar KUREKAM dapat menampilkannya. Hanya agregat. */
+async function kirimRingkas(pid) {
+  if (DB.mode !== 'firebase' || !DB.user) return;
+  const R = ringkasLed(pid), d = dokLed(pid), nilai = { A: 0, C: 0, W: 0, D: 0 };
+  LED_AITEM.forEach(it => { const a = dataAitem(d, it.no); if (['audit', 'final'].includes(a.status) && nilai[a.nilai] != null) nilai[a.nilai]++; });
+  try { await DB.put('simantap_led', { id: pid, unit: pid, sumber: 'SIMANTAP', waktu: new Date().toISOString(), n: R.n, siap: R.siap, per: R.per, nilai, pctLengkap: R.pctLengkap, pctSiap: R.pctSiap }, []); }
+  catch (e) { console.warn('Ringkasan LED gagal dikirim ke KUREKAM:', e.message); }
+}
+
+/** Kartu Bahan LED dari KUREKAM: kesiapan tabel suplemen per prodi. */
+function kartuBahan(pid) {
+  const demo = DB.mode !== 'firebase', u = demo ? { led: { A1: { k: 'ok', pct: 100 }, A2: { k: 'ok', pct: 100 }, B1: { k: 'ok', pct: 100 }, B2: { k: 'near', pct: 75 }, C1: { k: 'near', pct: 38 }, C2: { k: 'bad', pct: 0 }, B3: { k: 'near', pct: 75 }, B4: { k: 'near', pct: 75 }, B5: { k: 'bad', pct: 0 }, siap: 4 }, obe: { angkatan: '2023', wisuda: '2027-07-31', lulusan: 0 } } : (S.kurekam || []).find(x => x.unit === pid);
+  const W = { ok: ['#10b981', 'Siap'], near: ['#f5a524', 'Sebagian'], bad: ['#f0616d', 'Belum'], na: ['#94a3b8', 'Belum ada data'] };
+  if (!u || !u.led) return `<div class="card" style="margin-top:16px"><div class="card-h"><h3>Bahan LED dari KUREKAM</h3><div class="sub">Belum ada umpan tabel suplemen untuk ${esc(pid)}. Muncul setelah KUREKAM mengirim umpan.</div></div></div>`;
+  return `<div class="card" style="margin-top:16px"><div class="card-h"><span class="ico-badge" style="--c:#0ea5e9">${icon('globe')}</span><div><h3>Bahan LED dari KUREKAM${demo ? ' (contoh demo)' : ''}</h3><div class="sub">Tabel suplemen disusun prodi di KUREKAM · ${u.led.siap != null ? u.led.siap + ' dari 6 tabel utama siap' : ''}${u.obe && u.obe.angkatan ? ` · OBE angkatan ${esc(u.obe.angkatan)}${u.obe.wisuda ? ', wisuda ' + esc(u.obe.wisuda) : ''}` : ''}</div></div></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px">${Object.keys(NAMA_BAHAN).map(k => { const t = u.led[k] || { k: 'na', pct: 0 }, w = W[t.k] || W.na; return `<div style="padding:8px 10px;border-radius:10px;background:color-mix(in srgb,${w[0]} 10%,#fff)" title="${esc(NAMA_BAHAN[k])}"><b>${k}</b> <span class="tag" style="--c:${w[0]}">${w[1]}</span><div class="small muted">${t.pct}%</div></div>`; }).join('')}</div></div>`;
+}
 
 /** Temuan W atau D otomatis menjadi RTL (sumber "AMI IABEE"); RTL yang sudah ada tidak ditimpa statusnya. */
 async function sinkronRtl(p, it, a) {
@@ -152,6 +171,7 @@ export default function ledView(el) {
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-top:14px">
       ${kri.map(x => `<div><div class="small"><b>Kriteria ${x.k}</b> · ${x.s}/${x.n} siap</div><div class="bar"><i style="width:${x.pct}%;--c:${KRIT_C[x.k]}"></i></div></div>`).join('')}
     </div></div>
+  ${kartuBahan(pilih)}
   <div class="card" style="margin-top:16px"><div class="filters">
     <select class="inp" id="l-k"><option value="">Semua kriteria</option>${[1, 2, 3, 4].map(k => `<option value="${k}" ${fK === String(k) ? 'selected' : ''}>Kriteria ${k}</option>`).join('')}</select>
     <select class="inp" id="l-s"><option value="">Semua status</option>${Object.entries(ST).map(([k, v]) => `<option value="${k}" ${fS === k ? 'selected' : ''}>${v.n}</option>`).join('')}</select>
@@ -213,6 +233,7 @@ function drawerAitem(p, it, buka, ulang) {
       fn(a); riw(a, aksi);
       await save('led', doc, `LED ${p.id} aitem ${it.no}: ${aksi}`);
       if (rtl) await sinkronRtl(p, it, a);
+      kirimRingkas(p.id);
       closeDrawer(); ulang();
     };
     const simpanIsi = (jadiSiap) => {
