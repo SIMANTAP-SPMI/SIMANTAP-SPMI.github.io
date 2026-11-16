@@ -20,6 +20,7 @@ import wadir from './views/wadir.js';
 import penggunaView from './views/pengguna.js';
 import jalurView from './views/jalur.js';
 import ledView from './views/led.js';
+import amiIabeeView from './views/amiiabee.js';
 import laporan from './views/laporan.js';
 
 /* ---------------- state ---------------- */
@@ -174,6 +175,7 @@ export const ROUTES = [
   { id: 'akreditasi', t: 'Akreditasi LAM & IABEE', ic: 'medal', c: '#10b981', sec: 'Akreditasi', v: akreditasi },
   { id: 'jalur', t: 'Jalur IABEE', sub: 'Dari pemahaman sampai keputusan', ic: 'flag', c: '#8b5cf6', sec: 'Akreditasi', v: jalurView },
   { id: 'led', t: 'LED IABEE', sub: '53 aitem: narasi, bukti, kelengkapan', ic: 'book', c: '#0ea5e9', sec: 'Akreditasi', v: ledView },
+  { id: 'amiiabee', t: 'AMI Kesiapan IABEE', sub: 'Auditor, temuan, matriks prediksi', ic: 'audit', c: '#f0616d', sec: 'Akreditasi', v: amiIabeeView },
   { id: 'skema', t: 'Skema Capaian & Metode', ic: 'layers', c: '#0ea5e9', sec: 'Akreditasi', v: skema },
   { id: 'laporan', t: 'Laporan', ic: 'download', c: '#14b8a6', sec: 'Evaluasi & Pengendalian', v: laporan },
   { id: 'dokumen', t: 'Dokumen SPMI', ic: 'folder', c: '#f5a524', sec: 'Sistem', v: dokumen },

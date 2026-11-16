@@ -2,9 +2,9 @@
    kelengkapan diperiksa otomatis, status mengalir dari Belum diisi sampai Final. Data di koleksi "led" (satu dokumen per prodi). */
 import { S, ctx, icon, esc, save, toast, openDrawer, closeDrawer, userName } from '../app.js';
 import { DB } from '../db.js';
-import { PRODI, UNIT } from '../seed.js';
+import { PRODI, UNIT, AUDITORS } from '../seed.js';
 import { LED_KRITERIA, LED_SUB, LED_SS, LED_AITEM } from '../led-data.js';
-import { aksesLed, ringkas } from './jalur.js';
+import { aksesLed, ringkas, dokIabee } from './jalur.js';
 import { xlsx, docx, unduh } from '../ekspor.js';
 
 const urlOk = (u) => /^https?:\/\/\S+$/i.test(u || '');
@@ -16,7 +16,7 @@ let pilih = null, fK = '', fS = '', fQ = '';
 
 /* ---------- data ---------- */
 export function dokLed(pid) { return S.led.find(x => x.id === pid) || { id: pid, aitem: {}, _baru: true }; }
-const dataAitem = (d, no) => d.aitem[no] || { narasi: '', bukti: [], status: 'belum', pj: '', tenggat: '', nilai: '', catatan: '', riwayat: [] };
+export const dataAitem = (d, no) => d.aitem[no] || { narasi: '', bukti: [], status: 'belum', pj: '', tenggat: '', nilai: '', catatan: '', riwayat: [] };
 const pjDefault = (it) => it.sub === '2.5' ? 'Institusi (Wadir / SPM)' : 'Prodi';
 
 /** Pemeriksaan kelengkapan satu aitem: daftar [label, lolos]. */
@@ -65,7 +65,28 @@ export function kerangka(it, prodi) {
 
 /* ---------- izin ---------- */
 const bolehIsi = (pid) => ctx.role === 'admin' || (ctx.role === 'auditee' && ctx.unit === pid);
-const bolehAudit = () => ctx.role === 'auditor' || ctx.role === 'admin';
+/** Auditor hanya menilai prodi yang ditugaskan kepadanya (lihat menu AMI IABEE). Tanpa penugasan, hanya mode demo yang membuka, dan tidak untuk unit asal. */
+export function auditorBerhak(pid) {
+  if (ctx.role === 'admin') return true;
+  if (ctx.role !== 'auditor') return false;
+  const ls = dokIabee(pid).auditor || [];
+  if (ls.length) return ls.some(a => a.id === ctx.auditor);
+  const a = AUDITORS.find(x => x.id === ctx.auditor);
+  return !DB.user && !!a && a.home !== pid;
+}
+export const pilihLed = (pid) => { pilih = pid; fK = ''; fS = ''; fQ = ''; };
+const bolehAudit = (pid) => auditorBerhak(pid);
+
+/** Temuan W atau D otomatis menjadi RTL (sumber "AMI IABEE"); RTL yang sudah ada tidak ditimpa statusnya. */
+async function sinkronRtl(p, it, a) {
+  const id = `RTL-IABEE-${p.id}-${it.no}`, ada = S.rtl.find(r => r.id === id);
+  if (a.nilai !== 'W' && a.nilai !== 'D') return;
+  const J = ringkas(p.id), tenggat = J.ada ? J.L[5].tenggat : `${S.settings.tahun}-12-31`;
+  await save('rtl', Object.assign({ status: 'Terbuka' }, ada || {}, {
+    id, ind: '', led: it.no, unit: p.id, sumberRTL: 'AMI IABEE', ringkas: `LED IABEE aitem ${it.no}: ${it.id.slice(0, 110)}`,
+    temuan: a.nilai === 'D' ? 'KTS Mayor' : 'KTS Minor', tindakan: a.catatan || 'Menyusun perbaikan dan bukti baru untuk aitem ini.', pic: 'Ka. ' + p.id, tenggat: ada ? ada.tenggat : tenggat
+  }), `RTL ${id} dari AMI IABEE`);
+}
 const bolehSah = () => ctx.role === 'pimpinan' || ctx.role === 'wadir1';
 const terbuka = (pid) => !DB.user || aksesLed(pid);
 
@@ -157,7 +178,7 @@ export default function ledView(el) {
 /* ---------- drawer satu aitem ---------- */
 function drawerAitem(p, it, buka, ulang) {
   const d0 = dokLed(p.id), a0 = JSON.parse(JSON.stringify(dataAitem(d0, it.no)));
-  const isi = buka && bolehIsi(p.id), audit = buka && bolehAudit() && ['siap', 'audit'].includes(a0.status), sah = buka && bolehSah() && a0.status === 'audit';
+  const isi = buka && bolehIsi(p.id), audit = buka && bolehAudit(p.id) && ['siap', 'audit'].includes(a0.status), sah = buka && bolehSah() && a0.status === 'audit';
   const baris = (b = {}) => `<div class="bk" style="display:grid;grid-template-columns:1fr 2fr;gap:8px;margin-bottom:8px"><input class="inp" placeholder="Label (mis. SK Kurikulum 2023)" value="${esc(b.label || '')}" ${isi ? '' : 'disabled'}><input class="inp" placeholder="https://drive.google.com/..." value="${esc(b.url || '')}" ${isi ? '' : 'disabled'}></div>`;
   const sub = LED_SUB[it.sub], ss = LED_SS[it.ss];
   openDrawer(`<div class="card-h"><h3>Aitem ${it.no}) · ${esc(it.sub)}</h3><div class="sp"></div><button class="btn ghost" data-close>${icon('close')}</button></div>
@@ -186,11 +207,13 @@ function drawerAitem(p, it, buka, ulang) {
       $('#a-add').onclick = () => { d.querySelector('#a-b').insertAdjacentHTML('beforeend', baris()); d.querySelectorAll('.bk:last-child input').forEach(i => i.disabled = false); };
       $('#a-k').onclick = () => { const k = kerangka(it, p); nar.value = nar.value.trim() ? nar.value.trim() + '\n\n' + k : k; live(); };
     }
-    const tulis = async (fn, aksi) => {
+    const tulis = async (fn, aksi, rtl) => {
       const doc = JSON.parse(JSON.stringify(dokLed(p.id))); delete doc._baru; doc.aitem = doc.aitem || {};
       const a = doc.aitem[it.no] = Object.assign(dataAitem(doc, it.no), doc.aitem[it.no] || {});
       fn(a); riw(a, aksi);
-      await save('led', doc, `LED ${p.id} aitem ${it.no}: ${aksi}`); closeDrawer(); ulang();
+      await save('led', doc, `LED ${p.id} aitem ${it.no}: ${aksi}`);
+      if (rtl) await sinkronRtl(p, it, a);
+      closeDrawer(); ulang();
     };
     const simpanIsi = (jadiSiap) => {
       const narasi = nar.value.trim(), bukti = baca();
@@ -205,7 +228,7 @@ function drawerAitem(p, it, buka, ulang) {
       }, jadiSiap ? 'ditandai siap diaudit' : 'draf disimpan');
     };
     if (isi) { $('#a-s').onclick = () => simpanIsi(false); $('#a-r').onclick = () => simpanIsi(true); }
-    if (audit) $('#u-s').onclick = () => { const n = $('#u-n').value; if (!n) return toast('Pilih penilaian A, C, W, atau D'); if (['W', 'D'].includes(n) && !$('#u-c').value.trim()) return toast('Penilaian W atau D wajib disertai catatan'); tulis(a => { a.nilai = n; a.catatan = $('#u-c').value.trim(); a.status = 'audit'; }, 'diaudit: ' + n); };
+    if (audit) $('#u-s').onclick = () => { const n = $('#u-n').value; if (!n) return toast('Pilih penilaian A, C, W, atau D'); if (['W', 'D'].includes(n) && !$('#u-c').value.trim()) return toast('Penilaian W atau D wajib disertai catatan'); tulis(a => { a.nilai = n; a.catatan = $('#u-c').value.trim(); a.status = 'audit'; }, 'diaudit: ' + n, true); };
     if (sah) { $('#h-f').onclick = () => tulis(a => { a.status = 'final'; }, 'disahkan final'); $('#h-b').onclick = () => tulis(a => { a.status = 'draf'; }, 'dikembalikan ke prodi'); }
   });
 }

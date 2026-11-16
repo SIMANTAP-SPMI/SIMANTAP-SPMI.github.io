@@ -69,7 +69,7 @@ export function rtlView(el) {
     ${KOL.map(([k, c]) => `<div class="card" style="padding:12px;background:color-mix(in srgb, ${c} 6%, rgba(255,255,255,.8))"><div class="card-h" style="margin-bottom:8px"><span class="dot" style="--c:${c}"></span><h3>${k}</h3><div class="sp"></div><span class="tag" style="--c:${c}">${list.filter(r => r.status === k).length}</span></div>
       <div class="grid" style="gap:10px">${list.filter(r => r.status === k).map(r => { const ind = S.indikator.find(i => i.id === r.ind); const late = r.status !== 'Terverifikasi' && r.tenggat < today; return `<div class="card tilt" style="padding:12px;box-shadow:var(--shadow)">
         <div style="display:flex;gap:6px;align-items:center"><b class="small">${r.id}</b><span class="tag" style="--c:${TEMUAN[r.temuan] || '#94a3b8'}">${r.temuan}</span><span class="sp" style="flex:1"></span><b class="small">${r.unit}</b></div>
-        <div class="small" style="margin:6px 0">${esc(ind ? ind.teks : '')}</div>
+        <div class="small" style="margin:6px 0">${esc(ind ? ind.teks : (r.ringkas || ''))}</div>
         <div class="muted small">${esc(r.tindakan)}</div>
         <div class="small" style="margin-top:6px;color:${late ? '#f0616d' : 'var(--muted)'}">${icon('calendar')} ${r.tenggat}${late ? ' · lewat tenggat' : ''} · ${esc(r.pic)}</div>
         <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">

@@ -164,7 +164,7 @@ export const IABEE_JALUR = {
       panduan: ['Terbitkan surat tugas Wakil Prodi (Program Representative) dan catat nomor, tanggal, serta tautannya.', 'Daftarkan prodi di sistem IABEE pada 1 sampai 15 April.', 'Pastikan akun Wakil Prodi di sistem IABEE aktif; templat LED resmi baru bisa diunduh setelah registrasi.', 'Setelah surat tugas terisi dan penetapan disahkan, akses pengisian LED di aplikasi terbuka.'] },
     { no: 4, nama: 'Susun laporan evaluasi diri (LED)', mulai: [0, '01-05'], tenggat: [0, '05-15'], menu: { t: 'Register LED IABEE', h: '#/led' },
       panduan: ['Siapkan Tabel Suplemen di KUREKAM berurutan A1, A2, B1, B2, C1, C2, lalu B3 sampai B5.', 'Isi uraian 53 aitem beserta tautan bukti di aplikasi.', 'Lengkapi Ikhtisar Program dan data kuantitatif empat tahun terakhir.'] },
-    { no: 5, nama: 'AMI kesiapan IABEE', mulai: [0, '05-16'], tenggat: [0, '06-12'], menu: { t: 'Audit Mutu Internal', h: '#/ami' },
+    { no: 5, nama: 'AMI kesiapan IABEE', mulai: [0, '05-16'], tenggat: [0, '06-12'], menu: { t: 'AMI Kesiapan IABEE', h: '#/amiiabee' },
       panduan: ['SPM menugaskan auditor dari dosen di luar prodi yang diaudit.', 'Auditor menilai tiap aitem (A, C, W, D) dan memeriksa bukti.', 'Temuan W dan D masuk Rencana Tindak Lanjut dan harus tuntas sebelum SER dikirim.'] },
     { no: 6, nama: 'Kirim SER ke IABEE', mulai: [0, '06-13'], tenggat: [0, '06-30'], menu: { t: 'Dokumen SPMI', h: '#/dokumen' },
       panduan: ['Unggah LED dan lampirannya melalui sistem evaluasi IABEE dengan akun Wakil Prodi.', 'Pastikan tenggat 30 Juni terpenuhi; simpan bukti unggah.'] },
