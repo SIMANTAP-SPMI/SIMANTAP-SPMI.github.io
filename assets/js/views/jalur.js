@@ -38,6 +38,7 @@ function persen(d, l) {
   const man = (d.langkah[l.no] || {}).status || 'belum';
   if (man === 'selesai') return 100;
   if (l.no === 2) { const s = syaratList(d); return s.length ? Math.round(s.filter(x => x.ok).length / s.length * 100) : 0; }
+  if (l.no === 4) { const dl = S.led.find(x => x.id === d.id); if (dl) { const n = Object.values(dl.aitem || {}).filter(a => ['siap', 'audit', 'final'].includes(a.status)).length; return Math.round(n / 53 * 100); } }
   if (l.no === 3) { const r = regItems(d); return Math.round(r.filter(x => x[1]).length / r.length * 100); }
   return man === 'proses' ? 50 : 0;
 }
