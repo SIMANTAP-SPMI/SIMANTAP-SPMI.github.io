@@ -8,10 +8,10 @@ import { kartuProgres } from './jalur.js';
 
 const TUGAS = {
   kasubbag: [
-    ['monitoring', 'Isi capaian bulanan indikator proses akademik (unit AKD)', 'Ketepatan jadwal kuliah, kehadiran dosen, kelengkapan nilai di SIAKAD, kelulusan tepat waktu, bimbingan akademik.'],
-    ['ami', 'Ikuti AMI proses akademik sebagai auditee', 'Siapkan evaluasi diri dan bukti, dampingi auditor, tanggapi temuan.'],
+    ['monitoring', 'Isi capaian bulanan operasional perkuliahan (unit AKD)', 'Ketepatan jadwal kuliah, kehadiran dosen, kelengkapan nilai di SIAKAD, bimbingan akademik, kelulusan tepat waktu.'],
+    ['ami', 'Ikuti AMI proses akademik sebagai auditee', 'Siapkan evaluasi diri dan bukti pelaksanaan perkuliahan dan realisasi pembelajaran, dampingi auditor, tanggapi temuan.'],
     ['rtl', 'Tindak lanjuti temuan AMI unit AKD', 'Isi tanggapan, tindakan, dan tanggal selesai; auditor memverifikasi.'],
-    ['jalur', 'Sediakan data akademik untuk prodi', 'Data mahasiswa, angkatan, dan kelulusan yang dipakai LED IABEE, LAM, dan LKPS. Lulusan dan tracer tetap milik unit karier (CDC).']
+    ['amilam', 'Pantau realisasi pembelajaran semua prodi', 'Realisasi pertemuan terhadap RPS dan hasil per CPMK diisi dosen di KUREKAM; di sini terbaca sebagai rujukan LAM butir 15-16.']
   ],
   prodi: [
     ['monitoring', 'Isi capaian bulanan indikator prodi', 'Hanya indikator yang berkorelasi dengan akreditasi.'],

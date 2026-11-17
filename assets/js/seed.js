@@ -212,7 +212,7 @@ export function buildSeed() {
   U('KEU', 'S08', 'Dana penelitian dan PkM per dosen per tahun', 15, 'juta Rp', '>=', 'IKT', 'IKU-5', ['LAM'], { lam: 'K2', iapt: 'RP' }, 'Sedang', 13, 3, .3, 1);
   U('SPM', 'S07', 'Nilai SAKIP / akuntabilitas kinerja instansi', 80, 'nilai', '>=', 'IKU', 'IKU-8', ['KOKIN', 'RSB'], {}, 'Tinggi', 77.5, 2, .3, 1);
   U('SPM', 'S07', 'Indeks Kepuasan Masyarakat terhadap layanan BLU', 3.5, 'skala 4', '>=', 'IKU', 'IKU-8', ['BLU', 'KOKIN'], {}, 'Sedang', 3.41, .06, .02, 2);
-  U('AKD', 'S01', 'Lulusan pendidikan vokasi ESDM yang terserap dunia kerja ≤ 1 tahun', 85, '%', '>=', 'IKU', 'IKU-1', ['KOKIN', 'RSB'], { lam: 'K3', komp: 'O', iapt: 'RD' }, 'Tinggi', 82, 3, 1);
+  U('CDC', 'S01', 'Lulusan pendidikan vokasi ESDM yang terserap dunia kerja ≤ 1 tahun', 85, '%', '>=', 'IKU', 'IKU-1', ['KOKIN', 'RSB'], { lam: 'K3', komp: 'O', iapt: 'RD' }, 'Tinggi', 82, 3, 1);
   U('AKD', 'S07', 'Program studi terakreditasi Unggul', 100, '%', '>=', 'IKU', 'IKU-3', ['KOKIN', 'RSB', 'IAPT'], { lam: 'K1', iapt: 'AK' }, 'Tinggi', 100, 0, 0);
   U('AKD', 'S14', 'Prodi terakreditasi internasional (IABEE/Sydney Accord)', 2, 'prodi', '>=', 'IKU', 'IKU-3', ['RSB', 'IABEE'], { lam: 'K1', iabee: ['K5'], iapt: 'DM' }, 'Tinggi', 0, 0, 0);
   // Usulan IKU/IKT PEM

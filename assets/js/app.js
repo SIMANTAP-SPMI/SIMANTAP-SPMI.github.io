@@ -344,6 +344,15 @@ function loginForm() {
   });
 }
 
+/* 17 Nov 2026: lulusan milik unit karier (CDC), bukan Akademik. Indikator lama di AKD dipindahkan sekali (data lain tidak diubah). */
+async function pindahkanLulusanKeKarier() {
+  const ind = S.indikator.find(i => i.unit === 'AKD' && /^Lulusan pendidikan vokasi ESDM/.test(i.teks || ''));
+  if (!ind) return;
+  ind.unit = 'CDC';
+  try { await DB.put('indikator', ind, S.indikator); } catch (e) { /* pengguna tanpa hak tulis: perubahan hanya di tampilan, akan tersimpan saat SPM membuka */ }
+  for (const r of S.rtl.filter(x => x.ind === ind.id && x.unit === 'AKD')) { r.unit = 'CDC'; try { await DB.put('rtl', r, S.rtl); } catch (e) { /* abaikan */ } }
+}
+
 async function boot() {
   const demo = new URLSearchParams(location.search).has('demo');
   if (demo) DB.useLocal(); else await DB.init();
@@ -359,6 +368,7 @@ async function boot() {
   if (DB.mode !== 'firebase' && !S.lam.length) { for (const a of LAM_AWAL) { const c = JSON.parse(JSON.stringify(a)); S.lam.push(c); try { await DB.put('lam', c, S.lam); } catch (e) { /* abaikan */ } } }
   S.kurPengguna = await DB.bacaLuar('kur_pengguna');
   await cekDeveloper();
+  await pindahkanLulusanKeKarier();
   terapkanPeran();
   await muatKurekam();
   window.addEventListener('hashchange', route_);
