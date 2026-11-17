@@ -38,9 +38,9 @@ export function statusButir(it, d) {
     Butir yang belum terisi bernilai 0 pada NA, sehingga proyeksi menaksir NA penuh dari butir yang sudah terisi saja (indikatif). */
 const BOBOT_TOTAL = LAM_ITEMS.reduce((a, it) => a + it.bobot, 0);
 export function hasilLam(pid) {
-  const d = dokLam(pid), H = hitungLam(d.input);
+  const d = dokLam(pid), inp = inputEfektif(pid, d.input), H = hitungLam(inp);
   const sb = LAM_ITEMS.map(it => statusButir(it, d)), selesai = sb.filter(x => x.k === 'selesai').length, sentuh = sb.filter(x => x.k !== 'belum').length;
-  const ukur = LAM_ITEMS.map(it => isianButir(it).every(x => ada(d.input[x.ref])));
+  const ukur = LAM_ITEMS.map(it => isianButir(it).every(x => ada(inp[x.ref])));
   const bobotUkur = LAM_ITEMS.reduce((a, it, i) => a + (ukur[i] ? it.bobot : 0), 0), cakupan = Math.round(bobotUkur / BOBOT_TOTAL * 100);
   const NAukur = H.butir.reduce((a, b, i) => a + (ukur[i] ? b.nilai : 0), 0), proy = bobotUkur > 0 ? NAukur / bobotUkur * BOBOT_TOTAL : 0;
   const lengkap = ukur.every(Boolean), A = LAM.ambang;
@@ -144,6 +144,9 @@ function petaKurekam(p, it) {
   }
   return m;
 }
+/** Semua angka tracer dari KUREKAM (butir 53 sampai 56). Angka ini dibaca langsung, tidak disalin ke dokumen LAM. */
+function petaSemua(p) { const m = {}; [53, 54, 55, 56].forEach(n => Object.assign(m, petaKurekam(p, LAM_ITEMS.find(i => i.no === n)))); return m; }
+const inputEfektif = (pid, input) => Object.assign({}, input, petaSemua({ id: pid }));
 function refKurekam(p, it, isi) {
   const u = umpanKur(p); if (!u) return '';
   const demo = DB.mode !== 'firebase', bdg = (x) => x && x.ilustratif ? '<span class="tag" style="--c:#f5a524">contoh ilustratif</span> ' : '';
@@ -155,18 +158,18 @@ function refKurekam(p, it, isi) {
   const t = u.tracer; if (![53, 54, 55, 56].includes(it.no) || !t) return '';
   const m = petaKurekam(p, it), nama = { 53: 'Waktu tunggu', 54: 'Kesesuaian bidang kerja', 55: 'Tingkat tempat kerja', 56: 'Kepuasan pengguna' }[it.no];
   return `<div class="card" style="margin-top:12px"><div class="card-h"><h3>Data tracer dari KUREKAM · ${nama}</h3></div>
-    <div class="small" style="line-height:1.6">${bdg(t)}${demo ? '<span class="muted">Mode demo. </span>' : ''}Lulusan TS-2 = <b>${esc(t.ts2)}</b>, TS-1 = <b>${esc(t.ts1)}</b>. Lulusan ${t.NL}, terlacak ${t.NJ} (${Math.round(t.PJ * 100)}%), pengguna menanggapi ${t.NP} (${Math.round(t.PP * 100)}%). ${Object.keys(m).length} angka siap diisikan ke borang.</div>
-    ${isi && Object.keys(m).length ? `<div class="filters" style="margin-top:8px"><button class="btn sm" id="kr-isi">${icon('download')} Isi borang dari KUREKAM</button><span class="small muted">Hanya mengisi kolom; tidak tersimpan sebelum Anda menekan Simpan. Pastikan tahun TS sesuai dengan tahun pengajuan akreditasi.</span></div>` : ''}</div>`;
+    <div class="small" style="line-height:1.6">${bdg(t)}${demo ? '<span class="muted">Mode demo. </span>' : ''}Lulusan TS-2 = <b>${esc(t.ts2)}</b>, TS-1 = <b>${esc(t.ts1)}</b>. Lulusan ${t.NL}, terlacak ${t.NJ} (${Math.round(t.PJ * 100)}%), pengguna menanggapi ${t.NP} (${Math.round(t.PP * 100)}%). ${Object.keys(m).length} angka dipakai untuk butir ini.</div>
+    <div class="small muted" style="margin-top:6px">Angka pada borang di bawah <b>dibaca langsung dari KUREKAM</b> (tidak disalin, tidak perlu diisi dua kali). Perbaikan data dilakukan di KUREKAM, menu Capstone, Lulusan dan Tracer. Pastikan TS-2 dan TS-1 sesuai tahun pengajuan akreditasi.</div></div>`;
 }
 
 function drawerButir(p, it, isi, audit, ulang) {
   const d0 = dokLam(p.id), baris = (b = {}) => `<div class="bk" style="display:grid;grid-template-columns:1fr 2fr;gap:8px;margin-bottom:8px"><input class="inp" placeholder="Label (mis. SK Kurikulum 2023)" value="${esc(b.label || '')}" ${isi ? '' : 'disabled'}><input class="inp" placeholder="https://..." value="${esc(b.url || '')}" ${isi ? '' : 'disabled'}></div>`;
-  const nilaiIn = (r) => ada(d0.input[r]) ? d0.input[r] : '';
+  const kmap = petaKurekam(p, it), dariK = (r) => kmap[r] != null, nilaiIn = (r) => dariK(r) ? kmap[r] : ada(d0.input[r]) ? d0.input[r] : '';
   openDrawer(`<div class="card-h"><h3>Butir ${it.no} · ${esc(it.elemen)}</h3><div class="sp"></div><button class="btn ghost" data-close>${icon('close')}</button></div>
   <div class="card"><div class="small muted">Bobot ${fmt(it.bobot)}% · ${it.judge.length ? 'butir kualitatif: skor diberikan auditor 0 sampai 4' : 'butir kuantitatif: skor dihitung dari angka borang'}</div><p style="margin:8px 0 0">${esc(it.uraian)}</p></div>
   ${refKurekam(p, it, isi)}
   ${it.borang.length ? `<div class="card" style="margin-top:12px"><div class="card-h"><h3>Angka borang (diisi prodi)</h3></div>
-    ${it.borang.map(b => `<div class="field"><label>${esc(b.label)}${b.pos ? ' <span class="small muted">(harus lebih dari 0)</span>' : ''}</label><input class="inp" type="number" step="any" min="0" data-ref="${b.ref}" value="${esc(nilaiIn(b.ref))}" ${isi ? '' : 'disabled'}></div>`).join('')}
+    ${it.borang.map(b => `<div class="field"><label>${esc(b.label)}${b.pos ? ' <span class="small muted">(harus lebih dari 0)</span>' : ''}</label><input class="inp" type="number" step="any" min="0" data-ref="${b.ref}" value="${esc(nilaiIn(b.ref))}" ${isi && !dariK(b.ref) ? '' : 'disabled'}>${dariK(b.ref) ? '<div class="small muted">Dibaca langsung dari KUREKAM; ubah di KUREKAM.</div>' : ''}</div>`).join('')}
     <div class="small muted">Sumber angka: Tabel LKPS yang dirujuk butir ini. Kosongkan bila belum ada data.</div></div>` : ''}
   ${it.judge.map(j => `<div class="card" style="margin-top:12px"><div class="card-h"><h3>Penilaian asesor</h3><div class="sp"></div><span class="small muted">skor minimal ${j.min}</span></div>
     <div class="small muted" style="margin-bottom:8px">${esc(j.teks)}</div>
@@ -182,12 +185,12 @@ function drawerButir(p, it, isi, audit, ulang) {
     const bacaBukti = () => { const out = []; d.querySelectorAll('.bk').forEach(r => { const [x, y] = r.querySelectorAll('input'); const label = x.value.trim(), url = y.value.trim(); if (label || url) out.push({ label: label || url, url }); }); return out; };
     const bacaInput = () => {
       const m = Object.assign({}, d0.input);
-      d.querySelectorAll('input[data-ref][type=number]').forEach(i => { if (i.value === '') delete m[i.dataset.ref]; else m[i.dataset.ref] = +i.value; });
+      d.querySelectorAll('input[data-ref][type=number]').forEach(i => { if (dariK(i.dataset.ref)) delete m[i.dataset.ref]; else if (i.value === '') delete m[i.dataset.ref]; else m[i.dataset.ref] = +i.value; });
       it.judge.forEach(j => { const r = d.querySelector(`input[name="j-${j.ref}"]:checked`); if (r) m[j.ref] = +r.value; });
       return m;
     };
     const hitung = () => {
-      const m = bacaInput(), H = hitungLam(m), i = LAM_ITEMS.indexOf(it), b = H.butir[i];
+      const m = Object.assign(bacaInput(), kmap), H = hitungLam(Object.assign({}, inputEfektif(p.id, {}), m)), i = LAM_ITEMS.indexOf(it), b = H.butir[i];
       const lengkap = isianButir(it).every(x => ada(m[x.ref]));
       const pctLabel = (l) => /%/.test(l);
       $('#b-h').innerHTML = `${it.calc.map(c => { const v = H.e.kk(c.ref); return `<div class="small">${esc(c.label)}: <b>${typeof v === 'number' ? (pctLabel(c.label) ? fmt(v * 100) + '%' : fmt(v, 4)) : esc(String(v ?? '–'))}</b></div>`; }).join('')}
@@ -198,7 +201,6 @@ function drawerButir(p, it, isi, audit, ulang) {
       $('#b-cnt').textContent = `${n} karakter${it.judge.length ? ' (minimal 50)' : ''}`;
     };
     hitung(); d.addEventListener('input', hitung); d.addEventListener('change', hitung);
-    const kr = $('#kr-isi'); if (kr) kr.onclick = () => { const m = petaKurekam(p, it); let n = 0; Object.entries(m).forEach(([ref, v]) => { const i = d.querySelector(`input[data-ref="${ref}"]`); if (i && v != null) { i.value = v; n++; } }); d.dispatchEvent(new Event('input')); toast(`${n} angka diisi dari KUREKAM. Periksa lalu tekan Simpan.`); };
     if (isi) $('#b-add').onclick = () => { $('#b-b').insertAdjacentHTML('beforeend', baris()); d.querySelectorAll('.bk:last-child input').forEach(i => i.disabled = false); };
     const s = $('#b-s');
     if (s) s.onclick = async () => {
