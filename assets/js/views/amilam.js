@@ -3,6 +3,7 @@
    Data di koleksi "lam" (satu dokumen per prodi): { id, input:{sel:nilai}, deskripsi:{no}, bukti:{no:[{label,url}]}, catatan:{no}, riwayat[] }. */
 import { S, ctx, icon, esc, save, toast, openDrawer, closeDrawer, userName } from '../app.js';
 import { DB } from '../db.js';
+import { kartuRealisasi } from './rujukan.js';
 import { PRODI } from '../seed.js';
 import { LAM } from '../config.js';
 import { statusLAM } from '../scoring.js';
@@ -167,7 +168,7 @@ function drawerButir(p, it, isi, audit, ulang) {
   const kmap = petaKurekam(p, it), dariK = (r) => kmap[r] != null, nilaiIn = (r) => dariK(r) ? kmap[r] : ada(d0.input[r]) ? d0.input[r] : '';
   openDrawer(`<div class="card-h"><h3>Butir ${it.no} · ${esc(it.elemen)}</h3><div class="sp"></div><button class="btn ghost" data-close>${icon('close')}</button></div>
   <div class="card"><div class="small muted">Bobot ${fmt(it.bobot)}% · ${it.judge.length ? 'butir kualitatif: skor diberikan auditor 0 sampai 4' : 'butir kuantitatif: skor dihitung dari angka borang'}</div><p style="margin:8px 0 0">${esc(it.uraian)}</p></div>
-  ${refKurekam(p, it, isi)}
+  ${refKurekam(p, it, isi)}${[15, 16].includes(it.no) ? kartuRealisasi(p.id, 'butir ' + it.no) : ''}
   ${it.borang.length ? `<div class="card" style="margin-top:12px"><div class="card-h"><h3>Angka borang (diisi prodi)</h3></div>
     ${it.borang.map(b => `<div class="field"><label>${esc(b.label)}${b.pos ? ' <span class="small muted">(harus lebih dari 0)</span>' : ''}</label><input class="inp" type="number" step="any" min="0" data-ref="${b.ref}" value="${esc(nilaiIn(b.ref))}" ${isi && !dariK(b.ref) ? '' : 'disabled'}>${dariK(b.ref) ? '<div class="small muted">Dibaca langsung dari KUREKAM; ubah di KUREKAM.</div>' : ''}</div>`).join('')}
     <div class="small muted">Sumber angka: Tabel LKPS yang dirujuk butir ini. Kosongkan bila belum ada data.</div></div>` : ''}

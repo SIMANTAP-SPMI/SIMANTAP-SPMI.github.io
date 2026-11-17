@@ -7,6 +7,7 @@ import { LED_KRITERIA, LED_SUB, LED_SS, LED_AITEM } from '../led-data.js';
 import { aksesLed, ringkas, dokIabee } from './jalur.js';
 import { NAMA_BAHAN } from '../config.js';
 import { xlsx, docx, unduh } from '../ekspor.js';
+import { kartuRealisasi } from './rujukan.js';
 
 const urlOk = (u) => /^https?:\/\/\S+$/i.test(u || '');
 const ST = { belum: { n: 'Belum diisi', c: '#94a3b8' }, draf: { n: 'Draf', c: '#f5a524' }, siap: { n: 'Siap diaudit', c: '#0ea5e9' }, audit: { n: 'Sudah diaudit', c: '#8b5cf6' }, final: { n: 'Final', c: '#10b981' } };
@@ -205,6 +206,7 @@ function drawerAitem(p, it, buka, ulang) {
   <div class="card"><div class="small muted">${esc(sub.id.slice(0, 220))}${sub.id.length > 220 ? '…' : ''}</div>
     ${ss && it.ss !== it.sub ? `<div class="small" style="margin-top:6px"><b>${esc(it.ss)}</b> ${esc(ss.id.slice(0, 220))}${ss.id.length > 220 ? '…' : ''}</div>` : ''}
     <p style="margin:10px 0 4px"><b>${esc(it.id)}</b></p><details><summary class="small muted" style="cursor:pointer">English</summary><p class="small">${esc(it.en)}</p></details></div>
+  ${[25, 47].includes(it.no) ? kartuRealisasi(p.id) : ''}
   <div class="card" style="margin-top:12px"><div class="card-h"><h3>Narasi deskripsi evaluasi diri</h3><div class="sp"></div><span class="small muted" id="a-cnt"></span></div>
     <textarea class="inp" id="a-n" rows="11" style="width:100%;resize:vertical" ${isi ? '' : 'disabled'} placeholder="Tulis jawaban berdasarkan bukti. Gunakan kerangka bila perlu.">${esc(a0.narasi)}</textarea>
     ${isi ? `<div class="filters"><button class="btn sm" id="a-k">${icon('spark')} Pakai kerangka tulisan</button><span class="small muted">Kerangka berisi penanda [isi ...] untuk Anda lengkapi.</span></div>` : ''}
