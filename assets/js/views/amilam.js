@@ -2,6 +2,7 @@
    Prodi mengisi angka borang, deskripsi, dan tautan bukti per butir; auditor menilai butir kualitatif 0 sampai 4 seperti asesor LAM.
    Data di koleksi "lam" (satu dokumen per prodi): { id, input:{sel:nilai}, deskripsi:{no}, bukti:{no:[{label,url}]}, catatan:{no}, riwayat[] }. */
 import { S, ctx, icon, esc, save, toast, openDrawer, closeDrawer, userName } from '../app.js';
+import { DB } from '../db.js';
 import { PRODI } from '../seed.js';
 import { LAM } from '../config.js';
 import { statusLAM } from '../scoring.js';
@@ -120,11 +121,50 @@ export default function amiLamView(el) {
 }
 
 /* ---------- drawer satu butir ---------- */
+/* ---------- rujukan data KUREKAM (tracer dan advisory board) ---------- */
+const DEMO_UMPAN = { contoh: true, tracer: { ilustratif: true, ts1: '2025', ts2: '2024', NL: 175, NJ: 132, NP: 84, PJ: 0.754, PP: 0.48,
+  tahun: { 2024: { NL: 85, NJ: 62, NP: 40, wt: { a: 30, b: 24, c: 8 }, ks: { r: 4, s: 18, t: 40 }, tk: { i: 2, n: 22, w: 38 } }, 2025: { NL: 90, NJ: 70, NP: 44, wt: { a: 36, b: 26, c: 8 }, ks: { r: 3, s: 20, t: 47 }, tk: { i: 3, n: 25, w: 42 } } },
+  kpc: Object.fromEntries(['etika', 'keahlian', 'bahasa', 'ti', 'komunikasi', 'kerjasama', 'diri'].map(k => [k, { sb: 25, b: 46, c: 11, k: 2 }])) },
+  ab: { ilustratif: true, anggota: 3, luar: 3, unsur: 3, pertemuan: 2, dalam12: 2, masukan: 2, ditanggapi: 2, diterima: 2, terhubungRevisi: 1, syaratOk: 5, syaratTotal: 7 } };
+const umpanKur = (p) => DB.mode !== 'firebase' ? DEMO_UMPAN : ((S.kurekam || []).find(u => u.unit === p.id) || null);
+const TR_REF = { 53: { nl: ['E608', 'E609'], nj: ['E610', 'E611'], f: 'wt', k: ['a', 'b', 'c'], c: [['E615', 'E616', 'E617'], ['E618', 'E619', 'E620']] },
+  54: { nl: ['E631', 'E632'], nj: ['E633', 'E634'], f: 'ks', k: ['r', 's', 't'], c: [['E638', 'E639', 'E640'], ['E641', 'E642', 'E643']] },
+  55: { nl: ['E652', 'E653'], nj: ['E654', 'E655'], f: 'tk', k: ['i', 'n', 'w'], c: [['E659', 'E660', 'E661'], ['E662', 'E663', 'E664']] } };
+const KP_REF = [['etika', 'E689'], ['keahlian', 'E694'], ['bahasa', 'E699'], ['ti', 'E704'], ['komunikasi', 'E709'], ['kerjasama', 'E714'], ['diri', 'E719']];
+/** Pasangan referensi sel borang -> angka dari rekap tracer KUREKAM. */
+function petaKurekam(p, it) {
+  const u = umpanKur(p), t = u && u.tracer, m = {}; if (!t || !t.tahun) return m;
+  const th = [t.ts2, t.ts1].map(y => t.tahun[y] || null);
+  if (TR_REF[it.no]) {
+    const R = TR_REF[it.no];
+    th.forEach((x, i) => { if (!x) return; m[R.nl[i]] = x.NL; m[R.nj[i]] = x.NJ; R.k.forEach((k, j) => { if (x[R.f]) m[R.c[i][j]] = x[R.f][k] || 0; }); });
+  } else if (it.no === 56) {
+    th.forEach((x, i) => { if (!x) return; m[['E682', 'E683'][i]] = x.NL; m[['E684', 'E685'][i]] = x.NP; });
+    KP_REF.forEach(([id, ref]) => { const c = (t.kpc || {})[id]; if (!c) return; const n = c.sb + c.b + c.c + c.k; if (!n) return; ['sb', 'b', 'c', 'k'].forEach((v, j) => { m[`E${+ref.slice(1) + j}`] = +(c[v] / n).toFixed(4); }); });
+  }
+  return m;
+}
+function refKurekam(p, it, isi) {
+  const u = umpanKur(p); if (!u) return '';
+  const demo = DB.mode !== 'firebase', bdg = (x) => x && x.ilustratif ? '<span class="tag" style="--c:#f5a524">contoh ilustratif</span> ' : '';
+  if (it.no === 12 && u.ab) {
+    const a = u.ab; return `<div class="card" style="margin-top:12px"><div class="card-h"><h3>Bukti dari KUREKAM · Advisory Board industri</h3></div>
+      <div class="small" style="line-height:1.6">${bdg(a)}${demo ? '<span class="muted">Mode demo. </span>' : ''}Anggota luar kampus <b>${a.luar}</b> (${a.unsur} unsur) · kegiatan 12 bulan terakhir <b>${a.dalam12}</b> · masukan <b>${a.masukan}</b>, ditanggapi ${a.ditanggapi}, diterima ${a.diterima} · terhubung ke usulan revisi <b>${a.terhubungRevisi}</b> · syarat bukti terpenuhi <b>${a.syaratOk} dari ${a.syaratTotal}</b>.</div>
+      <div class="small muted" style="margin-top:6px">Rujuk di bagian deskripsi, dan tempel tautan bukti (SK, notulen, daftar hadir) di KUREKAM atau di kolom bukti di bawah.</div></div>`;
+  }
+  const t = u.tracer; if (![53, 54, 55, 56].includes(it.no) || !t) return '';
+  const m = petaKurekam(p, it), nama = { 53: 'Waktu tunggu', 54: 'Kesesuaian bidang kerja', 55: 'Tingkat tempat kerja', 56: 'Kepuasan pengguna' }[it.no];
+  return `<div class="card" style="margin-top:12px"><div class="card-h"><h3>Data tracer dari KUREKAM · ${nama}</h3></div>
+    <div class="small" style="line-height:1.6">${bdg(t)}${demo ? '<span class="muted">Mode demo. </span>' : ''}Lulusan TS-2 = <b>${esc(t.ts2)}</b>, TS-1 = <b>${esc(t.ts1)}</b>. Lulusan ${t.NL}, terlacak ${t.NJ} (${Math.round(t.PJ * 100)}%), pengguna menanggapi ${t.NP} (${Math.round(t.PP * 100)}%). ${Object.keys(m).length} angka siap diisikan ke borang.</div>
+    ${isi && Object.keys(m).length ? `<div class="filters" style="margin-top:8px"><button class="btn sm" id="kr-isi">${icon('download')} Isi borang dari KUREKAM</button><span class="small muted">Hanya mengisi kolom; tidak tersimpan sebelum Anda menekan Simpan. Pastikan tahun TS sesuai dengan tahun pengajuan akreditasi.</span></div>` : ''}</div>`;
+}
+
 function drawerButir(p, it, isi, audit, ulang) {
   const d0 = dokLam(p.id), baris = (b = {}) => `<div class="bk" style="display:grid;grid-template-columns:1fr 2fr;gap:8px;margin-bottom:8px"><input class="inp" placeholder="Label (mis. SK Kurikulum 2023)" value="${esc(b.label || '')}" ${isi ? '' : 'disabled'}><input class="inp" placeholder="https://..." value="${esc(b.url || '')}" ${isi ? '' : 'disabled'}></div>`;
   const nilaiIn = (r) => ada(d0.input[r]) ? d0.input[r] : '';
   openDrawer(`<div class="card-h"><h3>Butir ${it.no} · ${esc(it.elemen)}</h3><div class="sp"></div><button class="btn ghost" data-close>${icon('close')}</button></div>
   <div class="card"><div class="small muted">Bobot ${fmt(it.bobot)}% · ${it.judge.length ? 'butir kualitatif: skor diberikan auditor 0 sampai 4' : 'butir kuantitatif: skor dihitung dari angka borang'}</div><p style="margin:8px 0 0">${esc(it.uraian)}</p></div>
+  ${refKurekam(p, it, isi)}
   ${it.borang.length ? `<div class="card" style="margin-top:12px"><div class="card-h"><h3>Angka borang (diisi prodi)</h3></div>
     ${it.borang.map(b => `<div class="field"><label>${esc(b.label)}${b.pos ? ' <span class="small muted">(harus lebih dari 0)</span>' : ''}</label><input class="inp" type="number" step="any" min="0" data-ref="${b.ref}" value="${esc(nilaiIn(b.ref))}" ${isi ? '' : 'disabled'}></div>`).join('')}
     <div class="small muted">Sumber angka: Tabel LKPS yang dirujuk butir ini. Kosongkan bila belum ada data.</div></div>` : ''}
@@ -158,6 +198,7 @@ function drawerButir(p, it, isi, audit, ulang) {
       $('#b-cnt').textContent = `${n} karakter${it.judge.length ? ' (minimal 50)' : ''}`;
     };
     hitung(); d.addEventListener('input', hitung); d.addEventListener('change', hitung);
+    const kr = $('#kr-isi'); if (kr) kr.onclick = () => { const m = petaKurekam(p, it); let n = 0; Object.entries(m).forEach(([ref, v]) => { const i = d.querySelector(`input[data-ref="${ref}"]`); if (i && v != null) { i.value = v; n++; } }); d.dispatchEvent(new Event('input')); toast(`${n} angka diisi dari KUREKAM. Periksa lalu tekan Simpan.`); };
     if (isi) $('#b-add').onclick = () => { $('#b-b').insertAdjacentHTML('beforeend', baris()); d.querySelectorAll('.bk:last-child input').forEach(i => i.disabled = false); };
     const s = $('#b-s');
     if (s) s.onclick = async () => {
