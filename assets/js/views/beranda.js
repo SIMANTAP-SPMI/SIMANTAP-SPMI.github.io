@@ -11,6 +11,7 @@ const TUGAS = {
     ['monitoring', 'Isi capaian bulanan operasional perkuliahan (unit AKD)', 'Ketepatan jadwal kuliah, kehadiran dosen, kelengkapan nilai di SIAKAD, bimbingan akademik, kelulusan tepat waktu.'],
     ['ami', 'Ikuti AMI proses akademik sebagai auditee', 'Siapkan evaluasi diri dan bukti pelaksanaan perkuliahan dan realisasi pembelajaran, dampingi auditor, tanggapi temuan.'],
     ['rtl', 'Tindak lanjuti temuan AMI unit AKD', 'Isi tanggapan, tindakan, dan tanggal selesai; auditor memverifikasi.'],
+    ['https://kurekam-pemakamigas.github.io/#bebanprodi', 'Kawal beban kerja dosen (SKS riil dan JP)', 'Rekap beban per dosen dan per prodi dikelola di KUREKAM; Kasubbag AK memeriksa kewajaran, kelebihan, dan kekurangan beban.'],
     ['amilam', 'Pantau realisasi pembelajaran semua prodi', 'Realisasi pertemuan terhadap RPS dan hasil per CPMK diisi dosen di KUREKAM; di sini terbaca sebagai rujukan LAM butir 15-16.']
   ],
   prodi: [
@@ -30,7 +31,7 @@ function kartuTugas() {
   if (!eAuditee() || !TUGAS[ctx.role]) return '';
   const u = ctx.unit, rtl = S.rtl.filter(r => r.unit === u && r.status !== 'Terverifikasi').length, ami = S.ami.find(a => a.auditee === u && a.status !== 'Selesai');
   return `<div class="card" style="margin-top:18px"><div class="card-h"><span class="ico-badge" style="--c:#f5a524">${icon('flag')}</span><div><h3>Tugas ${esc(ROLES[ctx.role].nama)} · ${esc(u)}</h3><div class="sub">${esc((UNIT[u] || {}).nama || '')} · ${rtl} tindak lanjut belum terverifikasi${ami ? ` · AMI dijadwalkan ${esc(ami.tgl)}` : ''}</div></div></div>
-    <div class="tbl-wrap"><table class="tbl"><tbody>${TUGAS[ctx.role].map(([r, t, k]) => `<tr><td><a href="#/${r}"><b>${esc(t)}</b></a><div class="muted small">${esc(k)}</div></td></tr>`).join('')}</tbody></table></div></div>`;
+    <div class="tbl-wrap"><table class="tbl"><tbody>${TUGAS[ctx.role].map(([r, t, k]) => `<tr><td><a href="${/^https?:/.test(r) ? r : '#/' + r}" ${/^https?:/.test(r) ? 'target="_blank" rel="noopener"' : ''}><b>${esc(t)}</b></a><div class="muted small">${esc(k)}</div></td></tr>`).join('')}</tbody></table></div></div>`;
 }
 
 export default function beranda(el) {
