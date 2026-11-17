@@ -28,7 +28,7 @@ import { PPEPP_AWAL } from './ppepp-awal.js';
 import laporan from './views/laporan.js';
 
 /* ---------------- state ---------------- */
-export const S = { indikator: [], ami: [], rtl: [], rtm: [], dokumen: [], log: [], settings: {}, kurekam: [], pengguna: [], iabee: [], led: [], lam: [], ppepp: [] };
+export const S = { indikator: [], ami: [], rtl: [], rtm: [], dokumen: [], log: [], settings: {}, kurekam: [], kurPengguna: [], pengguna: [], iabee: [], led: [], lam: [], ppepp: [] };
 const CTX_KEY = 'simantap2web_ctx';
 export const ctx = (() => {
   try { return Object.assign({ role: 'pimpinan', unit: 'TP', auditor: 'AU01' }, JSON.parse(localStorage.getItem(CTX_KEY) || '{}')); }
@@ -45,34 +45,86 @@ export function toast(msg) {
   setTimeout(() => t.remove(), 2600);
 }
 
+/* Peran pengisi (auditee): Prodi, Unit, dan Kasubbag AK. Ketiganya mengisi capaian, evaluasi diri, dan tindak lanjut unitnya. */
+export const AUDITEE = ['prodi', 'unit', 'kasubbag'];
+export const eAuditee = (r = ctx.role) => AUDITEE.includes(r);
+const jenisUnit = (u) => (UNIT[u] || {}).jenis;
+
 export function userName() {
   if (ctx.me && (ctx.me.nama || ctx.me.email)) return ctx.me.nama || ctx.me.email;
   if (ctx.role === 'auditor') return (AUDITORS.find(a => a.id === ctx.auditor) || {}).nama || 'Auditor';
-  if (ctx.role === 'auditee') return 'Auditee ' + ctx.unit;
+  if (eAuditee()) return ROLES[ctx.role].nama + (ctx.role === 'kasubbag' ? '' : ' ' + ctx.unit);
   return ROLES[ctx.role].nama;
+}
+
+/* Samakan unit dengan peran yang dipilih: Kasubbag AK selalu unit AKD, Prodi memakai prodi, Unit memakai unit non-prodi. */
+export function selaraskanUnit() {
+  if (!eAuditee()) return;
+  const tetap = ctx.unitPer && ctx.unitPer[ctx.role];
+  if (ctx.role === 'kasubbag') ctx.unit = 'AKD';
+  else if (tetap) ctx.unit = tetap;
+  else if (ctx.role === 'prodi' && jenisUnit(ctx.unit) !== 'prodi') ctx.unit = 'TP';
+  else if (ctx.role === 'unit' && jenisUnit(ctx.unit) !== 'unit') ctx.unit = 'UPPM';
+}
+
+/* Peran KUREKAM yang dibaca SIMANTAP. Daftar pengguna KUREKAM adalah satu-satunya tempat mendaftarkan SPM, Prodi, Kasubbag AK, dan Wakil Direktur I.
+   Admin dan developer KUREKAM tampil sebagai SPM (SIMANTAP tidak punya peran admin atau developer). */
+const KUR_PETA = { spm: 'admin', admin: 'admin', developer: 'admin', wadir: 'wadir1', prodi: 'prodi', akademik: 'kasubbag' };
+const DEVELOPER_SHA = ['f512cb3abb950d4c65241a0fda6c394decc7b29da869d6f51bbe36b9b1804a7b']; // sama dengan KUREKAM
+let sidikDev = false;
+async function cekDeveloper() {
+  sidikDev = false; const em = DB.user && DB.user.email ? DB.user.email.toLowerCase() : ''; if (!em || !window.crypto || !crypto.subtle) return;
+  try { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('kurekam:' + em)); sidikDev = DEVELOPER_SHA.includes(Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2, '0')).join('')); } catch (e) { /* abaikan */ }
+}
+const urutPeran = (arr) => Object.keys(ROLES).filter(k => k !== 'tamu' && arr.includes(k));
+/** Peran SIMANTAP yang diturunkan dari satu dokumen kur_pengguna (untuk tampilan daftar pengguna). */
+export function peranDariKurekam(ku) {
+  const out = [];
+  (ku.peran || []).forEach(k => { const t = KUR_PETA[k]; if (!t) return; if (t === 'prodi') { if (ku.prodi) out.push('prodi'); } else out.push(t); });
+  return urutPeran(out);
 }
 
 /* Peran dari daftar pengguna (mode masuk). Mode demo tetap memakai penukar peran bebas. */
 export function terapkanPeran() {
   // Mode demo (tanpa akun): semua peran bisa diperagakan, tetapi menu pengelolaan (Pengguna & Peran, Pengaturan) tidak ditampilkan.
-  ctx.tersedia = Object.keys(ROLES).filter(k => k !== 'tamu'); ctx.tetap = false; ctx.bootstrap = false; ctx.me = null;
+  ctx.tersedia = Object.keys(ROLES).filter(k => k !== 'tamu'); ctx.tetap = false; ctx.bootstrap = false; ctx.me = null; ctx.unitPer = null; ctx.sumber = '';
   if (!ctx.tersedia.includes(ctx.role)) { ctx.role = 'pimpinan'; saveCtx(); }
   S.pengguna.filter(p => (p.peran || []).includes('auditor')).forEach(p => {
     if (!AUDITORS.some(a => a.id === p.id)) AUDITORS.push({ id: p.id, nama: p.nama || p.email, home: p.home || '' });
   });
-  if (!DB.user || !DB.user.email) return;
+  if (!DB.user || !DB.user.email) { selaraskanUnit(); return; }
   const em = DB.user.email.toLowerCase();
   const me = S.pengguna.find(p => (p.email || '').toLowerCase() === em);
-  if (!S.pengguna.length) { ctx.bootstrap = true; ctx.tersedia = ['admin']; ctx.role = 'admin'; return; } // daftar masih kosong: pengguna pertama menjadi admin
-  const peran = me ? (me.peran || []).filter(k => ROLES[k]) : [];
-  if (!peran.length) { ctx.tersedia = ['tamu']; ctx.role = 'tamu'; ctx.tetap = true; return; }
-  ctx.me = me;
+  const ku = S.kurPengguna.find(p => (p.email || '').toLowerCase() === em);
+  if (!S.pengguna.length && !S.kurPengguna.length && !sidikDev) { ctx.bootstrap = true; ctx.tersedia = ['admin']; ctx.role = 'admin'; return; } // kedua daftar kosong: pengguna pertama menjadi SPM
+  const set = new Set(), unitPer = {};
+  if (me) {
+    (me.peran || []).forEach(k => {
+      if (k === 'auditee') { const t = jenisUnit(me.unit) === 'prodi' ? 'prodi' : 'unit'; if (me.unit) { set.add(t); unitPer[t] = me.unit; } }
+      else if (k === 'prodi' || k === 'unit') { if (me.unit) { set.add(k); unitPer[k] = me.unit; } }
+      else if (ROLES[k] && k !== 'tamu') set.add(k);
+    });
+  }
+  if (ku) {
+    (ku.peran || []).forEach(k => {
+      const t = KUR_PETA[k]; if (!t) return;
+      if (t === 'prodi') { if (ku.prodi) { set.add('prodi'); unitPer.prodi = ku.prodi; } } else set.add(t);
+    });
+  }
+  if (sidikDev) set.add('admin');
+  if (set.has('kasubbag')) unitPer.kasubbag = 'AKD';
+  const peran = urutPeran([...set]);
+  if (!peran.length) { ctx.tersedia = ['tamu']; ctx.role = 'tamu'; ctx.tetap = true; ctx.sumber = ku ? 'kur-saja' : 'tak-terdaftar'; return; }
+  ctx.me = me || (ku ? { nama: ku.nama, email: ku.email, id: ku.id } : null);
+  ctx.sumber = me && ku ? 'keduanya' : ku ? 'kurekam' : 'simantap';
   const admin = peran.includes('admin');
   ctx.tersedia = admin ? Object.keys(ROLES).filter(k => k !== 'tamu') : peran;
   ctx.tetap = !admin;
-  if (!ctx.tersedia.includes(ctx.role)) ctx.role = ctx.tersedia[0];
-  if (me.unit && !admin) ctx.unit = me.unit;
-  if (peran.includes('auditor') && !admin) ctx.auditor = me.id;
+  ctx.unitPer = admin ? null : unitPer;
+  if (admin) ctx.role = 'admin'; // SPM memulai sebagai SPM, lalu boleh memeragakan peran lain
+  else if (!ctx.tersedia.includes(ctx.role)) ctx.role = ctx.tersedia[0];
+  if (peran.includes('auditor') && !admin && me) ctx.auditor = me.id;
+  selaraskanUnit();
   saveCtx();
 }
 
@@ -81,13 +133,13 @@ export function can(action, obj) {
   const r = ctx.role;
   if (r === 'admin') return true;
   switch (action) {
-    case 'capaian': case 'ed': return r === 'auditee' && obj && obj.unit === ctx.unit;
+    case 'capaian': case 'ed': return eAuditee(r) && obj && obj.unit === ctx.unit;
     case 'audit': {
       if (r !== 'auditor' || !obj) return false;
       const a = AUDITORS.find(x => x.id === ctx.auditor);
       return a && a.home !== obj.unit; // auditor tidak mengaudit unit asalnya
     }
-    case 'rtl': return (r === 'auditee' && obj && obj.unit === ctx.unit);
+    case 'rtl': return (eAuditee(r) && obj && obj.unit === ctx.unit);
     case 'verifikasi': return r === 'auditor';
     case 'rtm': case 'sahkan': return r === 'pimpinan' || r === 'wadir1';
     case 'jadwal': case 'pengguna': return false; // hanya SPM
@@ -208,7 +260,8 @@ function renderSide(cur) {
 }
 
 function renderTop(route) {
-  const unitOpts = UNITS.map(u => `<option value="${u.id}" ${u.id === ctx.unit ? 'selected' : ''}>${u.id}</option>`).join('');
+  const unitOpts = UNITS.filter(u => ctx.role === 'prodi' ? u.jenis === 'prodi' : u.jenis === 'unit').map(u => `<option value="${u.id}" ${u.id === ctx.unit ? 'selected' : ''}>${u.id}</option>`).join('');
+  const labelPeran = (k) => ROLES[k].nama + ((k === 'prodi' || k === 'unit') && ctx.tetap && ctx.unitPer && ctx.unitPer[k] ? ' ' + ctx.unitPer[k] : '');
   const audOpts = AUDITORS.map(a => `<option value="${a.id}" ${a.id === ctx.auditor ? 'selected' : ''}>${a.nama} (${a.home})</option>`).join('');
   $('#top').innerHTML = `
     <button class="btn ghost menu-btn" id="menuBtn" aria-label="Menu">${icon('menu')}</button>
@@ -218,15 +271,15 @@ function renderTop(route) {
     <div class="role-box">
       <span class="ico-badge" style="--c:#6366f1;width:32px;height:32px">${icon('user')}</span>
       ${ctx.tetap && ctx.tersedia.length === 1
-        ? `<span class="tag" style="--c:#6366f1" title="${esc(ROLES[ctx.role].ket || '')}">${esc(userName())} · ${ROLES[ctx.role].nama}${ctx.role === 'auditee' ? ' ' + esc(ctx.unit) : ''}</span>`
-        : `<select class="inp" id="roleSel" aria-label="Peran">${ctx.tersedia.map(k => `<option value="${k}" ${k === ctx.role ? 'selected' : ''}>${ROLES[k].nama}</option>`).join('')}</select>`}
-      ${ctx.role === 'auditee' && !ctx.tetap ? `<select class="inp rl" id="unitSel" aria-label="Unit">${unitOpts}</select>` : ''}
+        ? `<span class="tag" style="--c:#6366f1" title="${esc(ROLES[ctx.role].ket || '')}">${esc(userName())} · ${esc(labelPeran(ctx.role))}</span>`
+        : `<select class="inp" id="roleSel" aria-label="Peran">${ctx.tersedia.map(k => `<option value="${k}" ${k === ctx.role ? 'selected' : ''}>${esc(labelPeran(k))}</option>`).join('')}</select>`}
+      ${(ctx.role === 'prodi' || ctx.role === 'unit') && !ctx.tetap ? `<select class="inp rl" id="unitSel" aria-label="Unit">${unitOpts}</select>` : ''}
       ${ctx.role === 'auditor' && !ctx.tetap ? `<select class="inp rl" id="audSel" aria-label="Auditor">${audOpts}</select>` : ''}
     </div>
     ${DB.user ? `<button class="btn" id="logoutBtn" title="Keluar dari ${esc(DB.user.email || '')}">${icon('logout')} Keluar</button>` : ''}`;
   $('#menuBtn').onclick = () => $('#side').classList.toggle('open');
   const lo = $('#logoutBtn'); if (lo) lo.onclick = async () => { if (!confirm('Keluar dari SIMANTAP 2.0?')) return; await DB.logout(); location.reload(); };
-  const rs = $('#roleSel'); if (rs) rs.onchange = e => { ctx.role = e.target.value; saveCtx(); route_(); };
+  const rs = $('#roleSel'); if (rs) rs.onchange = e => { ctx.role = e.target.value; selaraskanUnit(); saveCtx(); route_(); };
   const us = $('#unitSel'); if (us) us.onchange = e => { ctx.unit = e.target.value; saveCtx(); route_(); };
   const as = $('#audSel'); if (as) as.onchange = e => { ctx.auditor = e.target.value; saveCtx(); route_(); };
 }
@@ -239,6 +292,7 @@ export function route_() {
   const view = $('#view');
   view.style.animation = 'none'; void view.offsetWidth; view.style.animation = '';
   view.innerHTML = APP.dataIlustratif ? `<div class="ribbon">${icon('info')} Data dosen, publikasi, waktu tunggu, dan kesesuaian bidang kerja lima prodi dikalibrasi dengan SK LAM Teknik, LKPS terverifikasi asesor, dan Kepegawaian 2026. Indikator unit dan proses masih contoh sampai diisi data resmi (RSB, PK BLU, Kokin, PDDikti).</div>` : '';
+  if (ctx.role === 'tamu' && DB.user) view.insertAdjacentHTML('afterbegin', `<div class="ribbon">${icon('info')} Akun ${esc(DB.user.email || '')} ${ctx.sumber === 'kur-saja' ? 'terdaftar di KUREKAM, tetapi perannya (misalnya Dosen) tidak punya tugas di SIMANTAP' : 'belum terdaftar'}, sehingga hanya bisa melihat. SPM, Prodi, Kasubbag AK, dan Wakil Direktur I didaftarkan di KUREKAM (menu Data induk). Pimpinan, Auditor, dan Unit didaftarkan SPM di menu Pengguna & Peran. Hubungi SPM.</div>`);
   const holder = document.createElement('div'); view.appendChild(holder);
   try { r.v(holder); } catch (e) { console.error(e); holder.innerHTML = `<div class="card empty">Terjadi kesalahan saat memuat halaman: ${esc(e.message)}</div>`; }
   tilt(view);
@@ -264,7 +318,7 @@ function loginForm() {
   return new Promise(resolve => {
     const v = $('#view');
     v.innerHTML = `<div class="card" style="max-width:440px;margin:40px auto">
-      <div class="card-h"><span class="ico-badge" style="--c:#0ea5e9">${icon('db')}</span><div><h3>Masuk ke SIMANTAP 2.0</h3><div class="sub">Akun sama dengan KUREKAM (Firebase). Akun dibuat oleh SPM.</div></div></div>
+      <div class="card-h"><span class="ico-badge" style="--c:#0ea5e9">${icon('db')}</span><div><h3>Masuk ke SIMANTAP 2.0</h3><div class="sub">Akun sama dengan KUREKAM. Peran SPM, Prodi, dan Kasubbag AK otomatis mengikuti daftar pengguna KUREKAM.</div></div></div>
       <form id="lgn" style="display:grid;gap:10px;margin-top:12px">
         <input class="inp" id="lg-e" type="email" placeholder="Email" autocomplete="username" required>
         ${kolomSandi('lg-p', 'Kata sandi')}
@@ -303,6 +357,8 @@ async function boot() {
   load(d);
   if (DB.mode !== 'firebase' && !S.ppepp.length) { for (const a of PPEPP_AWAL) { const c = JSON.parse(JSON.stringify(a)); S.ppepp.push(c); try { await DB.put('ppepp', c, S.ppepp); } catch (e) { /* abaikan */ } } }
   if (DB.mode !== 'firebase' && !S.lam.length) { for (const a of LAM_AWAL) { const c = JSON.parse(JSON.stringify(a)); S.lam.push(c); try { await DB.put('lam', c, S.lam); } catch (e) { /* abaikan */ } } }
+  S.kurPengguna = await DB.bacaLuar('kur_pengguna');
+  await cekDeveloper();
   terapkanPeran();
   await muatKurekam();
   window.addEventListener('hashchange', route_);

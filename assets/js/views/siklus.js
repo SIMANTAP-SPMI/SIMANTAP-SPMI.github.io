@@ -1,4 +1,4 @@
-import { S, ctx, icon, esc, can, save, toast, openDrawer, closeDrawer } from '../app.js';
+import { S, ctx, icon, esc, can, save, toast, openDrawer, closeDrawer, eAuditee } from '../app.js';
 import { chart, AX, countUp, gaugeOption } from '../charts.js';
 import { UNITS, UNIT, AUDITORS } from '../seed.js';
 import { BULAN } from '../scoring.js';
@@ -100,7 +100,7 @@ const KOL = [['Terbuka', '#f0616d'], ['Proses', '#f5a524'], ['Selesai', '#0ea5e9
 let semuaV = false;
 export function rtlView(el) {
   const y = tahunAktif(), ulang = () => rtlView(el);
-  const list = kartuTL(y).filter(r => ctx.role !== 'auditee' || !r.unit || r.unit === ctx.unit);
+  const list = kartuTL(y).filter(r => !eAuditee() || !r.unit || r.unit === ctx.unit);
   const ver = list.filter(r => r.kol === 'Terverifikasi').length, aE = (r) => bolehAuditee(r), aA = (r) => bolehAuditor(r);
   const kartu = (r) => { const lw = r.kol !== 'Terverifikasi' && r.tenggat < hariIni(); const rtm = r.kind === 'rtm';
     return `<div class="card tilt" data-open="${r.id}" style="padding:12px;box-shadow:var(--shadow);cursor:pointer">

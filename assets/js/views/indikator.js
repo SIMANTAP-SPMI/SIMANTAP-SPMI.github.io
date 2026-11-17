@@ -4,7 +4,7 @@ import { UNITS, UNIT, SUMBER, SUMBERMAP, STANDAR, STD, IKU, IKUMAP, EIS, AUDITOR
 import { LAM, IABEE } from '../config.js';
 import { BLN, BULAN, fmt, skorDariRasio } from '../scoring.js';
 import { active, indStat, stBadge, sumberTags, fmtV, targetTxt, summary, isAkr, akrTag } from './common.js';
-import { remove } from '../app.js';
+import { remove, eAuditee } from '../app.js';
 
 const F = { q: '', sumber: 'ALL', unit: 'ALL', jenis: 'ALL', status: 'ALL', akr: 'ALL' };
 
@@ -86,7 +86,7 @@ export function detail(id, after) {
           <div class="field span2"><label>Bukti (${bukti.length})</label><div class="small">${bukti.map(b => `${icon('folder')} ${esc(b.nama)} ${b.verified ? '<span class="st ok">terverifikasi</span>' : '<span class="st near">menunggu</span>'}`).join('<br>') || '<span class="muted">Belum ada bukti bulan ini</span>'}</div>
           ${canCap ? `<input class="inp" id="bkIn" placeholder="Nama berkas / tautan Drive bukti" style="margin-top:6px">` : ''}</div>
         </div>
-        ${canCap ? `<button class="btn pri sm" id="saveCap" style="margin-top:10px">${icon('upload')} Simpan capaian & ED</button>` : `<div class="note" style="margin-top:6px">Pengisian oleh auditee ${i.unit} (pilih peran Auditee ${i.unit}).</div>`}`)}
+        ${canCap ? `<button class="btn pri sm" id="saveCap" style="margin-top:10px">${icon('upload')} Simpan capaian & ED</button>` : `<div class="note" style="margin-top:6px">Pengisian oleh auditee ${i.unit} (masuk sebagai pengisi unit ${i.unit}: Prodi, Unit, atau Kasubbag AK).</div>`}`)}
       ${step('#8b5cf6', 'audit', '3 · Evaluasi — Audit Mutu Internal', i.ami || canAudit ? `
         <div class="grid g2" style="gap:10px">
           <div class="field"><label>Temuan</label><select class="inp" id="amT" ${canAudit ? '' : 'disabled'}>${['Terlampaui', 'Sesuai', 'Observasi', 'KTS Minor', 'KTS Mayor'].map(t => `<option ${ami.temuan === t ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
@@ -193,7 +193,7 @@ function formIndikator(i, after) {
 let monUnit = null;
 export function monitoring(el) {
   const m = S.settings.bulan;
-  if (ctx.role === 'auditee') monUnit = ctx.unit;
+  if (eAuditee()) monUnit = ctx.unit;
   if (!monUnit) monUnit = 'TP';
   const inds = active().filter(i => i.unit === monUnit && isAkr(i));
   const nInt = active().filter(i => i.unit === monUnit && !isAkr(i)).length;
@@ -203,8 +203,8 @@ export function monitoring(el) {
   <div class="grid g-12">
     <div class="card tilt"><div class="card-h"><span class="ico-badge" style="--c:#f5a524">${icon('calendar')}</span><div><h3>Kelengkapan pengisian ${BULAN[m]}</h3><div class="sub">% indikator yang sudah dimutakhirkan per unit</div></div></div><div class="chart" id="fill"></div></div>
     <div class="card">
-      <div class="card-h"><span class="ico-badge" style="--c:#0ea5e9">${icon('pulse')}</span><div><h3>Lembar monitoring · ${esc(UNIT[monUnit].nama)}</h3><div class="sub">Hanya indikator berkorelasi akreditasi${nInt ? ` · ${nInt} indikator audit internal dievaluasi di menu AMI` : ''} · ${editable ? 'isi capaian bulan berjalan lalu simpan' : 'mode baca (pilih peran Auditee unit ini untuk mengisi)'}</div></div><div class="sp"></div>
-        ${ctx.role !== 'auditee' ? `<select class="inp" id="mu">${UNITS.map(u => `<option ${u.id === monUnit ? 'selected' : ''} value="${u.id}">${u.id}</option>`).join('')}</select>` : ''}</div>
+      <div class="card-h"><span class="ico-badge" style="--c:#0ea5e9">${icon('pulse')}</span><div><h3>Lembar monitoring · ${esc(UNIT[monUnit].nama)}</h3><div class="sub">Hanya indikator berkorelasi akreditasi${nInt ? ` · ${nInt} indikator audit internal dievaluasi di menu AMI` : ''} · ${editable ? 'isi capaian bulan berjalan lalu simpan' : 'mode baca (masuk sebagai pengisi unit ini untuk mengisi)'}</div></div><div class="sp"></div>
+        ${!eAuditee() ? `<select class="inp" id="mu">${UNITS.map(u => `<option ${u.id === monUnit ? 'selected' : ''} value="${u.id}">${u.id}</option>`).join('')}</select>` : ''}</div>
       <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Indikator</th><th class="num">Target</th>${BLN.slice(Math.max(0, m - 3), m).map(b => `<th class="num">${b}</th>`).join('')}<th class="num">${BLN[m]}</th><th>Status</th></tr></thead><tbody>
       ${inds.map(i => { const st = indStat(i); return `<tr><td style="min-width:220px"><a href="javascript:void 0" data-id="${i.id}" class="dl">${esc(i.teks)}</a><div class="muted small">${i.kode}</div></td><td class="num">${targetTxt(i)}</td>
         ${i.cap.slice(Math.max(0, m - 3), m).map(v => `<td class="num muted">${fmtV(i, v)}</td>`).join('')}

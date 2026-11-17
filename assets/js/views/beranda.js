@@ -1,10 +1,37 @@
-import { S, icon } from '../app.js';
+import { S, ctx, icon, esc, eAuditee } from '../app.js';
 import { chart, countUp, AX, grad } from '../charts.js';
 import { mountHero } from '../hero3d.js';
-import { SUMBER, PRODI } from '../seed.js';
+import { SUMBER, PRODI, ROLES, UNIT } from '../seed.js';
 import { BULAN, BLN } from '../scoring.js';
 import { active, summary, evalAll, indStat } from './common.js';
 import { kartuProgres } from './jalur.js';
+
+const TUGAS = {
+  kasubbag: [
+    ['monitoring', 'Isi capaian bulanan indikator proses akademik (unit AKD)', 'Ketepatan jadwal kuliah, kehadiran dosen, kelengkapan nilai di SIAKAD, kelulusan tepat waktu, bimbingan akademik.'],
+    ['ami', 'Ikuti AMI proses akademik sebagai auditee', 'Siapkan evaluasi diri dan bukti, dampingi auditor, tanggapi temuan.'],
+    ['rtl', 'Tindak lanjuti temuan AMI unit AKD', 'Isi tanggapan, tindakan, dan tanggal selesai; auditor memverifikasi.'],
+    ['jalur', 'Sediakan data akademik untuk prodi', 'Data mahasiswa, angkatan, dan kelulusan yang dipakai LED IABEE, LAM, dan LKPS. Lulusan dan tracer tetap milik unit karier (CDC).']
+  ],
+  prodi: [
+    ['monitoring', 'Isi capaian bulanan indikator prodi', 'Hanya indikator yang berkorelasi dengan akreditasi.'],
+    ['led', 'Lengkapi LED IABEE dan borang LAM prodi', 'Narasi, tautan bukti, dan angka borang.'],
+    ['ami', 'Ikuti AMI dan tanggapi temuan', 'Siapkan evaluasi diri dan bukti.'],
+    ['rtl', 'Tindak lanjuti temuan', 'Isi tindakan, PIC, dan tanggal selesai.']
+  ],
+  unit: [
+    ['monitoring', 'Isi capaian bulanan indikator unit', 'Unggah bukti dan isi evaluasi diri.'],
+    ['ami', 'Ikuti AMI unit sebagai auditee', 'Siapkan evaluasi diri dan bukti.'],
+    ['rtl', 'Tindak lanjuti temuan AMI', 'Isi tanggapan, tindakan, dan tanggal selesai.']
+  ]
+};
+
+function kartuTugas() {
+  if (!eAuditee() || !TUGAS[ctx.role]) return '';
+  const u = ctx.unit, rtl = S.rtl.filter(r => r.unit === u && r.status !== 'Terverifikasi').length, ami = S.ami.find(a => a.auditee === u && a.status !== 'Selesai');
+  return `<div class="card" style="margin-top:18px"><div class="card-h"><span class="ico-badge" style="--c:#f5a524">${icon('flag')}</span><div><h3>Tugas ${esc(ROLES[ctx.role].nama)} · ${esc(u)}</h3><div class="sub">${esc((UNIT[u] || {}).nama || '')} · ${rtl} tindak lanjut belum terverifikasi${ami ? ` · AMI dijadwalkan ${esc(ami.tgl)}` : ''}</div></div></div>
+    <div class="tbl-wrap"><table class="tbl"><tbody>${TUGAS[ctx.role].map(([r, t, k]) => `<tr><td><a href="#/${r}"><b>${esc(t)}</b></a><div class="muted small">${esc(k)}</div></td></tr>`).join('')}</tbody></table></div></div>`;
+}
 
 export default function beranda(el) {
   const m = S.settings.bulan;
@@ -41,6 +68,7 @@ export default function beranda(el) {
     <div class="h3d-space"></div>
   </section>
 
+  ${kartuTugas()}
   <div class="card" style="margin-top:18px">
     <div class="card-h"><span class="ico-badge" style="--c:#10b981">${icon('loop')}</span><div><h3>Alur PPEPP berjalan</h3><div class="sub">Setiap indikator membawa jejak Penetapan → Pelaksanaan → Evaluasi → Pengendalian → Peningkatan</div></div></div>
     <div class="ppepp">${ppepp.map(p => `<div class="pstep" style="--c:${p.c}"><div class="orb">${icon(p.ic)}</div><b>${p.t}</b><div class="n" data-n="${p.n}">0</div><small>${p.s}</small></div>`).join('')}</div>

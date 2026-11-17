@@ -112,12 +112,14 @@ export const IKU = [
 export const IKUMAP = Object.fromEntries(IKU.map(k => [k.id, k]));
 
 export const ROLES = {
-  admin: { nama: 'SPM', ket: 'Mengatur jadwal dan pengguna, mengawal mutu' },
-  pimpinan: { nama: 'Pimpinan (Direktur/Kepala Badan)', ket: 'Memantau dashboard dan progres, mengesahkan' },
-  wadir1: { nama: 'Wakil Direktur I', ket: 'Mengesahkan penetapan, memantau progres akademik' },
-  auditee: { nama: 'Prodi / Unit (pengisi)', ket: 'Mengisi capaian, evaluasi diri, dan tindak lanjut' },
-  auditor: { nama: 'Auditor Internal', ket: 'Mengaudit dan memberi penilaian' },
-  tamu: { nama: 'Pembaca', ket: 'Hanya melihat' }
+  admin: { nama: 'SPM', ket: 'Mengatur jadwal dan pengguna, mengawal mutu (daftar pengguna dari KUREKAM)' },
+  pimpinan: { nama: 'Pimpinan', ket: 'Direktur / Kepala Badan: memantau dashboard dan progres, mengesahkan (mode demo atau didaftarkan SPM)' },
+  wadir1: { nama: 'Wakil Direktur I', ket: 'Mengesahkan penetapan, memantau progres akademik (daftar pengguna dari KUREKAM)' },
+  prodi: { nama: 'Prodi', ket: 'Tim Kurikulum Prodi: mengisi capaian, evaluasi diri, LED/LAM prodinya, dan tindak lanjut (daftar pengguna dari KUREKAM)' },
+  unit: { nama: 'Unit', ket: 'Pengelola unit (UPPM, LAB, KEU, dan lain-lain): mengisi capaian, evaluasi diri, dan tindak lanjut unitnya' },
+  kasubbag: { nama: 'Kasubbag AK', ket: 'Auditee proses akademik (unit AKD): mengisi capaian, evaluasi diri, dan tindak lanjut AMI akademik (daftar pengguna dari KUREKAM)' },
+  auditor: { nama: 'Auditor', ket: 'Mengaudit dan memberi penilaian' },
+  tamu: { nama: 'Tamu', ket: 'Hanya melihat' }
 };
 export const AUDITORS = [
   { id: 'AU01', nama: 'Auditor 01', home: 'TM' }, { id: 'AU02', nama: 'Auditor 02', home: 'TO' },

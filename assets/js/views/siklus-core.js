@@ -4,7 +4,7 @@
    - Tahun berjalan: koleksi yang sudah dipakai modul lain (ami, rtl, rtm, indikator). Temuan dan tindak lanjut tahun berjalan = baris koleksi "rtl";
      RTM tahun berjalan = koleksi "rtm". Bidang tambahan (tanggapan, tglSelesai, perpanjang, riwayat) ditulis ke baris yang sama.
    Modul ini menormalkan keduanya menjadi bentuk yang sama dan mengarahkan penulisan ke sumber aslinya. */
-import { S, ctx, icon, esc, can, save, toast, openDrawer, closeDrawer, userName } from '../app.js';
+import { S, ctx, icon, esc, can, save, toast, openDrawer, closeDrawer, userName, eAuditee } from '../app.js';
 import { AUDITORS } from '../seed.js';
 import { docx, unduh } from '../ekspor.js';
 import { detail } from './indikator.js';
@@ -124,7 +124,7 @@ export async function tulis(n, patch, aksi) {
   }
   await save('rtl', r, `RTL ${r.id}: ${aksi}`);
 }
-export const bolehAuditee = (t) => ctx.role === 'admin' || (ctx.role === 'auditee' && (!t.unit || ctx.unit === t.unit));
+export const bolehAuditee = (t) => ctx.role === 'admin' || (eAuditee() && (!t.unit || ctx.unit === t.unit));
 export const bolehAuditor = (t) => ctx.role === 'admin' || (ctx.role === 'auditor' && (!t.unit || can('audit', { unit: t.unit })));
 export const bolehPimpinan = () => ctx.role === 'admin' || can('rtm');
 

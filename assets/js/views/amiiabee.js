@@ -59,7 +59,7 @@ async function daftarkanPengguna(a) {
 
 export default function amiIabeeView(el) {
   const admin = ctx.role === 'admin';
-  const lihat = ctx.role === 'auditee' ? PRODI.filter(p => p.id === ctx.unit) : PRODI;
+  const lihat = ctx.role === 'prodi' ? PRODI.filter(p => p.id === ctx.unit) : PRODI;
   if (!lihat.length) { el.innerHTML = '<div class="empty">Akun Prodi/Unit ini belum terhubung ke prodi.</div>'; return; }
   if (!pilih || !lihat.some(p => p.id === pilih)) pilih = lihat[0].id;
   const p = PRODI.find(x => x.id === pilih), d = dokLed(pilih), di = dokIabee(pilih), aud = di.auditor || [];

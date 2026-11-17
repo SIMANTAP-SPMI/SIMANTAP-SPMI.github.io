@@ -66,7 +66,7 @@ export function kerangka(it, prodi) {
 }
 
 /* ---------- izin ---------- */
-const bolehIsi = (pid) => ctx.role === 'admin' || (ctx.role === 'auditee' && ctx.unit === pid);
+const bolehIsi = (pid) => ctx.role === 'admin' || (ctx.role === 'prodi' && ctx.unit === pid);
 /** Auditor hanya menilai prodi yang ditugaskan kepadanya (lihat menu AMI IABEE). Tanpa penugasan, hanya mode demo yang membuka, dan tidak untuk unit asal. */
 export function auditorBerhak(pid) {
   if (ctx.role === 'admin') return true;
@@ -148,7 +148,7 @@ function bukaBerkas(p, fmt) {
 
 /* ---------- tampilan ---------- */
 export default function ledView(el) {
-  const lihat = ctx.role === 'auditee' ? PRODI.filter(p => p.id === ctx.unit) : PRODI;
+  const lihat = ctx.role === 'prodi' ? PRODI.filter(p => p.id === ctx.unit) : PRODI;
   if (!lihat.length) { el.innerHTML = '<div class="empty">Akun Prodi/Unit ini belum terhubung ke prodi. Hubungi SPM.</div>'; return; }
   if (!pilih || !lihat.some(p => p.id === pilih)) pilih = lihat[0].id;
   const p = PRODI.find(x => x.id === pilih), d = dokLed(pilih), buka = terbuka(pilih), isi = buka && bolehIsi(pilih);

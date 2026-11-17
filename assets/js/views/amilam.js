@@ -54,7 +54,7 @@ export function hasilLam(pid) {
 const nJudge = LAM_ITEMS.filter(it => it.judge.length).length;
 
 const riw = (doc, aksi) => { doc.riwayat = [{ t: new Date().toISOString(), oleh: userName(), aksi }, ...(doc.riwayat || [])].slice(0, 60); };
-const bolehIsi = (pid) => ctx.role === 'admin' || (ctx.role === 'auditee' && ctx.unit === pid);
+const bolehIsi = (pid) => ctx.role === 'admin' || (ctx.role === 'prodi' && ctx.unit === pid);
 const chip = ([c, t]) => `<span class="tag" style="--c:${c}">${t}</span>`;
 const tagStatus = (s) => s ? `<span class="tag" style="--c:${s.warna}">${esc(s.nama)}</span>` : '<span class="muted">Belum dinilai</span>';
 
@@ -70,7 +70,7 @@ function unduhExcel(p, R) {
 
 /* ---------- tampilan utama ---------- */
 export default function amiLamView(el) {
-  const lihat = ctx.role === 'auditee' ? PRODI.filter(p => p.id === ctx.unit) : PRODI;
+  const lihat = ctx.role === 'prodi' ? PRODI.filter(p => p.id === ctx.unit) : PRODI;
   if (!lihat.length) { el.innerHTML = '<div class="empty">Akun Prodi/Unit ini belum terhubung ke prodi. Hubungi SPM.</div>'; return; }
   if (!pilih || !lihat.some(p => p.id === pilih)) pilih = lihat[0].id;
   const p = PRODI.find(x => x.id === pilih), R = hasilLam(pilih), H = R.H, isi = bolehIsi(pilih), audit = auditorBerhak(pilih);

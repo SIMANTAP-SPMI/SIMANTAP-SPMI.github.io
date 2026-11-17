@@ -65,7 +65,7 @@ const sisaTxt = (s) => { const n = sisa(s); return n < 0 ? `terlambat ${-n} hari
 
 /** Kartu ringkas untuk Beranda dan dasbor pimpinan. */
 export function kartuProgres() {
-  const lihat = PRODI.filter(p => ctx.role !== 'auditee' || p.id === ctx.unit);
+  const lihat = PRODI.filter(p => ctx.role !== 'prodi' || p.id === ctx.unit);
   const rows = lihat.map(p => ({ p, r: ringkas(p.id) })).filter(x => x.r.ada);
   return `<div class="card" style="margin-top:18px"><div class="card-h"><span class="ico-badge" style="--c:#8b5cf6">${icon('flag')}</span><div><h3>Progres Jalur IABEE</h3><div class="sub">Tahap, tenggat, dan kemajuan per prodi</div></div><div class="sp"></div><a class="btn sm" href="#/jalur">Buka Jalur IABEE</a></div>
     ${rows.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Prodi</th><th>Rencana</th><th>Progres</th><th>Langkah saat ini</th><th>Tenggat</th></tr></thead><tbody>${rows.map(({ p, r }) => `<tr><td><b>${p.id}</b></td><td>${r.d.jalur} ${r.d.tahun} <span class="tag" style="--c:${r.d.penetapan === 'Disahkan' ? '#10b981' : '#f5a524'}">${r.d.penetapan}</span></td><td style="min-width:120px"><div class="bar"><i style="width:${r.pct}%;--c:#8b5cf6"></i></div><span class="small muted">${r.pct}%</span></td><td class="small">${r.aktif.no}. ${esc(r.aktif.nama)}</td><td class="small"><span class="st ${r.aktif.telat ? 'bad' : 'near'}">${tglID(r.aktif.tenggat)}</span> ${sisaTxt(r.aktif.tenggat)}</td></tr>`).join('')}</tbody></table></div>`
@@ -90,8 +90,8 @@ const links = (arr) => (arr || []).map(b => `<a class="small" href="${esc(b.url)
 
 export default function jalurView(el) {
   const admin = ctx.role === 'admin', sah = ctx.role === 'pimpinan' || ctx.role === 'wadir1';
-  if (!pilih || !PRODI.some(p => p.id === pilih)) pilih = (ctx.role === 'auditee' && PRODI.some(p => p.id === ctx.unit)) ? ctx.unit : 'TP';
-  const pid = pilih, R = ringkas(pid), d = R.d, isi = admin || (ctx.role === 'auditee' && ctx.unit === pid);
+  if (!pilih || !PRODI.some(p => p.id === pilih)) pilih = (ctx.role === 'prodi' && PRODI.some(p => p.id === ctx.unit)) ? ctx.unit : 'TP';
+  const pid = pilih, R = ringkas(pid), d = R.d, isi = admin || (ctx.role === 'prodi' && ctx.unit === pid);
   const ubah = async (fn, aksi) => { const x = JSON.parse(JSON.stringify(dokIabee(pid))); delete x._baru; fn(x); await save('iabee', x, aksi + ' ' + pid); jalurView(el); };
   const sum = PRODI.map(p => ({ p, r: ringkas(p.id) }));
 
