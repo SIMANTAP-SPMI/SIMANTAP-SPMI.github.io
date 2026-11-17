@@ -153,7 +153,7 @@ function step(c, ic, title, body) {
   return `<div class="tstep"><div class="orbsm" style="--c:${c}">${icon(ic)}</div><div class="card" style="padding:14px"><h4 style="margin-bottom:8px">${title}</h4>${body}</div></div>`;
 }
 
-/* ---------- Form indikator (Admin SPM) ---------- */
+/* ---------- Form indikator (SPM) ---------- */
 function formIndikator(i, after) {
   const isNew = !i;
   const x = i || { unit: 'SPM', std: 'S13', teks: '', target: 0, satuan: '%', arah: '>=', jenis: 'IKT', iku: 'IKT-1', sumber: [], lam: 'K4', komp: 'P', iabee: [], sp: null, risk: 'Sedang', dec: 0 };

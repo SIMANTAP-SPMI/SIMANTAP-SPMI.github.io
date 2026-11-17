@@ -4,7 +4,7 @@
    BLU   = Target kinerja BLU (Perjanjian Kinerja BLU)
    KOKIN = Kontrak Kinerja Kepala Badan PPSDM/BPSDM KESDM
    LAM   = Instrumen LAM Teknik 2025 · IAPT = IAPT 4.1 BAN-PT · IABEE = Kriteria IABEE
-   USULAN = Usulan IKU/IKT PEM (hasil benchmark; target dapat diedit atau dihapus Admin SPM) */
+   USULAN = Usulan IKU/IKT PEM (hasil benchmark; target dapat diedit atau dihapus SPM) */
 import { clamp, round, ratioAt, kelasRasio, valueAt, BLN } from './scoring.js';
 
 export const TAHUN = 2026;
@@ -112,7 +112,7 @@ export const IKU = [
 export const IKUMAP = Object.fromEntries(IKU.map(k => [k.id, k]));
 
 export const ROLES = {
-  admin: { nama: 'Admin SPM', ket: 'Mengatur jadwal dan pengguna, mengawal mutu' },
+  admin: { nama: 'SPM', ket: 'Mengatur jadwal dan pengguna, mengawal mutu' },
   pimpinan: { nama: 'Pimpinan (Direktur/Kepala Badan)', ket: 'Memantau dashboard dan progres, mengesahkan' },
   wadir1: { nama: 'Wakil Direktur I', ket: 'Mengesahkan penetapan, memantau progres akademik' },
   auditee: { nama: 'Prodi / Unit (pengisi)', ket: 'Mengisi capaian, evaluasi diri, dan tindak lanjut' },
@@ -285,7 +285,7 @@ export function buildSeed() {
     ind.bukti = {};
     for (let m = 0; m <= partial; m++) if (cap[m] != null && R() > 0.25) ind.bukti[m] = [{ nama: `Bukti_${ind.unit}_${BLN[m]}${TAHUN}.pdf`, verified: m < 8 }];
     ind.rencana = `Pemantauan bulanan oleh ${UNIT[ind.unit].nama}; evaluasi triwulanan bersama SPM.`;
-    ind.catatan = ind.sumber.includes('USULAN') ? 'Usulan IKU/IKT PEM — rumusan dan target dapat diedit atau dihapus oleh Admin SPM.' : ind.sumber.some(s => ['RSB', 'BLU', 'KOKIN'].includes(s)) ? 'Target ilustratif — sesuaikan dengan dokumen RSB/PK BLU/Kokin resmi.' : '';
+    ind.catatan = ind.sumber.includes('USULAN') ? 'Usulan IKU/IKT PEM — rumusan dan target dapat diedit atau dihapus oleh SPM.' : ind.sumber.some(s => ['RSB', 'BLU', 'KOKIN'].includes(s)) ? 'Target ilustratif — sesuaikan dengan dokumen RSB/PK BLU/Kokin resmi.' : '';
     delete ind.b; delete ind.dr; delete ind.nz;
   });
 

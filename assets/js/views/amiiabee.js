@@ -90,7 +90,7 @@ export default function amiIabeeView(el) {
   <div class="card" style="margin-top:16px"><div class="card-h"><h3>Auditor yang ditugaskan</h3><div class="sp"></div>${admin ? `<button class="btn sm pri" id="m-add">${icon('plus')} Tugaskan auditor</button>` : ''}</div>
     ${aud.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Nama</th><th>Unit asal</th><th>Email masuk</th><th></th></tr></thead><tbody>${aud.map((a, i) => `<tr><td><b>${esc(a.nama)}</b></td><td>${esc(a.home)}</td><td class="small">${esc(a.email || '–')}</td><td>${admin ? `<button class="btn sm ghost" data-rm="${i}">${icon('trash')}</button>` : ''}</td></tr>`).join('')}</tbody></table></div>
       ${aud.length < 2 ? '<div class="small" style="color:#92400e;margin-top:6px">Disarankan minimal dua auditor per prodi, dan bukan dari unit asal prodi yang diaudit.</div>' : ''}`
-    : `<div class="empty">Belum ada auditor ditugaskan untuk ${esc(p.id)}. ${admin ? 'Pilih dari daftar dosen KUREKAM.' : 'Admin SPM yang menugaskan.'}${!DB.user ? ' Mode demo: auditor contoh boleh menilai prodi selain unit asalnya.' : ''}</div>`}</div>
+    : `<div class="empty">Belum ada auditor ditugaskan untuk ${esc(p.id)}. ${admin ? 'Pilih dari daftar dosen KUREKAM.' : 'SPM yang menugaskan.'}${!DB.user ? ' Mode demo: auditor contoh boleh menilai prodi selain unit asalnya.' : ''}</div>`}</div>
 
   <div class="card" style="margin-top:16px"><div class="card-h"><h3>Temuan C, W, dan D</h3><div class="sub">W dan D otomatis menjadi RTL dengan sumber "AMI IABEE"</div></div>
     ${temuan.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Aitem</th><th>Nilai</th><th>Catatan auditor</th><th>RTL</th><th></th></tr></thead><tbody>${temuan.map(({ it, a }) => { const r = S.rtl.find(x => x.id === `RTL-IABEE-${p.id}-${it.no}`); return `<tr><td class="small" style="max-width:300px"><b>${it.no}</b> ${esc(it.id.slice(0, 110))}…</td><td>${chip(a.nilai)}</td><td class="small">${esc(a.catatan || '')}</td><td class="small">${r ? `<span class="tag" style="--c:#6366f1">${esc(r.status)}</span>` : (a.nilai === 'C' ? '<span class="muted">tidak wajib</span>' : '–')}</td><td><button class="btn sm" data-led="${it.no}">Buka aitem</button></td></tr>`; }).join('')}</tbody></table></div>` : '<div class="empty">Belum ada temuan. Auditor menilai tiap aitem di menu LED IABEE setelah prodi menandainya siap diaudit.</div>'}</div>`;
@@ -109,7 +109,7 @@ export default function amiIabeeView(el) {
       <div class="field"><label>Nama auditor</label><input class="inp" id="a-n"></div>
       <div class="field"><label>Unit asal</label><select class="inp" id="a-h">${unitOpt}</select></div>
       <div class="field"><label>Email untuk masuk ke SIMANTAP</label><input class="inp" id="a-e" type="email" placeholder="nama@gmail.com"></div>
-      <div class="small muted">Auditor otomatis terdaftar di Pengguna &amp; Peran dengan peran Auditor. Admin SPM membuat akun masuknya di menu itu.</div>
+      <div class="small muted">Auditor otomatis terdaftar di Pengguna &amp; Peran dengan peran Auditor. SPM membuat akun masuknya di menu itu.</div>
       <div class="filters"><button class="btn pri" id="a-s">${icon('check')} Tugaskan</button></div></div>`, w => {
       const sel = w.querySelector('#a-d');
       if (sel) sel.onchange = () => { const x = ds.find(y => y.id === sel.value); if (x) { w.querySelector('#a-n').value = x.nama; if (UNITS.some(u => u.id === x.homebase)) w.querySelector('#a-h').value = x.homebase; } };

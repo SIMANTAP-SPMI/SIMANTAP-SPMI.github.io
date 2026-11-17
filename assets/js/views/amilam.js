@@ -69,7 +69,7 @@ function unduhExcel(p, R) {
 /* ---------- tampilan utama ---------- */
 export default function amiLamView(el) {
   const lihat = ctx.role === 'auditee' ? PRODI.filter(p => p.id === ctx.unit) : PRODI;
-  if (!lihat.length) { el.innerHTML = '<div class="empty">Akun Prodi/Unit ini belum terhubung ke prodi. Hubungi Admin SPM.</div>'; return; }
+  if (!lihat.length) { el.innerHTML = '<div class="empty">Akun Prodi/Unit ini belum terhubung ke prodi. Hubungi SPM.</div>'; return; }
   if (!pilih || !lihat.some(p => p.id === pilih)) pilih = lihat[0].id;
   const p = PRODI.find(x => x.id === pilih), R = hasilLam(pilih), H = R.H, isi = bolehIsi(pilih), audit = auditorBerhak(pilih);
   const semua = lihat.map(x => ({ x, r: x.id === pilih ? R : hasilLam(x.id) }));

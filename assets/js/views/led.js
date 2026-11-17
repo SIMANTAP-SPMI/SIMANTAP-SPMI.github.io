@@ -148,7 +148,7 @@ function bukaBerkas(p, fmt) {
 /* ---------- tampilan ---------- */
 export default function ledView(el) {
   const lihat = ctx.role === 'auditee' ? PRODI.filter(p => p.id === ctx.unit) : PRODI;
-  if (!lihat.length) { el.innerHTML = '<div class="empty">Akun Prodi/Unit ini belum terhubung ke prodi. Hubungi Admin SPM.</div>'; return; }
+  if (!lihat.length) { el.innerHTML = '<div class="empty">Akun Prodi/Unit ini belum terhubung ke prodi. Hubungi SPM.</div>'; return; }
   if (!pilih || !lihat.some(p => p.id === pilih)) pilih = lihat[0].id;
   const p = PRODI.find(x => x.id === pilih), d = dokLed(pilih), buka = terbuka(pilih), isi = buka && bolehIsi(pilih);
   const R = ringkasLed(pilih), J = ringkas(pilih), langkah4 = J.ada ? J.L[3] : null;

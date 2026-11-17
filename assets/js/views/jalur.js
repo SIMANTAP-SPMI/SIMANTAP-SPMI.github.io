@@ -69,7 +69,7 @@ export function kartuProgres() {
   const rows = lihat.map(p => ({ p, r: ringkas(p.id) })).filter(x => x.r.ada);
   return `<div class="card" style="margin-top:18px"><div class="card-h"><span class="ico-badge" style="--c:#8b5cf6">${icon('flag')}</span><div><h3>Progres Jalur IABEE</h3><div class="sub">Tahap, tenggat, dan kemajuan per prodi</div></div><div class="sp"></div><a class="btn sm" href="#/jalur">Buka Jalur IABEE</a></div>
     ${rows.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Prodi</th><th>Rencana</th><th>Progres</th><th>Langkah saat ini</th><th>Tenggat</th></tr></thead><tbody>${rows.map(({ p, r }) => `<tr><td><b>${p.id}</b></td><td>${r.d.jalur} ${r.d.tahun} <span class="tag" style="--c:${r.d.penetapan === 'Disahkan' ? '#10b981' : '#f5a524'}">${r.d.penetapan}</span></td><td style="min-width:120px"><div class="bar"><i style="width:${r.pct}%;--c:#8b5cf6"></i></div><span class="small muted">${r.pct}%</span></td><td class="small">${r.aktif.no}. ${esc(r.aktif.nama)}</td><td class="small"><span class="st ${r.aktif.telat ? 'bad' : 'near'}">${tglID(r.aktif.tenggat)}</span> ${sisaTxt(r.aktif.tenggat)}</td></tr>`).join('')}</tbody></table></div>`
-    : '<div class="empty">Belum ada prodi yang dijadwalkan. Admin SPM menetapkan jalur dan tahun di menu Jalur IABEE.</div>'}</div>`;
+    : '<div class="empty">Belum ada prodi yang dijadwalkan. SPM menetapkan jalur dan tahun di menu Jalur IABEE.</div>'}</div>`;
 }
 
 function drawerBukti(judul, list, simpan) {
@@ -96,7 +96,7 @@ export default function jalurView(el) {
   const sum = PRODI.map(p => ({ p, r: ringkas(p.id) }));
 
   el.innerHTML = `
-  <div class="ribbon">${icon('info')} <span><b>Mulai dari sini.</b> Jalur IABEE memandu delapan langkah. Admin SPM mengatur jalur dan jadwal, Pimpinan atau Wadir I mengesahkan, Prodi mengisi kelayakan, registrasi, dan bukti. Ringkasan syarat diambil dari RPEA 2026; periksa dokumen resmi sebelum mendaftar.</span></div>
+  <div class="ribbon">${icon('info')} <span><b>Mulai dari sini.</b> Jalur IABEE memandu delapan langkah. SPM mengatur jalur dan jadwal, Pimpinan atau Wadir I mengesahkan, Prodi mengisi kelayakan, registrasi, dan bukti. Ringkasan syarat diambil dari RPEA 2026; periksa dokumen resmi sebelum mendaftar.</span></div>
   <div class="card"><div class="card-h"><span class="ico-badge" style="--c:#8b5cf6">${icon('flag')}</span><div><h3>Progres lima prodi</h3><div class="sub">Klik baris untuk melihat langkah dan panduan</div></div></div>
     <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Prodi</th><th>Rencana</th><th>Progres</th><th>Langkah saat ini</th><th>Tenggat</th><th>Akses LED</th></tr></thead><tbody>
     ${sum.map(({ p, r }) => `<tr class="click ${p.id === pid ? 'on' : ''}" data-p="${p.id}" style="${p.id === pid ? 'background:rgba(139,92,246,.08)' : ''}"><td><b>${p.id}</b><div class="muted small">${esc(UNIT[p.id].nama)}</div></td>

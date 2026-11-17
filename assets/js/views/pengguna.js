@@ -7,11 +7,11 @@ const PILIH = ['admin', 'pimpinan', 'wadir1', 'auditee', 'auditor'];
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function penggunaView(el) {
-  if (ctx.role !== 'admin') { el.innerHTML = '<div class="card empty">Menu ini hanya untuk Admin SPM.</div>'; return; }
+  if (ctx.role !== 'admin') { el.innerHTML = '<div class="card empty">Menu ini hanya untuk SPM.</div>'; return; }
   const rows = S.pengguna.slice().sort((a, b) => (a.email || '').localeCompare(b.email || ''));
   const demo = DB.mode !== 'firebase';
   el.innerHTML = `
-  ${ctx.bootstrap ? `<div class="ribbon">${icon('info')} Daftar pengguna masih kosong, sehingga akun yang sedang masuk diperlakukan sebagai Admin SPM. Tambahkan diri Bapak/Ibu sebagai Admin SPM terlebih dahulu.</div>` : ''}
+  ${ctx.bootstrap ? `<div class="ribbon">${icon('info')} Daftar pengguna masih kosong, sehingga akun yang sedang masuk diperlakukan sebagai SPM. Tambahkan diri Bapak/Ibu sebagai SPM terlebih dahulu.</div>` : ''}
   ${demo ? `<div class="ribbon">${icon('info')} Mode demo: daftar pengguna hanya tersimpan di peramban ini dan tidak membatasi akses. Pembatasan peran berlaku setelah masuk dengan akun.</div>` : ''}
   <div class="card">
     <div class="card-h"><span class="ico-badge" style="--c:#6366f1">${icon('users')}</span><div><h3>Pengguna dan peran</h3><div class="sub">Peran menentukan menu dan hak ubah. Email harus sama dengan email akun masuk.</div></div><div class="sp"></div><button class="btn pri" id="u-add">${icon('plus')} Tambah pengguna</button></div>
@@ -46,13 +46,13 @@ export default function penggunaView(el) {
         if (peran.includes('auditor') && !home) return toast('Pilih unit asal untuk peran Auditor');
         if (baru && S.pengguna.some(x => x.id === email)) return toast('Email sudah terdaftar');
         const lain = S.pengguna.filter(x => x.id !== email && (x.peran || []).includes('admin'));
-        if (!peran.includes('admin') && !lain.length) return toast('Harus ada minimal satu Admin SPM');
+        if (!peran.includes('admin') && !lain.length) return toast('Harus ada minimal satu SPM');
         await save('pengguna', { id: email, email, nama: d.querySelector('#u-n').value.trim(), peran, unit: unit || '', home: home || '' }, (baru ? 'Menambah' : 'Mengubah') + ' pengguna ' + email);
         closeDrawer(); toast('Pengguna tersimpan'); penggunaView(el);
       };
       const dl = d.querySelector('#u-d');
       if (dl) dl.onclick = async () => {
-        if ((u.peran || []).includes('admin') && !S.pengguna.some(x => x.id !== u.id && (x.peran || []).includes('admin'))) return toast('Admin SPM terakhir tidak boleh dihapus');
+        if ((u.peran || []).includes('admin') && !S.pengguna.some(x => x.id !== u.id && (x.peran || []).includes('admin'))) return toast('SPM terakhir tidak boleh dihapus');
         if (!confirm('Hapus pengguna ' + u.email + '?')) return;
         await remove('pengguna', u.id, 'Menghapus pengguna ' + u.email); closeDrawer(); toast('Pengguna dihapus'); penggunaView(el);
       };

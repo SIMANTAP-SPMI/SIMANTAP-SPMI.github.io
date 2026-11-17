@@ -90,7 +90,7 @@ export function can(action, obj) {
     case 'rtl': return (r === 'auditee' && obj && obj.unit === ctx.unit);
     case 'verifikasi': return r === 'auditor';
     case 'rtm': case 'sahkan': return r === 'pimpinan' || r === 'wadir1';
-    case 'jadwal': case 'pengguna': return false; // hanya Admin SPM
+    case 'jadwal': case 'pengguna': return false; // hanya SPM
     case 'dokumen': return false;
     case 'indikator': return false;
     default: return false;
@@ -178,7 +178,7 @@ export const ROUTES = [
   { id: 'ami', t: 'Audit Mutu Internal', ic: 'audit', c: '#f0616d', sec: 'Evaluasi & Pengendalian', v: amiView },
   { id: 'rtl', t: 'Rencana Tindak Lanjut', ic: 'loop', c: '#6366f1', sec: 'Evaluasi & Pengendalian', v: rtlView },
   { id: 'rtm', t: 'Tinjauan Manajemen', ic: 'meet', c: '#f472b6', sec: 'Evaluasi & Pengendalian', v: rtmView },
-  { id: 'ppepp', t: 'Riwayat Siklus PPEPP', sub: '2022–2026: temuan, RTM, RTL, risiko', ic: 'loop', c: '#f0616d', sec: 'Evaluasi & Pengendalian', v: ppeppView },
+  { id: 'ppepp', t: 'Siklus PPEPP', sub: 'Satu tahun satu layar, 2022–2026', ic: 'loop', c: '#f0616d', sec: 'Evaluasi & Pengendalian', v: ppeppView },
   { id: 'akreditasi', t: 'Akreditasi LAM & IABEE', ic: 'medal', c: '#10b981', sec: 'Akreditasi', v: akreditasi },
   { id: 'jalur', t: 'Jalur IABEE', sub: 'Dari pemahaman sampai keputusan', ic: 'flag', c: '#8b5cf6', sec: 'Akreditasi', v: jalurView },
   { id: 'led', t: 'LED IABEE', sub: '53 aitem: narasi, bukti, kelengkapan', ic: 'book', c: '#0ea5e9', sec: 'Akreditasi', v: ledView },
@@ -255,7 +255,7 @@ function pasangMata(root) {
 function pesanMasuk(e) {
   const c = e.code || '';
   if (/wrong-password|invalid-credential|invalid-login|user-not-found/.test(c)) return 'Email atau kata sandi tidak cocok. Akun yang dipakai sama dengan KUREKAM. Bila lupa, klik "Lupa kata sandi".';
-  if (c === 'permission-denied') return 'Akun berhasil masuk, tetapi aturan database belum mengizinkan akses. Hubungi Admin SPM.';
+  if (c === 'permission-denied') return 'Akun berhasil masuk, tetapi aturan database belum mengizinkan akses. Hubungi SPM.';
   if (c === 'auth/too-many-requests') return 'Terlalu banyak percobaan. Tunggu beberapa menit atau pakai "Lupa kata sandi".';
   if (c === 'auth/network-request-failed') return 'Koneksi internet bermasalah. Coba lagi.';
   return 'Gagal masuk: ' + (e.message || c);
@@ -264,7 +264,7 @@ function loginForm() {
   return new Promise(resolve => {
     const v = $('#view');
     v.innerHTML = `<div class="card" style="max-width:440px;margin:40px auto">
-      <div class="card-h"><span class="ico-badge" style="--c:#0ea5e9">${icon('db')}</span><div><h3>Masuk ke SIMANTAP 2.0</h3><div class="sub">Akun sama dengan KUREKAM (Firebase). Akun dibuat oleh Admin SPM.</div></div></div>
+      <div class="card-h"><span class="ico-badge" style="--c:#0ea5e9">${icon('db')}</span><div><h3>Masuk ke SIMANTAP 2.0</h3><div class="sub">Akun sama dengan KUREKAM (Firebase). Akun dibuat oleh SPM.</div></div></div>
       <form id="lgn" style="display:grid;gap:10px;margin-top:12px">
         <input class="inp" id="lg-e" type="email" placeholder="Email" autocomplete="username" required>
         ${kolomSandi('lg-p', 'Kata sandi')}

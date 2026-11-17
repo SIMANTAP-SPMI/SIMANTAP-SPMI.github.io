@@ -7,6 +7,103 @@ export const PPEPP_AWAL = [
   "ilustratif": true,
   "ami": {
    "id": "AMI-22",
+   "baris": [
+    {
+     "auditee": "TP",
+     "auditor": [
+      "AU01",
+      "AU02",
+      "AU04",
+      "AU06"
+     ],
+     "tgl": "2022-09-12",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "TO",
+     "auditor": [
+      "AU01",
+      "AU03",
+      "AU04",
+      "AU05"
+     ],
+     "tgl": "2022-09-13",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "TI",
+     "auditor": [
+      "AU01",
+      "AU03",
+      "AU05",
+      "AU06"
+     ],
+     "tgl": "2022-09-14",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "TM",
+     "auditor": [
+      "AU02",
+      "AU03",
+      "AU04",
+      "AU06"
+     ],
+     "tgl": "2022-09-15",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "LO",
+     "auditor": [
+      "AU02",
+      "AU04",
+      "AU05",
+      "AU06"
+     ],
+     "tgl": "2022-09-16",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "SPM",
+     "auditor": [
+      "AU01",
+      "AU02",
+      "AU03",
+      "AU06"
+     ],
+     "tgl": "2022-09-16",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "AKD",
+     "auditor": [
+      "AU02",
+      "AU04"
+     ],
+     "tgl": "2022-09-16",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "LAB",
+     "auditor": [
+      "AU03",
+      "AU04",
+      "AU05",
+      "AU06"
+     ],
+     "tgl": "2022-09-16",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "KEU",
+     "auditor": [
+      "AU01",
+      "AU04"
+     ],
+     "tgl": "2022-09-16",
+     "status": "Selesai"
+    }
+   ],
    "mulai": "2022-09-12",
    "selesai": "2022-09-16",
    "unit": [
@@ -625,6 +722,99 @@ export const PPEPP_AWAL = [
   "ilustratif": true,
   "ami": {
    "id": "AMI-23",
+   "baris": [
+    {
+     "auditee": "TP",
+     "auditor": [
+      "AU01",
+      "AU02",
+      "AU03",
+      "AU06"
+     ],
+     "tgl": "2023-09-11",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "TO",
+     "auditor": [
+      "AU03",
+      "AU04",
+      "AU05",
+      "AU06"
+     ],
+     "tgl": "2023-09-12",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "TI",
+     "auditor": [
+      "AU01",
+      "AU02",
+      "AU05",
+      "AU06"
+     ],
+     "tgl": "2023-09-13",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "TM",
+     "auditor": [
+      "AU02",
+      "AU03",
+      "AU04",
+      "AU05"
+     ],
+     "tgl": "2023-09-14",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "LO",
+     "auditor": [
+      "AU01",
+      "AU04",
+      "AU05",
+      "AU06"
+     ],
+     "tgl": "2023-09-15",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "SPM",
+     "auditor": [
+      "AU01",
+      "AU03"
+     ],
+     "tgl": "2023-09-15",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "UPPM",
+     "auditor": [
+      "AU02",
+      "AU04"
+     ],
+     "tgl": "2023-09-15",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "UKTI",
+     "auditor": [
+      "AU03",
+      "AU05"
+     ],
+     "tgl": "2023-09-15",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "UBP",
+     "auditor": [
+      "AU04",
+      "AU06"
+     ],
+     "tgl": "2023-09-15",
+     "status": "Selesai"
+    }
+   ],
    "mulai": "2023-09-11",
    "selesai": "2023-09-15",
    "unit": [
@@ -1215,6 +1405,100 @@ export const PPEPP_AWAL = [
   "ilustratif": true,
   "ami": {
    "id": "AMI-24",
+   "baris": [
+    {
+     "auditee": "TP",
+     "auditor": [
+      "AU01",
+      "AU02",
+      "AU03",
+      "AU04",
+      "AU06"
+     ],
+     "tgl": "2024-09-09",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "TO",
+     "auditor": [
+      "AU01",
+      "AU04",
+      "AU05",
+      "AU06"
+     ],
+     "tgl": "2024-09-10",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "TI",
+     "auditor": [
+      "AU01",
+      "AU02",
+      "AU03",
+      "AU06"
+     ],
+     "tgl": "2024-09-11",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "TM",
+     "auditor": [
+      "AU03",
+      "AU04",
+      "AU05",
+      "AU06"
+     ],
+     "tgl": "2024-09-12",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "LO",
+     "auditor": [
+      "AU01",
+      "AU02",
+      "AU05",
+      "AU06"
+     ],
+     "tgl": "2024-09-13",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "SPM",
+     "auditor": [
+      "AU02",
+      "AU04"
+     ],
+     "tgl": "2024-09-13",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "LAB",
+     "auditor": [
+      "AU03",
+      "AU05"
+     ],
+     "tgl": "2024-09-13",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "CDC",
+     "auditor": [
+      "AU04",
+      "AU06"
+     ],
+     "tgl": "2024-09-13",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "AKD",
+     "auditor": [
+      "AU01",
+      "AU05"
+     ],
+     "tgl": "2024-09-13",
+     "status": "Selesai"
+    }
+   ],
    "mulai": "2024-09-09",
    "selesai": "2024-09-13",
    "unit": [
@@ -1753,6 +2037,99 @@ export const PPEPP_AWAL = [
   "ilustratif": true,
   "ami": {
    "id": "AMI-25",
+   "baris": [
+    {
+     "auditee": "TP",
+     "auditor": [
+      "AU02",
+      "AU03",
+      "AU04",
+      "AU06"
+     ],
+     "tgl": "2025-09-08",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "TO",
+     "auditor": [
+      "AU01",
+      "AU03",
+      "AU05",
+      "AU06"
+     ],
+     "tgl": "2025-09-09",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "TI",
+     "auditor": [
+      "AU01",
+      "AU02",
+      "AU03",
+      "AU06"
+     ],
+     "tgl": "2025-09-10",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "TM",
+     "auditor": [
+      "AU03",
+      "AU04",
+      "AU05",
+      "AU06"
+     ],
+     "tgl": "2025-09-11",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "LO",
+     "auditor": [
+      "AU01",
+      "AU02",
+      "AU05",
+      "AU06"
+     ],
+     "tgl": "2025-09-12",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "SPM",
+     "auditor": [
+      "AU02",
+      "AU04"
+     ],
+     "tgl": "2025-09-12",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "KEU",
+     "auditor": [
+      "AU02",
+      "AU04"
+     ],
+     "tgl": "2025-09-12",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "UKTI",
+     "auditor": [
+      "AU04",
+      "AU06"
+     ],
+     "tgl": "2025-09-12",
+     "status": "Selesai"
+    },
+    {
+     "auditee": "PLBKKM",
+     "auditor": [
+      "AU01",
+      "AU05"
+     ],
+     "tgl": "2025-09-12",
+     "status": "Selesai"
+    }
+   ],
    "mulai": "2025-09-08",
    "selesai": "2025-09-12",
    "unit": [
@@ -2142,46 +2519,12 @@ export const PPEPP_AWAL = [
     "kunci": "2025-TO-p3"
    }
   ],
-  "rtm": {
-   "id": "RTM-25",
-   "tgl": "2026-02-24",
-   "status": "Selesai",
-   "peserta": "Direktur, Wakil Direktur I–III, Kepala SPM, ketua program studi, kepala unit",
-   "ringkas": "Bahan RTM memuat hasil AMI 2025 (14 temuan), capaian indikator, status RTL tahun sebelumnya, dan usulan peningkatan standar.",
-   "keputusan": [
-    {
-     "no": 1,
-     "teks": "Menetapkan target IKU dan IKT 2026 selaras RSB dan Kokin",
-     "rtl": "RTL25-01"
-    },
-    {
-     "no": 2,
-     "teks": "Meningkatkan standar luaran riset prodi TI",
-     "rtl": "RTL25-02"
-    },
-    {
-     "no": 3,
-     "teks": "Menetapkan prodi pilot IABEE dan menyiapkan pengukuran CPL",
-     "rtl": "RTL25-03"
-    },
-    {
-     "no": 4,
-     "teks": "Menyusun rencana kaderisasi doktor untuk prodi TM dan LO",
-     "rtl": "RTL25-04"
-    },
-    {
-     "no": 5,
-     "teks": "Memantau seluruh RTL tiap bulan dan melaporkannya kepada pimpinan",
-     "rtl": "RTL25-05"
-    }
-   ]
-  },
   "rtl": [
    {
     "id": "RTL25-01",
     "tahun": 2025,
     "keputusan": 1,
-    "aksi": "Menetapkan target IKU dan IKT 2026 selaras RSB dan Kokin",
+    "aksi": "Menetapkan target IKU/IKT 2026 selaras RSB & Kokin",
     "pic": "Direktur",
     "tenggat": "2026-06-24",
     "tglSelesai": "2026-06-24",
@@ -2205,7 +2548,7 @@ export const PPEPP_AWAL = [
     "id": "RTL25-03",
     "tahun": 2025,
     "keputusan": 3,
-    "aksi": "Menetapkan prodi pilot IABEE dan menyiapkan pengukuran CPL",
+    "aksi": "Menetapkan pilot IABEE: TP & TI",
     "pic": "Wakil Direktur I",
     "tenggat": "2026-06-24",
     "tglSelesai": "2026-07-04",
@@ -2213,308 +2556,8 @@ export const PPEPP_AWAL = [
     "temuan": [
      "T25-14"
     ]
-   },
-   {
-    "id": "RTL25-04",
-    "tahun": 2025,
-    "keputusan": 4,
-    "aksi": "Menyusun rencana kaderisasi doktor untuk prodi TM dan LO",
-    "pic": "Wakil Direktur I",
-    "tenggat": "2026-06-24",
-    "tglSelesai": null,
-    "status": "Proses",
-    "temuan": [
-     "T25-01",
-     "T25-06",
-     "T25-08"
-    ]
-   },
-   {
-    "id": "RTL25-05",
-    "tahun": 2025,
-    "keputusan": 5,
-    "aksi": "Memantau seluruh RTL tiap bulan dan melaporkannya kepada pimpinan",
-    "pic": "Kepala SPM",
-    "tenggat": "2026-06-24",
-    "tglSelesai": null,
-    "status": "Proses",
-    "temuan": [
-     "T25-10"
-    ]
    }
   ]
- },
- {
-  "id": "P2026",
-  "tahun": 2026,
-  "ilustratif": true,
-  "ami": {
-   "id": "AMI-26",
-   "mulai": "2026-09-16",
-   "selesai": "2026-09-18",
-   "unit": [
-    "TP",
-    "TI",
-    "SPM",
-    "UPPM"
-   ],
-   "auditor": [
-    "AU01",
-    "AU02",
-    "AU03",
-    "AU04",
-    "AU05",
-    "AU06"
-   ],
-   "tahap": "Tahap 1 selesai; tahap 2 (TO, TM, LO, AKD) dijadwalkan Januari 2027",
-   "ba": {
-    "no": "BA/AMI/SPM/26/V",
-    "tgl": "2026-09-25",
-    "ringkas": "AMI 2026 meliputi 4 auditee dengan 9 temuan.",
-    "ttd": [
-     "Kepala SPM",
-     "Ketua Tim Auditor",
-     "Perwakilan Auditee"
-    ]
-   }
-  },
-  "temuan": [
-   {
-    "id": "T26-01",
-    "tahun": 2026,
-    "unit": "TP",
-    "standar": "Standar Kompetensi Lulusan",
-    "kategori": "KTS Mayor",
-    "uraian": "Capaian CPL belum diukur dan dilaporkan per angkatan; indikator kinerja CPL belum ditetapkan.",
-    "akar": "Pemetaan CPL ke mata kuliah sudah ada, tetapi belum ada instrumen dan jadwal pengukuran. Perbaikan sebelumnya belum menyentuh akar masalah.",
-    "tindakan": "Menetapkan indikator kinerja CPL, instrumen ukur, dan laporan capaian CPL per angkatan tiap semester.",
-    "pic": "Ketua Program Studi TP",
-    "tglTemuan": "2026-09-25",
-    "tenggat": "2026-11-24",
-    "tglSelesai": null,
-    "status": "Proses",
-    "tanggapanAuditee": "Menerima temuan. Penyebab: Pemetaan CPL ke mata kuliah sudah ada, tetapi belum ada instrumen dan jadwal pengukuran. Rencana: Menetapkan indikator kinerja CPL, instrumen ukur, dan laporan capaian CPL per angkatan tiap semester.",
-    "tanggapanAuditor": "Rencana perbaikan diterima; dipantau pada pemantauan triwulan.",
-    "berulangDari": "T23-01",
-    "perpanjang": [],
-    "bukti": [],
-    "auditor": [
-     "AU03",
-     "AU06"
-    ],
-    "kunci": "2026-TP-p3"
-   },
-   {
-    "id": "T26-02",
-    "tahun": 2026,
-    "unit": "TP",
-    "standar": "Standar Dosen dan Tenaga Kependidikan",
-    "kategori": "KTS Mayor",
-    "uraian": "Persentase dosen berkualifikasi doktor di bawah target IKU dan beberapa dosen akan pensiun.",
-    "akar": "Tugas belajar belum selesai dan rencana kaderisasi dosen belum disusun. Perbaikan sebelumnya belum menyentuh akar masalah.",
-    "tindakan": "Menyusun peta kebutuhan dosen, mempercepat tugas belajar, dan menetapkan rencana kaderisasi lima tahun.",
-    "pic": "Ketua Program Studi TP",
-    "tglTemuan": "2026-09-25",
-    "tenggat": "2026-11-24",
-    "tglSelesai": null,
-    "status": "Open",
-    "tanggapanAuditee": "",
-    "tanggapanAuditor": "Menunggu tanggapan dan rencana perbaikan dari auditee.",
-    "berulangDari": "T25-01",
-    "perpanjang": [],
-    "bukti": [],
-    "auditor": [
-     "AU04",
-     "AU01"
-    ],
-    "kunci": "2026-TP-p4"
-   },
-   {
-    "id": "T26-03",
-    "tahun": 2026,
-    "unit": "TP",
-    "standar": "Standar Penelitian",
-    "kategori": "KTS Minor",
-    "uraian": "Publikasi dosen pada jurnal terindeks di bawah target dan tidak merata antar dosen.",
-    "akar": "Pendampingan penulisan dan insentif publikasi belum terstruktur. Perbaikan sebelumnya belum menyentuh akar masalah.",
-    "tindakan": "Membentuk klinik penulisan, menetapkan target publikasi per dosen, dan memantau capaian triwulan.",
-    "pic": "Ketua Program Studi TP",
-    "tglTemuan": "2026-09-25",
-    "tenggat": "2026-12-24",
-    "tglSelesai": null,
-    "status": "Proses",
-    "tanggapanAuditee": "Menerima temuan. Penyebab: Pendampingan penulisan dan insentif publikasi belum terstruktur. Rencana: Membentuk klinik penulisan, menetapkan target publikasi per dosen, dan memantau capaian triwulan.",
-    "tanggapanAuditor": "Rencana perbaikan diterima; dipantau pada pemantauan triwulan.",
-    "berulangDari": "T23-02",
-    "perpanjang": [],
-    "bukti": [],
-    "auditor": [
-     "AU06",
-     "AU02"
-    ],
-    "kunci": "2026-TP-p5"
-   },
-   {
-    "id": "T26-04",
-    "tahun": 2026,
-    "unit": "TI",
-    "standar": "Standar Kompetensi Lulusan",
-    "kategori": "KTS Minor",
-    "uraian": "Capaian CPL belum diukur dan dilaporkan per angkatan; indikator kinerja CPL belum ditetapkan.",
-    "akar": "Pemetaan CPL ke mata kuliah sudah ada, tetapi belum ada instrumen dan jadwal pengukuran. Perbaikan sebelumnya belum menyentuh akar masalah.",
-    "tindakan": "Menetapkan indikator kinerja CPL, instrumen ukur, dan laporan capaian CPL per angkatan tiap semester.",
-    "pic": "Ketua Program Studi TI",
-    "tglTemuan": "2026-09-25",
-    "tenggat": "2026-12-24",
-    "tglSelesai": "2026-11-06",
-    "status": "Menunggu verifikasi",
-    "tanggapanAuditee": "Menerima temuan. Penyebab: Pemetaan CPL ke mata kuliah sudah ada, tetapi belum ada instrumen dan jadwal pengukuran. Rencana: Menetapkan indikator kinerja CPL, instrumen ukur, dan laporan capaian CPL per angkatan tiap semester.",
-    "tanggapanAuditor": "Laporan perbaikan diterima; verifikasi bukti dijadwalkan.",
-    "berulangDari": "T22-05",
-    "perpanjang": [],
-    "bukti": [],
-    "auditor": [
-     "AU01",
-     "AU03"
-    ],
-    "kunci": "2026-TI-p3"
-   },
-   {
-    "id": "T26-05",
-    "tahun": 2026,
-    "unit": "TI",
-    "standar": "Standar Penelitian",
-    "kategori": "Observasi",
-    "uraian": "Publikasi dosen pada jurnal terindeks di bawah target dan tidak merata antar dosen.",
-    "akar": "Pendampingan penulisan dan insentif publikasi belum terstruktur. Perbaikan sebelumnya belum menyentuh akar masalah.",
-    "tindakan": "Membentuk klinik penulisan, menetapkan target publikasi per dosen, dan memantau capaian triwulan.",
-    "pic": "Ketua Program Studi TI",
-    "tglTemuan": "2026-09-25",
-    "tenggat": "2027-03-24",
-    "tglSelesai": "2026-11-07",
-    "status": "Close",
-    "tanggapanAuditee": "Menerima temuan. Penyebab: Pendampingan penulisan dan insentif publikasi belum terstruktur. Rencana: Membentuk klinik penulisan, menetapkan target publikasi per dosen, dan memantau capaian triwulan.",
-    "tanggapanAuditor": "Bukti perbaikan diperiksa dan memadai; temuan ditutup.",
-    "berulangDari": "T25-04",
-    "perpanjang": [],
-    "bukti": [],
-    "auditor": [
-     "AU02",
-     "AU05"
-    ],
-    "kunci": "2026-TI-p5"
-   },
-   {
-    "id": "T26-06",
-    "tahun": 2026,
-    "unit": "SPM",
-    "standar": "Standar Pengelolaan Mutu",
-    "kategori": "KTS Minor",
-    "uraian": "Pemantauan indikator mutu belum dilakukan berkala tiap bulan.",
-    "akar": "Jadwal pemantauan dan penanggung jawab data belum ditetapkan. Perbaikan sebelumnya belum menyentuh akar masalah.",
-    "tindakan": "Menetapkan kalender pemantauan bulanan dan penanggung jawab data tiap indikator.",
-    "pic": "Kepala Satuan Penjaminan Mutu",
-    "tglTemuan": "2026-09-25",
-    "tenggat": "2026-12-24",
-    "tglSelesai": null,
-    "status": "Proses",
-    "tanggapanAuditee": "Menerima temuan. Penyebab: Jadwal pemantauan dan penanggung jawab data belum ditetapkan. Rencana: Menetapkan kalender pemantauan bulanan dan penanggung jawab data tiap indikator.",
-    "tanggapanAuditor": "Rencana perbaikan diterima; dipantau pada pemantauan triwulan.",
-    "berulangDari": "T24-11",
-    "perpanjang": [],
-    "bukti": [],
-    "auditor": [
-     "AU05",
-     "AU01"
-    ],
-    "kunci": "2026-SPM-u1"
-   },
-   {
-    "id": "T26-07",
-    "tahun": 2026,
-    "unit": "SPM",
-    "standar": "Standar Pengelolaan Mutu",
-    "kategori": "Observasi",
-    "uraian": "Tindak lanjut keputusan RTM belum dipantau dan didokumentasikan secara terpusat.",
-    "akar": "Tidak ada daftar tindak lanjut yang diperbarui berkala. Perbaikan sebelumnya belum menyentuh akar masalah.",
-    "tindakan": "Menyusun daftar RTL, memantau tiap bulan, dan melaporkan status kepada pimpinan.",
-    "pic": "Kepala Satuan Penjaminan Mutu",
-    "tglTemuan": "2026-09-25",
-    "tenggat": "2027-03-24",
-    "tglSelesai": null,
-    "status": "Open",
-    "tanggapanAuditee": "",
-    "tanggapanAuditor": "Menunggu tanggapan dan rencana perbaikan dari auditee.",
-    "berulangDari": "T25-10",
-    "perpanjang": [],
-    "bukti": [],
-    "auditor": [
-     "AU06",
-     "AU02"
-    ],
-    "kunci": "2026-SPM-u2"
-   },
-   {
-    "id": "T26-08",
-    "tahun": 2026,
-    "unit": "UPPM",
-    "standar": "Standar Penelitian",
-    "kategori": "KTS Minor",
-    "uraian": "Peta jalan penelitian belum diturunkan menjadi target per prodi.",
-    "akar": "Peta jalan disusun tingkat institusi tanpa indikator tiap prodi. Perbaikan sebelumnya belum menyentuh akar masalah.",
-    "tindakan": "Menurunkan peta jalan menjadi target luaran per prodi dan memasukkannya ke Kokin.",
-    "pic": "Kepala UPPM",
-    "tglTemuan": "2026-09-25",
-    "tenggat": "2026-12-24",
-    "tglSelesai": "2026-11-03",
-    "status": "Close",
-    "tanggapanAuditee": "Menerima temuan. Penyebab: Peta jalan disusun tingkat institusi tanpa indikator tiap prodi. Rencana: Menurunkan peta jalan menjadi target luaran per prodi dan memasukkannya ke Kokin.",
-    "tanggapanAuditor": "Bukti perbaikan diperiksa dan memadai; temuan ditutup.",
-    "berulangDari": "T23-12",
-    "perpanjang": [],
-    "bukti": [],
-    "auditor": [
-     "AU01",
-     "AU03"
-    ],
-    "kunci": "2026-UPPM-u5"
-   },
-   {
-    "id": "T26-09",
-    "tahun": 2026,
-    "unit": "UPPM",
-    "standar": "Standar Pengabdian kepada Masyarakat",
-    "kategori": "Observasi",
-    "uraian": "Keterlibatan mahasiswa dalam penelitian dan pengabdian dosen belum terdokumentasi.",
-    "akar": "Format pelaporan tidak meminta data mahasiswa yang terlibat.",
-    "tindakan": "Mengubah format laporan agar memuat keterlibatan mahasiswa dan menyimpan bukti pada arsip prodi.",
-    "pic": "Kepala UPPM",
-    "tglTemuan": "2026-09-25",
-    "tenggat": "2027-03-24",
-    "tglSelesai": null,
-    "status": "Open",
-    "tanggapanAuditee": "",
-    "tanggapanAuditor": "Menunggu tanggapan dan rencana perbaikan dari auditee.",
-    "berulangDari": null,
-    "perpanjang": [],
-    "bukti": [],
-    "auditor": [
-     "AU02",
-     "AU04"
-    ],
-    "kunci": "2026-UPPM-p6",
-    "_rep": null
-   }
-  ],
-  "rtm": {
-   "id": "RTM-26",
-   "tgl": "2026-12-18",
-   "status": "Terjadwal",
-   "peserta": "Direktur, Wakil Direktur I–III, Kepala SPM, ketua program studi, kepala unit",
-   "ringkas": "Bahan RTM disusun dari hasil AMI tahap 1 dan data pemantauan.",
-   "keputusan": []
-  },
-  "rtl": []
  },
  {
   "id": "risiko",
@@ -2533,8 +2576,7 @@ export const PPEPP_AWAL = [
      "T24-07",
      "T24-10",
      "T25-06",
-     "T25-08",
-     "T26-02"
+     "T25-08"
     ],
     "kemungkinanSisa": 3,
     "dampakSisa": 4,
@@ -2573,8 +2615,7 @@ export const PPEPP_AWAL = [
     "pemilik": "Wakil Direktur I",
     "sumber": [
      "T24-02",
-     "T25-01",
-     "T26-02"
+     "T25-01"
     ],
     "kemungkinanSisa": 3,
     "dampakSisa": 3,
@@ -2609,8 +2650,7 @@ export const PPEPP_AWAL = [
     "pemilik": "Wakil Direktur I",
     "sumber": [
      "T22-02",
-     "T23-01",
-     "T26-01"
+     "T23-01"
     ],
     "kemungkinanSisa": 2,
     "dampakSisa": 4,
@@ -2724,8 +2764,7 @@ export const PPEPP_AWAL = [
     "pemilik": "Kepala UPPM",
     "sumber": [
      "T23-02",
-     "T23-10",
-     "T26-03"
+     "T23-10"
     ],
     "kemungkinanSisa": 3,
     "dampakSisa": 3,
@@ -2764,8 +2803,7 @@ export const PPEPP_AWAL = [
     "pemilik": "Kepala SPM",
     "sumber": [
      "T22-12",
-     "T25-10",
-     "T26-07"
+     "T25-10"
     ],
     "kemungkinanSisa": 2,
     "dampakSisa": 3,
