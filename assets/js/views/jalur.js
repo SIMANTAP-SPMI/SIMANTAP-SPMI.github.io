@@ -17,7 +17,7 @@ export function dokIabee(pid) {
   const d = S.iabee.find(x => x.id === pid);
   if (d) return d;
   const pilot = !!(UNIT[pid] && UNIT[pid].pilot);
-  return { id: pid, jalur: pilot ? 'PA' : '', tahun: pilot ? 2027 : 0, penetapan: 'Usulan', kelayakan: {}, registrasi: {}, langkah: {}, obe: {}, _baru: true };
+  return { id: pid, jalur: pilot ? 'GA' : '', tahun: pilot ? 2028 : 0, penetapan: 'Usulan', kelayakan: {}, registrasi: {}, langkah: {}, obe: {}, _baru: true };
 }
 /** Data OBE efektif: isian manual menang, bila kosong dipakai umpan dari KUREKAM. */
 export function obeEf(d) {
