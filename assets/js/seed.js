@@ -4,7 +4,7 @@
    BLU   = Target kinerja BLU (Perjanjian Kinerja BLU)
    KOKIN = Kontrak Kinerja Kepala Badan PPSDM/BPSDM KESDM
    LAM   = Instrumen LAM Teknik 2025 · IAPT = IAPT 4.1 BAN-PT · IABEE = Kriteria IABEE
-   USULAN = Usulan IKU/IKT PEM (hasil benchmark; target dapat diedit atau dihapus Admin SPM) */
+   USULAN = Usulan IKU/IKT PEM (hasil benchmark; target dapat diedit atau dihapus SPM) */
 import { clamp, round, ratioAt, kelasRasio, valueAt, BLN } from './scoring.js';
 
 export const TAHUN = 2026;
@@ -112,10 +112,14 @@ export const IKU = [
 export const IKUMAP = Object.fromEntries(IKU.map(k => [k.id, k]));
 
 export const ROLES = {
-  admin: { nama: 'Admin SPM' },
-  pimpinan: { nama: 'Pimpinan (Direktur/Kepala Badan)' },
-  auditor: { nama: 'Auditor Internal' },
-  auditee: { nama: 'Auditee (Prodi/Unit)' }
+  admin: { nama: 'SPM', ket: 'Mengatur jadwal dan pengguna, mengawal mutu (daftar pengguna dari KUREKAM)' },
+  pimpinan: { nama: 'Pimpinan', ket: 'Direktur / Kepala Badan: memantau dashboard dan progres, mengesahkan (mode demo atau didaftarkan SPM)' },
+  wadir1: { nama: 'Wakil Direktur I', ket: 'Mengesahkan penetapan, memantau progres akademik (daftar pengguna dari KUREKAM)' },
+  prodi: { nama: 'Prodi', ket: 'Tim Kurikulum Prodi: mengisi capaian, evaluasi diri, LED/LAM prodinya, dan tindak lanjut (daftar pengguna dari KUREKAM)' },
+  unit: { nama: 'Unit', ket: 'Pengelola unit (UPPM, LAB, KEU, dan lain-lain): mengisi capaian, evaluasi diri, dan tindak lanjut unitnya' },
+  kasubbag: { nama: 'Kasubbag AK', ket: 'Auditee proses akademik (unit AKD): mengisi capaian, evaluasi diri, dan tindak lanjut AMI akademik (daftar pengguna dari KUREKAM)' },
+  auditor: { nama: 'Auditor', ket: 'Mengaudit dan memberi penilaian' },
+  tamu: { nama: 'Tamu', ket: 'Hanya melihat' }
 };
 export const AUDITORS = [
   { id: 'AU01', nama: 'Auditor 01', home: 'TM' }, { id: 'AU02', nama: 'Auditor 02', home: 'TO' },
@@ -208,7 +212,7 @@ export function buildSeed() {
   U('KEU', 'S08', 'Dana penelitian dan PkM per dosen per tahun', 15, 'juta Rp', '>=', 'IKT', 'IKU-5', ['LAM'], { lam: 'K2', iapt: 'RP' }, 'Sedang', 13, 3, .3, 1);
   U('SPM', 'S07', 'Nilai SAKIP / akuntabilitas kinerja instansi', 80, 'nilai', '>=', 'IKU', 'IKU-8', ['KOKIN', 'RSB'], {}, 'Tinggi', 77.5, 2, .3, 1);
   U('SPM', 'S07', 'Indeks Kepuasan Masyarakat terhadap layanan BLU', 3.5, 'skala 4', '>=', 'IKU', 'IKU-8', ['BLU', 'KOKIN'], {}, 'Sedang', 3.41, .06, .02, 2);
-  U('AKD', 'S01', 'Lulusan pendidikan vokasi ESDM yang terserap dunia kerja ≤ 1 tahun', 85, '%', '>=', 'IKU', 'IKU-1', ['KOKIN', 'RSB'], { lam: 'K3', komp: 'O', iapt: 'RD' }, 'Tinggi', 82, 3, 1);
+  U('CDC', 'S01', 'Lulusan pendidikan vokasi ESDM yang terserap dunia kerja ≤ 1 tahun', 85, '%', '>=', 'IKU', 'IKU-1', ['KOKIN', 'RSB'], { lam: 'K3', komp: 'O', iapt: 'RD' }, 'Tinggi', 82, 3, 1);
   U('AKD', 'S07', 'Program studi terakreditasi Unggul', 100, '%', '>=', 'IKU', 'IKU-3', ['KOKIN', 'RSB', 'IAPT'], { lam: 'K1', iapt: 'AK' }, 'Tinggi', 100, 0, 0);
   U('AKD', 'S14', 'Prodi terakreditasi internasional (IABEE/Sydney Accord)', 2, 'prodi', '>=', 'IKU', 'IKU-3', ['RSB', 'IABEE'], { lam: 'K1', iabee: ['K5'], iapt: 'DM' }, 'Tinggi', 0, 0, 0);
   // Usulan IKU/IKT PEM
@@ -283,7 +287,7 @@ export function buildSeed() {
     ind.bukti = {};
     for (let m = 0; m <= partial; m++) if (cap[m] != null && R() > 0.25) ind.bukti[m] = [{ nama: `Bukti_${ind.unit}_${BLN[m]}${TAHUN}.pdf`, verified: m < 8 }];
     ind.rencana = `Pemantauan bulanan oleh ${UNIT[ind.unit].nama}; evaluasi triwulanan bersama SPM.`;
-    ind.catatan = ind.sumber.includes('USULAN') ? 'Usulan IKU/IKT PEM — rumusan dan target dapat diedit atau dihapus oleh Admin SPM.' : ind.sumber.some(s => ['RSB', 'BLU', 'KOKIN'].includes(s)) ? 'Target ilustratif — sesuaikan dengan dokumen RSB/PK BLU/Kokin resmi.' : '';
+    ind.catatan = ind.sumber.includes('USULAN') ? 'Usulan IKU/IKT PEM — rumusan dan target dapat diedit atau dihapus oleh SPM.' : ind.sumber.some(s => ['RSB', 'BLU', 'KOKIN'].includes(s)) ? 'Target ilustratif — sesuaikan dengan dokumen RSB/PK BLU/Kokin resmi.' : '';
     delete ind.b; delete ind.dr; delete ind.nz;
   });
 

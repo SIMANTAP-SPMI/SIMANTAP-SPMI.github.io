@@ -112,3 +112,68 @@ export const SKEMA_CAPAIAN = [
   { min: 0.50, skor: 1, label: "Kurang", ket: "50–69% target" },
   { min: 0, skor: 0, label: "Tidak tercapai", ket: "< 50% target / tidak ada bukti" }
 ];
+
+/* Sepuluh indikator kesiapan IABEE. Dihitung di KUREKAM, SIMANTAP hanya membaca ringkasannya (koleksi kur_umpan).
+   Kunci umpan: iabee_01 sampai iabee_10. */
+export const INDIKATOR_IABEE = [
+  { no: 1, nama: 'Mata kuliah inti dengan PI dan CPMK terpetakan', sumber: 'KUREKAM', target: 'PI untuk 100% CPL, Desember 2026' },
+  { no: 2, nama: 'CPL terpetakan ke butir IABEE (a) sampai (k)', sumber: 'KUREKAM', target: 'Lima prodi terpetakan, Desember 2026' },
+  { no: 3, nama: 'CPL yang datanya terukur per angkatan', sumber: 'KUREKAM', target: 'Pengukuran mulai Januari 2027' },
+  { no: 4, nama: 'Ketercapaian CPL terhadap kriteria', sumber: 'KUREKAM', target: 'Semua CPL prodi pilot di atas kriteria' },
+  { no: 5, nama: 'Capstone: bobot, rubrik, proyek nyata', sumber: 'KUREKAM', target: 'Terdokumentasi 2027 sampai 2028' },
+  { no: 6, nama: 'Jumlah lulusan OBE per prodi', sumber: 'KUREKAM', target: 'Terdata semua prodi' },
+  { no: 7, nama: 'Tindak lanjut perbaikan dari hasil CPL', sumber: 'KUREKAM', target: 'Minimal 1 siklus per prodi pilot' },
+  { no: 8, nama: 'Tracer dan survei pengguna lulusan', sumber: 'KUREKAM', target: 'Respons minimal 70%' },
+  { no: 9, nama: 'Kelengkapan dokumen kelayakan dan evaluasi diri', sumber: 'SIMANTAP', target: '100% prodi pilot sebelum SER' },
+  { no: 10, nama: 'Kompetensi dosen untuk mata kuliah inti', sumber: 'KUREKAM', target: 'Tidak ada mata kuliah inti tanpa dosen sesuai' }
+];
+
+/* Aplikasi pendamping. Akun masuk sama (satu proyek Firebase), tetapi sesi masuk dipisah per situs. */
+export const APP_LAIN = { kurekam: { nama: 'KUREKAM', url: 'https://kurekam-pemakamigas.github.io/' } };
+
+/* Jalur akreditasi IABEE (diringkas dari RPEA 2026 dan Kriteria ETECH 2026; cek dokumen resmi sebelum mendaftar).
+   Tanggal siklus: pendaftaran 1-15 April, SER 30 Juni, kunjungan paling lambat 7 November, keputusan 15 Maret, pengumuman 31 Maret. */
+export const IABEE_JALUR = {
+  syarat: {
+    PA: [
+      'Institusi dan program studi terakreditasi nasional',
+      'Cakupan program sesuai (sarjana terapan, minimal 144 SKS, 4 tahun)',
+      'Profil Profesional Mandiri (PPM) dan CPL dipublikasikan',
+      'Kurikulum berbasis capaian (OBE) sudah berjalan minimal 1 tahun sebelum mendaftar',
+      'Pernyataan Ketua Prodi tentang tanggal mulai OBE'
+    ],
+    GA: [
+      'Akreditasi institusi minimal B dan program studi terakreditasi nasional',
+      'Cakupan program sesuai (sarjana terapan, minimal 144 SKS, 4 tahun)',
+      'Pemangku kepentingan industri terlibat dalam PPM, CPL, dan kurikulum',
+      'Etika, keberlanjutan, dan keselamatan termuat dalam kurikulum',
+      'Kedalaman dan keluasan kurikulum memenuhi kriteria (Tabel B1)',
+      'PPM dan CPL dipublikasikan',
+      'OBE diterapkan penuh',
+      'Minimal satu lulusan OBE sebelum kunjungan evaluator',
+      'Pernyataan Ketua Prodi tentang tanggal mulai OBE'
+    ]
+  },
+  /* Tanggal bawaan relatif terhadap tahun pendaftaran Y (April Y). */
+  langkah: [
+    { no: 1, nama: 'Pahami kriteria dan siklus', mulai: [-1, '11-16'], tenggat: [-1, '12-31'], menu: { t: 'Skema Capaian & Metode', h: '#/skema' },
+      panduan: ['Baca Kriteria Akreditasi ETECH 2026 dan RPEA 2026 dari folder panduan IABEE.', 'Pahami perbedaan jalur PA (sekali, 3 tahun, tidak diakui internasional) dan GA (diakui internasional).', 'Tentukan prodi dan jalur yang diusulkan, lalu ajukan untuk disahkan Wadir I.'] },
+    { no: 2, nama: 'Cek kelayakan', mulai: [-1, '12-01'], tenggat: [0, '03-15'], menu: { t: 'Kelayakan di halaman ini', h: '#/jalur' },
+      panduan: ['Centang setiap syarat yang sudah terpenuhi pada kartu Kelayakan.', 'Lampirkan tautan bukti (boleh lebih dari satu) untuk tiap syarat.', 'Isi angkatan OBE pertama dan tanggal wisuda agar syarat lulusan OBE terhitung otomatis.', 'Syarat yang belum terpenuhi dicatat beserta rencana pemenuhannya.'] },
+    { no: 3, nama: 'Surat tugas dan registrasi', mulai: [-1, '12-15'], tenggat: [0, '04-15'], menu: { t: 'Registrasi di halaman ini', h: '#/jalur' },
+      panduan: ['Terbitkan surat tugas Wakil Prodi (Program Representative) dan catat nomor, tanggal, serta tautannya.', 'Daftarkan prodi di sistem IABEE pada 1 sampai 15 April.', 'Pastikan akun Wakil Prodi di sistem IABEE aktif; templat LED resmi baru bisa diunduh setelah registrasi.', 'Setelah surat tugas terisi dan penetapan disahkan, akses pengisian LED di aplikasi terbuka.'] },
+    { no: 4, nama: 'Susun laporan evaluasi diri (LED)', mulai: [0, '01-05'], tenggat: [0, '05-15'], menu: { t: 'Register LED IABEE', h: '#/led' },
+      panduan: ['Siapkan Tabel Suplemen di KUREKAM berurutan A1, A2, B1, B2, C1, C2, lalu B3 sampai B5.', 'Isi uraian 53 aitem beserta tautan bukti di aplikasi.', 'Lengkapi Ikhtisar Program dan data kuantitatif empat tahun terakhir.'] },
+    { no: 5, nama: 'AMI kesiapan IABEE', mulai: [0, '05-16'], tenggat: [0, '06-12'], menu: { t: 'AMI Kesiapan IABEE', h: '#/amiiabee' },
+      panduan: ['SPM menugaskan auditor dari dosen di luar prodi yang diaudit.', 'Auditor menilai tiap aitem (A, C, W, D) dan memeriksa bukti.', 'Temuan W dan D masuk Rencana Tindak Lanjut dan harus tuntas sebelum SER dikirim.'] },
+    { no: 6, nama: 'Kirim SER ke IABEE', mulai: [0, '06-13'], tenggat: [0, '06-30'], menu: { t: 'Dokumen SPMI', h: '#/dokumen' },
+      panduan: ['Unggah LED dan lampirannya melalui sistem evaluasi IABEE dengan akun Wakil Prodi.', 'Pastikan tenggat 30 Juni terpenuhi; simpan bukti unggah.'] },
+    { no: 7, nama: 'Kunjungan evaluator', mulai: [0, '10-01'], tenggat: [0, '11-07'], menu: { t: 'Rencana Tindak Lanjut', h: '#/rtl' },
+      panduan: ['Siapkan jadwal, ruang, dan pihak yang diwawancarai (dosen, mahasiswa, alumni, industri).', 'Siapkan bukti fisik dan akses data yang tertaut di LED.', 'Catat temuan dan pernyataan penutup evaluator.'] },
+    { no: 8, nama: 'Tindak lanjut dan keputusan', mulai: [0, '11-08'], tenggat: [1, '03-31'], menu: { t: 'Tinjauan Manajemen', h: '#/rtm' },
+      panduan: ['Tanggapi laporan evaluator sesuai tenggat (laporan akhir sekitar 15 Januari).', 'Pantau keputusan (sekitar 15 Maret) dan pengumuman (31 Maret).', 'Bawa hasilnya ke Tinjauan Manajemen untuk rencana perbaikan.'] }
+  ]
+};
+
+/* Tabel Suplemen LED IABEE (templat SER 2023), urut hulu ke hilir. */
+export const NAMA_BAHAN = { A1: 'Profil profesional mandiri dan CPL', A2: 'CPL dan butir IABEE (a)-(k)', B1: 'Komposisi mata kuliah per bidang kajian', B2: 'Peta jalan pembentukan CPL', C1: 'Indikator kinerja dan kriteria pemenuhan', C2: 'Jadwal asesmen CPL', B3: 'Daftar dosen', B4: 'Kegiatan dosen', B5: 'CV singkat dosen' };

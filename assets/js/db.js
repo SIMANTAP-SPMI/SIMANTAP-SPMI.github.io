@@ -5,7 +5,9 @@
    Seluruh data dimuat ke memori saat start; setiap perubahan ditulis per dokumen. */
 import { FIREBASE_CONFIG } from './config.js';
 
-export const COLLECTIONS = ['indikator', 'ami', 'rtl', 'rtm', 'dokumen', 'log', 'settings'];
+export const COLLECTIONS = ['indikator', 'ami', 'rtl', 'rtm', 'dokumen', 'log', 'settings', 'pengguna', 'iabee', 'led', 'lam', 'ppepp'];
+/* Koleksi yang boleh kosong atau belum diizinkan aturan Firestore: kegagalan baca tidak menghentikan aplikasi. */
+const OPSIONAL = ['pengguna', 'iabee', 'led', 'lam', 'ppepp'];
 const LS_PREFIX = 'simantap2web_';
 const LS_FBCFG = 'simantap2web_firebase_config';
 const FB_VER = '10.12.2';
@@ -56,6 +58,14 @@ export const DB = {
   async resetPassword(email) { await auth.sendPasswordResetEmail(email); },
   async logout() { if (auth) await auth.signOut(); user = null; },
   useLocal() { mode = 'local'; },
+  /** Membuat akun masuk tanpa mengeluarkan admin yang sedang masuk (aplikasi Firebase kedua). */
+  async buatAkun(email, sandi) {
+    const fb = window.firebase, nama = 'simantap-daftar';
+    const app2 = fb.apps.find(a => a.name === nama) || fb.initializeApp(fb.app().options, nama);
+    try { await app2.auth().createUserWithEmailAndPassword(email, sandi); return 'baru'; }
+    catch (e) { if (e.code === 'auth/email-already-in-use') return 'ada'; throw e; }
+    finally { try { await app2.auth().signOut(); } catch (e) { /* abaikan */ } }
+  },
 
   async init() {
     const cfg = getFirebaseConfig();
@@ -70,8 +80,8 @@ export const DB = {
     const out = {};
     if (mode === 'firebase') {
       for (const c of COLLECTIONS) {
-        const snap = await fs.collection(c).get();
-        out[c] = snap.docs.map(d => d.data());
+        try { const snap = await fs.collection(c).get(); out[c] = snap.docs.map(d => d.data()); }
+        catch (e) { if (!OPSIONAL.includes(c)) throw e; console.warn('Koleksi ' + c + ' tidak terbaca:', e.message); out[c] = []; }
       }
     } else {
       for (const c of COLLECTIONS) {

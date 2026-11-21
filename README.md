@@ -19,7 +19,7 @@ Rapat Tinjauan Manajemen (RTM), serta **simulasi akreditasi LAM Teknik 2025 dan 
 | Skema & Metode | Konversi capaian→skor, aturan status LAM Teknik 2025, metode IABEE, rujukan |
 | Dokumen · Pengaturan | Pustaka dokumen SPMI, status database, sambungan Firestore, cadangan/pulihkan, log aktivitas |
 
-Peran demo (pojok kanan atas): Admin SPM, Pimpinan, Auditor (tidak dapat mengaudit unit asal), Auditee (unit sendiri).
+Peran demo (pojok kanan atas): SPM, Pimpinan, Auditor (tidak dapat mengaudit unit asal), Auditee (unit sendiri).
 
 ## Metode akreditasi
 * **LAM Teknik 2025** (Pedoman Penilaian, Lampiran 10 Per-LAM Teknik No. 6/2025; PerBAN-PT No. 8/2025):

@@ -33,7 +33,7 @@ export default function pengaturan(el) {
       <details style="margin-top:12px"><summary class="small" style="cursor:pointer;font-weight:700">Contoh aturan keamanan Firestore</summary><pre class="formula" style="margin-top:8px">rules_version = '2';
 service cloud.firestore {
   match /databases/{db}/documents {
-    // hanya akun yang dibuat Admin SPM (Authentication → Email/Password)
+    // hanya akun yang dibuat SPM (Authentication → Email/Password)
     match /{col}/{id} {
       allow read, write: if request.auth != null;
     }

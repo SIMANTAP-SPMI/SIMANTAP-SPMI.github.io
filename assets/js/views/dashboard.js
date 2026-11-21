@@ -4,6 +4,7 @@ import { UNITS, UNIT, PRODI, RENSTRA, IKU, EIS } from '../seed.js';
 import { BLN, BULAN, KELAS, fmt } from '../scoring.js';
 import { LAM } from '../config.js';
 import { active, summary, indStat, evalAll, sparkPath } from './common.js';
+import { kartuProgres } from './jalur.js';
 
 let filt = 'ALL';
 
@@ -144,4 +145,5 @@ export default function dashboard(el) {
   chart(el.querySelector('#top'), barOpt(ranked.slice(0, 5), '#6ee7b7', '#10b981'));
   chart(el.querySelector('#bot'), barOpt(ranked.slice(-5).reverse(), '#fda4af', '#f0616d'));
   void fmt;
+  el.insertAdjacentHTML('beforeend', kartuProgres());
 }

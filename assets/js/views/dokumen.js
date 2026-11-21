@@ -6,7 +6,7 @@ const STC = { 'Disetujui': 'ok', 'Review SPM': 'near', 'Draft': 'na', 'Referensi
 let fj = 'ALL';
 
 export default function dokumen(el) {
-  const admin = ctx.role === 'admin', pimp = ctx.role === 'pimpinan';
+  const admin = ctx.role === 'admin', pimp = ctx.role === 'pimpinan' || ctx.role === 'wadir1';
   const list = S.dokumen.filter(d => fj === 'ALL' || d.jenis === fj);
   el.innerHTML = `
   <div class="grid g-12">
@@ -17,7 +17,7 @@ export default function dokumen(el) {
       ${list.map(d => `<tr><td><b>${esc(d.kode)}</b></td><td>${esc(d.judul)}${d.url ? ` <a href="${esc(d.url)}" target="_blank" rel="noopener">${icon('link')}</a>` : ''}</td><td>${d.jenis}</td><td>${esc(d.periode)}</td><td><span class="st ${STC[d.status]}">${d.status}</span></td>
         <td style="white-space:nowrap">${(pimp || admin) && d.status === 'Review SPM' ? `<button class="btn sm pri" data-ok="${d.id}">${icon('check')} Sahkan</button>` : ''}${admin && d.status === 'Draft' ? `<button class="btn sm" data-rv="${d.id}">Ajukan review</button>` : ''}${admin && (d.status !== 'Disetujui' || d.jenis === 'Tambahan') ? `<button class="btn sm ghost danger" data-del="${d.id}" title="Hapus">${icon('trash')}</button>` : ''}</td></tr>`).join('')}
       </tbody></table></div>
-      <div class="note" style="margin-top:8px">Dokumen SPMI yang sudah disahkan tidak dapat dihapus (rekaman mutu); dokumen tambahan/referensi dapat dihapus Admin SPM. Berkas fisik disimpan di Google Drive/Storage dan ditautkan.</div>
+      <div class="note" style="margin-top:8px">Dokumen SPMI yang sudah disahkan tidak dapat dihapus (rekaman mutu); dokumen tambahan/referensi dapat dihapus SPM. Berkas fisik disimpan di Google Drive/Storage dan ditautkan.</div>
     </div>
   </div>`;
   el.querySelectorAll('#seg button').forEach(b => b.onclick = () => { fj = b.dataset.j; dokumen(el); });
