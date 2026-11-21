@@ -14,7 +14,7 @@ export const UNITS = [
   { id: 'TO', nama: 'Teknik Pengolahan Migas', jenis: 'prodi', reakr: '2029-08-20', wadir: 1 },
   { id: 'TI', nama: 'Teknik Instrumentasi Kilang', jenis: 'prodi', pilot: true, reakr: '2029-08-20', wadir: 1 },
   { id: 'TM', nama: 'Teknik Mesin Kilang', jenis: 'prodi', reakr: '2029-12-20', wadir: 1 },
-  { id: 'LO', nama: 'Logistik Migas', jenis: 'prodi', reakr: '2030-12-20', wadir: 1 },
+  { id: 'LG', nama: 'Logistik Migas', jenis: 'prodi', reakr: '2030-12-20', wadir: 1 },
   { id: 'SPM', nama: 'Satuan Penjaminan Mutu', jenis: 'unit', wadir: 0 },
   { id: 'AKD', nama: 'Akademik', jenis: 'unit', wadir: 1 },
   { id: 'UPPM', nama: 'Unit Penelitian dan Pengabdian Masyarakat', jenis: 'unit', wadir: 1 },
@@ -43,7 +43,7 @@ export const AKR_RIIL = {
   TO: { na: 373, sk: '0431/SK/LAM Teknik/VST/VIII/2024', sd: '20 Agustus 2029' },
   TI: { na: 363, sk: '0430/SK/LAM Teknik/VST/VIII/2024', sd: '20 Agustus 2029' },
   TM: { na: 367, sk: '0771/SK/LAM Teknik/VST/XII/2024', sd: '20 Desember 2029' },
-  LO: { na: 362, sk: '0780/SK/LAM Teknik/VST/XII/2025', sd: '20 Desember 2030' }
+  LG: { na: 362, sk: '0780/SK/LAM Teknik/VST/XII/2025', sd: '20 Desember 2030' }
 };
 /* Proyeksi DTPS homebase (Kepegawaian 2026) per tahun 2026–2030: [doktor %, jabatan ≥ Lektor %].
    low  = kemungkinan terendah: tugas belajar belum selesai, pensiun tanpa pengganti, tanpa kenaikan jabatan.
@@ -63,7 +63,7 @@ export const DTPS_PROJ = {
   TM: { low: [[10, 70], [10, 70], [10, 70], [10, 70], [11.1, 66.7]],
         mod: [[10, 70], [10, 70], [18.2, 72.7], [18.2, 72.7], [20, 70]],
         agr: [[10, 70], [18.2, 72.7], [25, 75], [25, 75], [27.3, 72.7]] },
-  LO: { low: [[0, 75], [0, 75], [0, 75], [0, 75], [0, 75]],
+  LG: { low: [[0, 75], [0, 75], [0, 75], [0, 75], [0, 75]],
         mod: [[0, 75], [0, 75], [11.1, 77.8], [11.1, 77.8], [11.1, 77.8]],
         agr: [[0, 75], [11.1, 77.8], [27.3, 81.8], [27.3, 81.8], [27.3, 81.8]] }
 };
@@ -119,7 +119,7 @@ export const ROLES = {
 };
 export const AUDITORS = [
   { id: 'AU01', nama: 'Auditor 01', home: 'TM' }, { id: 'AU02', nama: 'Auditor 02', home: 'TO' },
-  { id: 'AU03', nama: 'Auditor 03', home: 'LO' }, { id: 'AU04', nama: 'Auditor 04', home: 'TI' },
+  { id: 'AU03', nama: 'Auditor 03', home: 'LG' }, { id: 'AU04', nama: 'Auditor 04', home: 'TI' },
   { id: 'AU05', nama: 'Auditor 05', home: 'TP' }, { id: 'AU06', nama: 'Auditor 06', home: 'KEU' }
 ];
 export const EIS = {
@@ -169,7 +169,7 @@ export function buildSeed() {
     TO: { tp: 3.6, kur: 3.6, dok: 20, jab: 80, pub: 1.92, wt: 3.0, ks: 80.3, ltw: 88, kp: 3.6, rps: 100, cpl: 78, sert: 90, mitra: 12, rasio: 25.8, rtl: 92, mon: 96 },
     TI: { tp: 3.6, kur: 3.6, dok: 38.5, jab: 92.3, pub: 1.78, wt: 3.1, ks: 88.6, ltw: 76.3, kp: 3.6, rps: 100, cpl: 78, sert: 91, mitra: 14, rasio: 17.6, rtl: 92, mon: 96 },
     TM: { tp: 3.6, kur: 3.6, dok: 10, jab: 70, pub: 1.5, wt: 3.3, ks: 94.8, ltw: 91.7, kp: 3.6, rps: 100, cpl: 78, sert: 88, mitra: 12, rasio: 22, rtl: 92, mon: 96 },
-    LO: { tp: 3.6, kur: 3.55, dok: 0, jab: 75, pub: 4.1, wt: 2.3, ks: 92.7, ltw: 94.3, kp: 3.6, rps: 100, cpl: 78, sert: 88, mitra: 12, rasio: 29.3, rtl: 92, mon: 96 }
+    LG: { tp: 3.6, kur: 3.55, dok: 0, jab: 75, pub: 4.1, wt: 2.3, ks: 92.7, ltw: 94.3, kp: 3.6, rps: 100, cpl: 78, sert: 88, mitra: 12, rasio: 29.3, rtl: 92, mon: 96 }
   };
   PRODI.forEach(p => {
     const b = base[p.id];
@@ -347,7 +347,7 @@ export function buildSeed() {
     { id: 'AMI-26-04', auditee: 'UPPM', auditor: ['AU02', 'AU06'], tgl: '2026-09-18', status: 'Selesai' },
     { id: 'AMI-26-05', auditee: 'TO', auditor: ['AU01', 'AU04'], tgl: '2027-01-20', status: 'Terjadwal' },
     { id: 'AMI-26-06', auditee: 'TM', auditor: ['AU02', 'AU05'], tgl: '2027-01-21', status: 'Terjadwal' },
-    { id: 'AMI-26-07', auditee: 'LO', auditor: ['AU04', 'AU06'], tgl: '2027-01-22', status: 'Terjadwal' },
+    { id: 'AMI-26-07', auditee: 'LG', auditor: ['AU04', 'AU06'], tgl: '2027-01-22', status: 'Terjadwal' },
     { id: 'AMI-26-08', auditee: 'AKD', auditor: ['AU03'], tgl: '2027-01-27', status: 'Terjadwal' }
   ];
   const rtm = [

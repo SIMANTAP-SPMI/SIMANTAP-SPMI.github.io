@@ -234,6 +234,14 @@ async function boot() {
     d = buildSeed();
     for (const c of Object.keys(d)) await DB.replaceAll(c, d[c]);
   }
+  /* Kode prodi Logistik diseragamkan dengan KUREKAM: LO menjadi LG. Diganti di memori setiap muat, lalu ditulis ulang ke basis data. */
+  const ubahLG = (v) => typeof v === 'string' ? v.replace(/\bLO\b/g, 'LG') : Array.isArray(v) ? v.map(ubahLG) : (v && typeof v === 'object') ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k === 'LO' ? 'LG' : k, ubahLG(x)])) : v;
+  const migLG = [];
+  for (const c of Object.keys(d)) { if (Array.isArray(d[c]) && /\bLO\b/.test(JSON.stringify(d[c]))) { const m = new Map(); d[c].map(ubahLG).forEach((x, i) => m.set(x && x.id != null ? x.id : 'i' + i, x)); d[c] = Array.from(m.values()); migLG.push(c); } }
+  if (ctx.unit === 'LO') ctx.unit = 'LG';
+  if (ctx.auditor && /\bLO\b/.test(ctx.auditor)) ctx.auditor = ctx.auditor.replace(/\bLO\b/, 'LG');
+  saveCtx();
+  for (const c of migLG) { try { await DB.replaceAll(c, d[c]); } catch (e) { console.warn('Penyeragaman LG gagal untuk ' + c + ': ' + e.message); } }
   load(d);
   await muatKurekam();
   window.addEventListener('hashchange', route_);
