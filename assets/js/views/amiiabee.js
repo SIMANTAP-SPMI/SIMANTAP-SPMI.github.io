@@ -77,7 +77,7 @@ export default function amiIabeeView(el) {
       ${P.per.map(k => `<td>${k.nr ? '<span class="small muted">tidak dinilai</span>' : `${chip(k.w)}<div class="small muted">${k.n}/${k.tot}</div>`}</td>`).join('')}<td>${chip(P.dis)}</td><td class="small">${P.dinilai}/${P.total}</td>
       <td><span class="tag" style="--c:${P.c}">${P.t}</span>${P.sementara ? '<div class="small muted">sementara</div>' : ''}</td><td class="small" style="color:${P1.c}">${P1.dinilai ? P1.t : '–'}</td><td class="small" style="color:${P2.c}">${P2.dinilai ? P2.t : '–'}</td></tr>`).join('')}
     </tbody></table></div>
-    <div class="small muted" style="margin-top:8px">Aitem 15 dan 22 memuat Kriteria Disiplin. Sub-disiplin TM dan LO menunggu penjelasan IABEE. Untuk PA, RPEA tidak memberi ambang angka; SIMANTAP memakai aturan: ada D berarti berisiko, selain itu berpotensi.</div></div>
+    <div class="small muted" style="margin-top:8px">Aitem 15 dan 22 memuat Kriteria Disiplin. Sub-disiplin TM dan LG menunggu penjelasan IABEE. Untuk PA, RPEA tidak memberi ambang angka; SIMANTAP memakai aturan: ada D berarti berisiko, selain itu berpotensi.</div></div>
 
   <div class="card" style="margin-top:16px"><div class="card-h"><span class="ico-badge" style="--c:#8b5cf6">${icon('users')}</span><div><h3>AMI kesiapan · ${esc(p.id)} ${esc(p.nama)}</h3><div class="sub">${ami ? `Jadwal ${tglID(ami.mulai)} sampai ${tglID(ami.tenggat)} · langkah 5 di Jalur IABEE (${ami.p}%)` : 'Jadwal mengikuti Jalur IABEE; jalur prodi ini belum ditetapkan'}</div></div><div class="sp"></div>
     ${lihat.length > 1 ? `<select class="inp" id="m-p" style="max-width:260px">${lihat.map(x => `<option value="${x.id}" ${x.id === pilih ? 'selected' : ''}>${x.id} · ${esc(x.nama)}</option>`).join('')}</select>` : ''}</div>

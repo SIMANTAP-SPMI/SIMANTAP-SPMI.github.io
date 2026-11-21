@@ -53,7 +53,7 @@ export const PPEPP_AWAL = [
      "status": "Selesai"
     },
     {
-     "auditee": "LO",
+     "auditee": "LG",
      "auditor": [
       "AU02",
       "AU04",
@@ -111,7 +111,7 @@ export const PPEPP_AWAL = [
     "TO",
     "TI",
     "TM",
-    "LO",
+    "LG",
     "SPM",
     "AKD",
     "LAB",
@@ -349,13 +349,13 @@ export const PPEPP_AWAL = [
    {
     "id": "T22-09",
     "tahun": 2022,
-    "unit": "LO",
+    "unit": "LG",
     "standar": "Standar Kompetensi Lulusan",
     "kategori": "KTS Mayor",
     "uraian": "Capaian CPL belum diukur dan dilaporkan per angkatan; indikator kinerja CPL belum ditetapkan.",
     "akar": "Pemetaan CPL ke mata kuliah sudah ada, tetapi belum ada instrumen dan jadwal pengukuran.",
     "tindakan": "Menetapkan indikator kinerja CPL, instrumen ukur, dan laporan capaian CPL per angkatan tiap semester.",
-    "pic": "Ketua Program Studi LO",
+    "pic": "Ketua Program Studi LG",
     "tglTemuan": "2022-09-20",
     "tenggat": "2022-11-19",
     "tglSelesai": "2022-12-24",
@@ -369,19 +369,19 @@ export const PPEPP_AWAL = [
      "AU02",
      "AU05"
     ],
-    "kunci": "2022-LO-p3",
+    "kunci": "2022-LG-p3",
     "_rep": null
    },
    {
     "id": "T22-10",
     "tahun": 2022,
-    "unit": "LO",
+    "unit": "LG",
     "standar": "Standar Kerja Sama",
     "kategori": "Observasi",
     "uraian": "Sebagian kerja sama dengan mitra industri belum memiliki dokumen perjanjian dan laporan pelaksanaan.",
     "akar": "Pencatatan kerja sama tersebar di tiap prodi.",
     "tindakan": "Mendata ulang seluruh kerja sama, melengkapi dokumen, dan menetapkan laporan pelaksanaan tahunan.",
-    "pic": "Ketua Program Studi LO",
+    "pic": "Ketua Program Studi LG",
     "tglTemuan": "2022-09-20",
     "tenggat": "2023-03-19",
     "tglSelesai": "2023-03-09",
@@ -395,7 +395,7 @@ export const PPEPP_AWAL = [
      "AU04",
      "AU06"
     ],
-    "kunci": "2022-LO-p8",
+    "kunci": "2022-LG-p8",
     "_rep": null
    },
    {
@@ -768,7 +768,7 @@ export const PPEPP_AWAL = [
      "status": "Selesai"
     },
     {
-     "auditee": "LO",
+     "auditee": "LG",
      "auditor": [
       "AU01",
       "AU04",
@@ -822,7 +822,7 @@ export const PPEPP_AWAL = [
     "TO",
     "TI",
     "TM",
-    "LO",
+    "LG",
     "SPM",
     "UPPM",
     "UKTI",
@@ -1057,13 +1057,13 @@ export const PPEPP_AWAL = [
    {
     "id": "T23-09",
     "tahun": 2023,
-    "unit": "LO",
+    "unit": "LG",
     "standar": "Standar Kompetensi Lulusan",
     "kategori": "KTS Minor",
     "uraian": "Capaian CPL belum diukur dan dilaporkan per angkatan; indikator kinerja CPL belum ditetapkan.",
     "akar": "Pemetaan CPL ke mata kuliah sudah ada, tetapi belum ada instrumen dan jadwal pengukuran. Perbaikan sebelumnya belum menyentuh akar masalah.",
     "tindakan": "Menetapkan indikator kinerja CPL, instrumen ukur, dan laporan capaian CPL per angkatan tiap semester.",
-    "pic": "Ketua Program Studi LO",
+    "pic": "Ketua Program Studi LG",
     "tglTemuan": "2023-09-19",
     "tenggat": "2023-12-18",
     "tglSelesai": "2024-01-03",
@@ -1077,18 +1077,18 @@ export const PPEPP_AWAL = [
      "AU04",
      "AU06"
     ],
-    "kunci": "2023-LO-p3"
+    "kunci": "2023-LG-p3"
    },
    {
     "id": "T23-10",
     "tahun": 2023,
-    "unit": "LO",
+    "unit": "LG",
     "standar": "Standar Penelitian",
     "kategori": "KTS Minor",
     "uraian": "Publikasi dosen pada jurnal terindeks di bawah target dan tidak merata antar dosen.",
     "akar": "Pendampingan penulisan dan insentif publikasi belum terstruktur.",
     "tindakan": "Membentuk klinik penulisan, menetapkan target publikasi per dosen, dan memantau capaian triwulan.",
-    "pic": "Ketua Program Studi LO",
+    "pic": "Ketua Program Studi LG",
     "tglTemuan": "2023-09-19",
     "tenggat": "2023-12-18",
     "tglSelesai": "2024-01-12",
@@ -1102,7 +1102,7 @@ export const PPEPP_AWAL = [
      "AU05",
      "AU01"
     ],
-    "kunci": "2023-LO-p5",
+    "kunci": "2023-LG-p5",
     "_rep": null
    },
    {
@@ -1452,7 +1452,7 @@ export const PPEPP_AWAL = [
      "status": "Selesai"
     },
     {
-     "auditee": "LO",
+     "auditee": "LG",
      "auditor": [
       "AU01",
       "AU02",
@@ -1506,7 +1506,7 @@ export const PPEPP_AWAL = [
     "TO",
     "TI",
     "TM",
-    "LO",
+    "LG",
     "SPM",
     "LAB",
     "CDC",
@@ -1743,13 +1743,13 @@ export const PPEPP_AWAL = [
    {
     "id": "T24-09",
     "tahun": 2024,
-    "unit": "LO",
+    "unit": "LG",
     "standar": "Standar Kompetensi Lulusan",
     "kategori": "KTS Minor",
     "uraian": "Tracer study belum mencakup waktu tunggu dan kepuasan pengguna lulusan secara sistematis.",
     "akar": "Instrumen dan penanggung jawab pelacakan alumni belum ditetapkan.",
     "tindakan": "Menetapkan instrumen terpadu tracer study dan jadwal tahunan bersama unit karier.",
-    "pic": "Ketua Program Studi LO",
+    "pic": "Ketua Program Studi LG",
     "tglTemuan": "2024-09-17",
     "tenggat": "2024-12-16",
     "tglSelesai": "2024-12-27",
@@ -1763,19 +1763,19 @@ export const PPEPP_AWAL = [
      "AU05",
      "AU01"
     ],
-    "kunci": "2024-LO-p7",
+    "kunci": "2024-LG-p7",
     "_rep": null
    },
    {
     "id": "T24-10",
     "tahun": 2024,
-    "unit": "LO",
+    "unit": "LG",
     "standar": "Standar Dosen dan Tenaga Kependidikan",
     "kategori": "KTS Mayor",
     "uraian": "Persentase dosen berkualifikasi doktor di bawah target IKU dan beberapa dosen akan pensiun.",
     "akar": "Tugas belajar belum selesai dan rencana kaderisasi dosen belum disusun.",
     "tindakan": "Menyusun peta kebutuhan dosen, mempercepat tugas belajar, dan menetapkan rencana kaderisasi lima tahun.",
-    "pic": "Ketua Program Studi LO",
+    "pic": "Ketua Program Studi LG",
     "tglTemuan": "2024-09-17",
     "tenggat": "2024-12-16",
     "tglSelesai": "2025-01-05",
@@ -1796,7 +1796,7 @@ export const PPEPP_AWAL = [
      "AU06",
      "AU02"
     ],
-    "kunci": "2024-LO-p4",
+    "kunci": "2024-LG-p4",
     "_rep": null
    },
    {
@@ -2083,7 +2083,7 @@ export const PPEPP_AWAL = [
      "status": "Selesai"
     },
     {
-     "auditee": "LO",
+     "auditee": "LG",
      "auditor": [
       "AU01",
       "AU02",
@@ -2137,7 +2137,7 @@ export const PPEPP_AWAL = [
     "TO",
     "TI",
     "TM",
-    "LO",
+    "LG",
     "SPM",
     "KEU",
     "UKTI",
@@ -2345,13 +2345,13 @@ export const PPEPP_AWAL = [
    {
     "id": "T25-08",
     "tahun": 2025,
-    "unit": "LO",
+    "unit": "LG",
     "standar": "Standar Dosen dan Tenaga Kependidikan",
     "kategori": "KTS Mayor",
     "uraian": "Persentase dosen berkualifikasi doktor di bawah target IKU dan beberapa dosen akan pensiun.",
     "akar": "Tugas belajar belum selesai dan rencana kaderisasi dosen belum disusun. Perbaikan sebelumnya belum menyentuh akar masalah.",
     "tindakan": "Menyusun peta kebutuhan dosen, mempercepat tugas belajar, dan menetapkan rencana kaderisasi lima tahun.",
-    "pic": "Ketua Program Studi LO",
+    "pic": "Ketua Program Studi LG",
     "tglTemuan": "2025-09-16",
     "tenggat": "2025-11-15",
     "tglSelesai": "2025-12-25",
@@ -2365,18 +2365,18 @@ export const PPEPP_AWAL = [
      "AU05",
      "AU01"
     ],
-    "kunci": "2025-LO-p4"
+    "kunci": "2025-LG-p4"
    },
    {
     "id": "T25-09",
     "tahun": 2025,
-    "unit": "LO",
+    "unit": "LG",
     "standar": "Standar Kompetensi Lulusan",
     "kategori": "Observasi",
     "uraian": "Tracer study belum mencakup waktu tunggu dan kepuasan pengguna lulusan secara sistematis.",
     "akar": "Instrumen dan penanggung jawab pelacakan alumni belum ditetapkan. Perbaikan sebelumnya belum menyentuh akar masalah.",
     "tindakan": "Menetapkan instrumen terpadu tracer study dan jadwal tahunan bersama unit karier.",
-    "pic": "Ketua Program Studi LO",
+    "pic": "Ketua Program Studi LG",
     "tglTemuan": "2025-09-16",
     "tenggat": "2026-03-15",
     "tglSelesai": "2026-03-15",
@@ -2390,7 +2390,7 @@ export const PPEPP_AWAL = [
      "AU06",
      "AU02"
     ],
-    "kunci": "2025-LO-p7"
+    "kunci": "2025-LG-p7"
    },
    {
     "id": "T25-10",
@@ -2567,7 +2567,7 @@ export const PPEPP_AWAL = [
     "id": "R01",
     "risiko": "Persentase doktor homebase prodi di bawah syarat perlu akreditasi (tugas belajar belum selesai)",
     "kategori": "SDM",
-    "unit": "TM, LO",
+    "unit": "TM, LG",
     "kemungkinan": 4,
     "dampak": 5,
     "mitigasi": "Mempercepat tugas belajar, mengangkat dosen doktor, menghitung proyeksi doktor per tahun.",

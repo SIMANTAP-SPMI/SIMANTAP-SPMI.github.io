@@ -87,7 +87,7 @@ function kesiapanKurekam() {
 
 /** Data contoh untuk mode demo (bukan dari KUREKAM). */
 function contohKurekam() {
-  const pola = { TP: 'sssbbnbnss', TO: 'ssbnbnnnbs', TI: 'ssbbsnbnsb', TM: 'bsnnbnnnbb', LO: 'bbnnnnnnnj' };
+  const pola = { TP: 'sssbbnbnss', TO: 'ssbnbnnnbs', TI: 'ssbbsnbnsb', TM: 'bsnnbnnnbb', LG: 'bbnnnnnnnj' };
   const kt = { s: 'sesuai', b: 'sebagian', j: 'jauh', n: 'belum_diukur' };
   return PRODI.map(p => ({ unit: p.id, periode: 'contoh (mode demo)', contoh: true, status: Object.fromEntries((pola[p.id] || '').split('').map((c, i) => ['iabee_' + String(i + 1).padStart(2, '0'), kt[c]])), indikator: {}, keterangan: {} }));
 }

@@ -3495,7 +3495,7 @@ export const LAM_AWAL = [
   "_baru": false
  },
  {
-  "id": "LO",
+  "id": "LG",
   "input": {
    "E60": 24,
    "E61": 9,
