@@ -69,7 +69,7 @@ export function selaraskanUnit() {
 
 /* Peran KUREKAM yang dibaca SIMANTAP. Daftar pengguna KUREKAM adalah satu-satunya tempat mendaftarkan SPM, Prodi, Kasubbag AK, dan Wakil Direktur I.
    Admin dan developer KUREKAM tampil sebagai SPM (SIMANTAP tidak punya peran admin atau developer). */
-const KUR_PETA = { spm: 'admin', admin: 'admin', developer: 'admin', wadir: 'wadir1', prodi: 'prodi', akademik: 'kasubbag' };
+const KUR_PETA = { spm: 'admin', admin: 'admin', developer: 'admin', wadir: 'wadir1', pimpinan: 'pimpinan', prodi: 'prodi', akademik: 'kasubbag' };
 const DEVELOPER_SHA = ['f512cb3abb950d4c65241a0fda6c394decc7b29da869d6f51bbe36b9b1804a7b']; // sama dengan KUREKAM
 let sidikDev = false;
 async function cekDeveloper() {
@@ -326,7 +326,6 @@ function loginForm() {
         <div class="muted small" id="lg-msg"></div>
         <button class="btn" type="button" id="lg-fp">Lupa kata sandi? Kirim tautan ke email saya</button>
         <div class="small muted">Pengguna baru: kata sandi awal sama dengan alamat email (huruf kecil), seperti di KUREKAM.</div>
-        <div class="small"><a href="#" id="lg-local">Buka mode demo lokal</a></div>
       </form></div>`;
     pasangMata(v);
     const msg = t => { v.querySelector('#lg-msg').textContent = t; };
@@ -340,7 +339,6 @@ function loginForm() {
       if (!em) return msg('Isi email lebih dulu, lalu klik Lupa kata sandi.');
       try { await DB.resetPassword(em); msg('Tautan membuat kata sandi baru dikirim ke ' + em + ' bila email itu sudah punya akun. Periksa juga folder spam.'); } catch (e) { msg(pesanMasuk(e)); }
     };
-    v.querySelector('#lg-local').onclick = ev => { ev.preventDefault(); DB.useLocal(); resolve(); };
   });
 }
 
@@ -354,8 +352,7 @@ async function pindahkanLulusanKeKarier() {
 }
 
 async function boot() {
-  const demo = new URLSearchParams(location.search).has('demo');
-  if (demo) DB.useLocal(); else await DB.init();
+  await DB.init(); // mode demo ditutup 24 Nov 2026: akses hanya lewat akun
   if (DB.needLogin) await loginForm();
   let d = await DB.loadAll();
   const st = d.settings && d.settings[0];
@@ -378,6 +375,11 @@ async function boot() {
   await cekDeveloper();
   await pindahkanLulusanKeKarier();
   terapkanPeran();
+  if (DB.mode === 'firebase' && ctx.role === 'tamu') { // akun tanpa peran di SIMANTAP (mis. dosen) tidak diberi akses
+    $('#view').innerHTML = `<div class="card" style="max-width:480px;margin:40px auto"><div class="card-h"><div><h3>Akun ini belum punya akses SIMANTAP</h3><div class="sub">SIMANTAP hanya untuk Pimpinan, Wakil Direktur I, SPM, Prodi, Kasubbag AK, Auditor, dan Unit. Hubungi SPM bila Anda ditugaskan.</div></div></div><button class="btn" id="keluar">Keluar</button></div>`;
+    $('#keluar').onclick = async () => { try { await DB.logout(); } catch (e) { /* abaikan */ } location.reload(); };
+    return;
+  }
   await muatKurekam();
   window.addEventListener('hashchange', route_);
   route_();

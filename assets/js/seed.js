@@ -113,7 +113,7 @@ export const IKUMAP = Object.fromEntries(IKU.map(k => [k.id, k]));
 
 export const ROLES = {
   admin: { nama: 'SPM', ket: 'Mengatur jadwal dan pengguna, mengawal mutu (daftar pengguna dari KUREKAM)' },
-  pimpinan: { nama: 'Pimpinan', ket: 'Direktur / Kepala Badan: memantau dashboard dan progres, mengesahkan (mode demo atau didaftarkan SPM)' },
+  pimpinan: { nama: 'Pimpinan', ket: 'Direktur / Kepala Badan: memantau dashboard dan progres, tanpa mengubah data (didaftarkan di KUREKAM atau oleh SPM)' },
   wadir1: { nama: 'Wakil Direktur I', ket: 'Mengesahkan penetapan, memantau progres akademik (daftar pengguna dari KUREKAM)' },
   prodi: { nama: 'Prodi', ket: 'Tim Kurikulum Prodi: mengisi capaian, evaluasi diri, LED/LAM prodinya, dan tindak lanjut (daftar pengguna dari KUREKAM)' },
   unit: { nama: 'Unit', ket: 'Pengelola unit (UPPM, LAB, KEU, dan lain-lain): mengisi capaian, evaluasi diri, dan tindak lanjut unitnya' },
