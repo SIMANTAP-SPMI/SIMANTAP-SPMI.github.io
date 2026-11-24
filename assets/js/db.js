@@ -50,7 +50,13 @@ export const DB = {
   get needLogin() { return mode === 'firebase' && !user; },
 
   async login(email, pass) {
-    const r = await auth.signInWithEmailAndPassword(email, pass);
+    email = String(email || '').trim().toLowerCase();
+    let r;
+    try { r = await auth.signInWithEmailAndPassword(email, pass); }
+    catch (e) { // huruf besar otomatis atau spasi dari papan ketik HP: coba sekali lagi dalam bentuk rapi
+      const rapi = String(pass || '').trim().toLowerCase();
+      if (rapi && rapi !== pass && /wrong-password|invalid-credential|invalid-login/.test(e.code || '')) r = await auth.signInWithEmailAndPassword(email, rapi); else throw e;
+    }
     user = r.user;
     await fs.collection('settings').limit(1).get();
     return user;

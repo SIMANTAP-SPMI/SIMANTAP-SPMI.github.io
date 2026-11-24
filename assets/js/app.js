@@ -299,7 +299,7 @@ export function route_() {
   window.scrollTo({ top: 0 });
 }
 
-const kolomSandi = (id, ph) => `<div style="position:relative"><input class="inp" id="${id}" type="password" placeholder="${ph}" required autocomplete="current-password" style="width:100%;padding-right:112px"><button type="button" class="btn ghost sm" data-mata="${id}" style="position:absolute;right:4px;top:50%;transform:translateY(-50%)">${icon('eye')} Lihat</button></div>`;
+const kolomSandi = (id, ph) => `<div style="position:relative"><input class="inp" id="${id}" type="password" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="${ph}" required autocomplete="current-password" style="width:100%;padding-right:112px"><button type="button" class="btn ghost sm" data-mata="${id}" style="position:absolute;right:4px;top:50%;transform:translateY(-50%)">${icon('eye')} Lihat</button></div>`;
 function pasangMata(root) {
   root.querySelectorAll('[data-mata]').forEach(b => b.onclick = () => {
     const i = root.querySelector('#' + b.dataset.mata), buka = i.type === 'password';
@@ -320,7 +320,7 @@ function loginForm() {
     v.innerHTML = `<div class="card" style="max-width:440px;margin:40px auto">
       <div class="card-h"><span class="ico-badge" style="--c:#0ea5e9">${icon('db')}</span><div><h3>Masuk ke SIMANTAP 2.0</h3><div class="sub">Akun sama dengan KUREKAM. Peran SPM, Prodi, dan Kasubbag AK otomatis mengikuti daftar pengguna KUREKAM.</div></div></div>
       <form id="lgn" style="display:grid;gap:10px;margin-top:12px">
-        <input class="inp" id="lg-e" type="email" placeholder="Email" autocomplete="username" required>
+        <input class="inp" id="lg-e" type="email" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Email" autocomplete="username" required>
         ${kolomSandi('lg-p', 'Kata sandi')}
         <button class="btn pri" type="submit">Masuk</button>
         <div class="muted small" id="lg-msg"></div>
