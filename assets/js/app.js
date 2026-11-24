@@ -329,10 +329,19 @@ function loginForm() {
       </form></div>`;
     pasangMata(v);
     const msg = t => { v.querySelector('#lg-msg').textContent = t; };
+    const KUNCI = 'simantap_tunggu', tombol = v.querySelector('#lgn button[type=submit]');
+    let jam = null;
+    const sisa = () => { try { return Math.max(0, (+localStorage.getItem(KUNCI) || 0) - Date.now()); } catch (e) { return 0; } };
+    const tunggu = () => { clearInterval(jam); const ukur = () => { const s = sisa(); if (!s) { clearInterval(jam); tombol.disabled = false; tombol.textContent = 'Masuk'; return; } tombol.disabled = true; tombol.textContent = `Tunggu ${Math.floor(s / 60000)}:${String(Math.floor(s % 60000 / 1000)).padStart(2, '0')}`; msg('Firebase membatasi percobaan dari perangkat atau jaringan ini untuk sementara. Bukan kesalahan akun Anda. Mohon tunggu, jangan menekan Masuk berulang, atau coba dari data seluler.'); }; ukur(); jam = setInterval(ukur, 1000); };
+    if (sisa()) tunggu();
     v.querySelector('#lgn').onsubmit = async ev => {
-      ev.preventDefault(); msg('Memeriksa akun...');
-      try { await DB.login(v.querySelector('#lg-e').value.trim().toLowerCase(), v.querySelector('#lg-p').value); resolve(); }
-      catch (e) { msg(pesanMasuk(e) + (e.code ? ' (' + e.code + ')' : '')); }
+      ev.preventDefault(); if (tombol.disabled) return; tombol.disabled = true; msg('Memeriksa akun...');
+      try { await DB.login(v.querySelector('#lg-e').value.trim().toLowerCase(), v.querySelector('#lg-p').value); resolve(); return; }
+      catch (e) {
+        if (/too-many-requests/.test(e.code || '')) { try { localStorage.setItem(KUNCI, String(Date.now() + 5 * 60000)); } catch (x) { /* abaikan */ } tunggu(); return; }
+        msg(pesanMasuk(e) + (e.code ? ' (' + e.code + ')' : ''));
+      }
+      tombol.disabled = false;
     };
     v.querySelector('#lg-fp').onclick = async ev => {
       ev.preventDefault(); const em = v.querySelector('#lg-e').value.trim().toLowerCase();
