@@ -4,6 +4,7 @@ import { UNITS, UNIT, AUDITORS } from '../seed.js';
 import { BULAN } from '../scoring.js';
 import { active, summary, indStat, stBadge, fmtV, targetTxt } from './common.js';
 import { detail } from './indikator.js';
+import { siklusTab, dalamLingkup } from './amisiklus.js';
 import { temuanTahun, tahunBar, bindTahun, tahunAktif, berjalan, temuanTabel, drawerTemuan, drawerRtlRtm, kartuTL, amiTahun, rtmTahun, statTahun, tulis, bolehAuditee, bolehAuditor, ketBadge, tg, tgl, beritaAcara, notulen, KAT, RST, today as hariIni } from './siklus-core.js';
 
 const TEMUAN = { 'Terlampaui': '#0ea5e9', 'Sesuai': '#10b981', 'Observasi': '#f5a524', 'KTS Minor': '#fb923c', 'KTS Mayor': '#f0616d' };
@@ -29,7 +30,7 @@ function amiLive(el, ulang) {
     </tbody></table></div>
   </div>
   ${ctx.role === 'auditor' ? `<div class="card" style="margin-top:18px"><div class="card-h"><span class="ico-badge" style="--c:#8b5cf6">${icon('user')}</span><div><h3>Penugasan ${esc(me.nama)}</h3><div class="sub">Unit asal: ${me.home} (tidak dapat diaudit oleh Anda)</div></div></div>
-    ${myAudits.length ? myAudits.map(a => `<h4 style="margin:10px 0 6px">${a.auditee} · ${a.tgl}</h4><div class="tbl-wrap"><table class="tbl"><tbody>${active().filter(i => i.unit === a.auditee).map(i => `<tr class="click" data-id="${i.id}"><td>${esc(i.teks)}</td><td class="num">${targetTxt(i)}</td><td class="num">${fmtV(i, indStat(i).v)}</td><td>${i.ami ? `<span class="st" style="background:${TEMUAN[i.ami.temuan]}22">${i.ami.temuan}</span>` : '<span class="st na">belum</span>'}</td></tr>`).join('')}</tbody></table></div>`).join('') : '<div class="muted">Tidak ada penugasan.</div>'}</div>` : ''}`;
+    ${myAudits.length ? myAudits.map(a => `<h4 style="margin:10px 0 6px">${a.auditee} · ${a.tgl}</h4><div class="tbl-wrap"><table class="tbl"><tbody>${active().filter(i => i.unit === a.auditee && dalamLingkup(i)).map(i => `<tr class="click" data-id="${i.id}"><td>${esc(i.teks)}</td><td class="num">${targetTxt(i)}</td><td class="num">${fmtV(i, indStat(i).v)}</td><td>${i.ami ? `<span class="st" style="background:${TEMUAN[i.ami.temuan]}22">${i.ami.temuan}</span>` : '<span class="st na">belum</span>'}</td></tr>`).join('')}</tbody></table></div>`).join('') : '<div class="muted">Tidak ada penugasan.</div>'}</div>` : ''}`;
   el.querySelectorAll('.kpi .val').forEach(v => countUp(v, +v.dataset.n));
   el.querySelectorAll('tr.click').forEach(tr => tr.onclick = () => detail(tr.dataset.id, () => ulang()));
   el.querySelectorAll('[data-done]').forEach(b => b.onclick = async () => { const a = S.ami.find(x => x.id === b.dataset.done); a.status = 'Selesai'; await save('ami', a, `AMI ${a.id} selesai`); toast('Jadwal AMI ditandai selesai'); ulang(); });
@@ -56,12 +57,12 @@ function amiLive(el, ulang) {
 }
 
 /* Menu AMI per tahun: tahun berjalan memakai tampilan indikator (data operasional), tahun arsip memakai data siklus; tab Temuan sama untuk semua tahun. */
-let amiTab = 'ringkas';
+let amiTab = 'siklus';
 export function amiView(el) {
   const y = tahunAktif(), live = y === berjalan(), ulang = () => amiView(el), A = amiTahun(y);
   el.innerHTML = `${tahunBar()}
   <div class="card" style="padding:10px 14px;margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-    ${[['ringkas', 'Ringkasan dan jadwal', 'pulse'], ['temuan', 'Temuan dan tanggapan', 'audit']].map(([k, t, ic]) => `<button class="btn ${amiTab === k ? 'pri' : 'ghost'}" data-tab="${k}">${icon(ic)} ${t}</button>`).join('')}
+    ${[['siklus', 'Siklus dan timeline', 'calendar'], ['ringkas', 'Ringkasan dan jadwal', 'pulse'], ['temuan', 'Temuan dan tanggapan', 'audit']].map(([k, t, ic]) => `<button class="btn ${amiTab === k ? 'pri' : 'ghost'}" data-tab="${k}">${icon(ic)} ${t}</button>`).join('')}
     <span style="flex:1"></span>${A && A.ba ? `<button class="btn sm" id="ba">${icon('download')} Berita Acara AMI ${y}</button>` : ''}</div>
   ${A && A.ilustratif ? '<div class="card" style="margin-bottom:14px;background:rgba(245,165,36,.1);border:1px solid rgba(245,165,36,.4)"><div class="small"><b>Data contoh (ilustratif).</b> Siklus arsip 2022 sampai 2025 disusun sebagai contoh alur, bukan rekam jejak resmi.</div></div>' : ''}
   <div id="ami-isi"></div>`;
@@ -69,7 +70,8 @@ export function amiView(el) {
   el.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { amiTab = b.dataset.tab; ulang(); });
   const ba = el.querySelector('#ba'); if (ba) ba.onclick = () => beritaAcara(y);
   const isi = el.querySelector('#ami-isi');
-  if (amiTab === 'temuan') temuanTabel(isi, y, ulang);
+  if (amiTab === 'siklus') siklusTab(isi, ulang);
+  else if (amiTab === 'temuan') temuanTabel(isi, y, ulang);
   else if (live) amiLive(isi, ulang);
   else if (A) amiArsip(isi, y, A, ulang);
   else isi.innerHTML = '<div class="card empty">Belum ada data AMI untuk tahun ini.</div>';
@@ -104,7 +106,7 @@ export function rtlView(el) {
   const ver = list.filter(r => r.kol === 'Terverifikasi').length, aE = (r) => bolehAuditee(r), aA = (r) => bolehAuditor(r);
   const kartu = (r) => { const lw = r.kol !== 'Terverifikasi' && r.tenggat < hariIni(); const rtm = r.kind === 'rtm';
     return `<div class="card tilt" data-open="${r.id}" style="padding:12px;box-shadow:var(--shadow);cursor:pointer">
-      <div style="display:flex;gap:6px;align-items:center"><b class="small">${r.id}</b>${rtm ? tg('#f472b6', 'dari RTM') : tg(KAT[r.kategori] || '#94a3b8', r.kategori)}<span style="flex:1"></span><b class="small">${rtm ? '' : r.unit}</b></div>
+      <div style="display:flex;gap:6px;align-items:center"><b class="small">${r.id}</b>${rtm ? tg('#f472b6', 'RTL hasil RTM') : tg(KAT[r.kategori] || '#94a3b8', r.kategori)}<span style="flex:1"></span><b class="small">${rtm ? '' : r.unit}</b></div>
       <div class="small" style="margin:6px 0">${esc(r.uraian.length > 150 ? r.uraian.slice(0, 150) + '…' : r.uraian)}</div>
       ${rtm ? '' : `<div class="muted small">${esc(r.tindakan.length > 110 ? r.tindakan.slice(0, 110) + '…' : r.tindakan)}</div>`}
       <div class="small" style="margin-top:6px;color:${lw ? '#f0616d' : 'var(--muted)'}">${icon('calendar')} ${tgl(r.tenggat)}${lw ? ' · lewat tenggat' : ''} · ${esc(r.pic)}</div><div style="margin-top:4px">${ketBadge(r)}</div>
@@ -152,8 +154,8 @@ export function rtmView(el) {
   const rtlOpen = S.rtl.filter(r => r.status !== 'Terverifikasi').length;
   const bahan = live ? `
         <tr><td><b>1. Capaian IKU/IKT & kebijakan</b></td><td>${Math.round(sum.pct)}% indikator tercapai (${sum.ok}/${sum.n}); indeks capaian ${Math.round(sum.idx)}%</td></tr>
-        <tr><td><b>2. Hasil AMI</b></td><td>${inds.filter(i => i.ami).length} indikator diaudit; ${temuan} KTS (minor/mayor)</td></tr>
-        <tr><td><b>3. Status tindak lanjut</b></td><td>${S.rtl.length} RTL; ${rtlOpen} belum terverifikasi</td></tr>
+        <tr><td><b>2. Hasil AMI (masukan RTM)</b></td><td>${inds.filter(i => i.ami).length} dari ${inds.filter(i => dalamLingkup(i)).length} indikator dalam lingkup diaudit; ${temuan} KTS (minor/mayor)</td></tr>
+        <tr><td><b>3. Tindakan koreksi temuan AMI</b></td><td>${S.rtl.length} tindakan koreksi unit; ${rtlOpen} belum terverifikasi. RTM memutuskan RTL tingkat institusi dari masukan ini.</td></tr>
         <tr><td><b>4. Umpan balik pemangku kepentingan</b></td><td>Indeks kepuasan pengguna lulusan & mahasiswa (lihat katalog S01/S13)</td></tr>
         <tr><td><b>5. Usulan peningkatan standar</b></td><td>${usulan.length} indikator melampaui target ≥ 110% → usul "Tingkatkan"</td></tr>
         <tr><td><b>6. Kesiapan akreditasi</b></td><td>Simulasi LAM 2025 & IABEE per prodi (menu Akreditasi)</td></tr>` : `
@@ -186,7 +188,7 @@ export function rtmView(el) {
   el.querySelectorAll('[data-sah]').forEach(b => b.onclick = async () => { const i = S.indikator.find(x => x.id === b.dataset.sah); i.peningkatan.rtm = true; await save('indikator', i, `RTM mengesahkan peningkatan ${i.kode}`); toast('Peningkatan disahkan'); ulang(); });
   const tt = el.querySelector('#tutup'); if (tt) tt.onclick = async () => {
     const r = R.raw; r.status = 'Selesai'; r.tgl = new Date().toISOString().slice(0, 10);
-    r.keputusan = [`Mengesahkan ${usulan.filter(i => i.peningkatan.rtm).length} peningkatan standar`, `Menindaklanjuti ${rtlOpen} RTL terbuka dengan tenggat triwulan I`, 'Menetapkan target IKU/IKT tahun berikut selaras RSB, PK BLU, dan Kokin'];
+    r.keputusan = [`Mengesahkan ${usulan.filter(i => i.peningkatan.rtm).length} peningkatan standar`, `Menindaklanjuti ${rtlOpen} tindakan koreksi terbuka dengan tenggat triwulan I`, 'Menetapkan target IKU/IKT tahun berikut selaras RSB, PK BLU, dan Kokin'];
     await save('rtm', r, 'RTM ' + r.judul + ' disahkan'); toast('RTM disahkan'); ulang();
   };
 }

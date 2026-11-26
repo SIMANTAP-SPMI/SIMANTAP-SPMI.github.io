@@ -5,6 +5,7 @@ import { LAM, IABEE } from '../config.js';
 import { BLN, BULAN, fmt, skorDariRasio } from '../scoring.js';
 import { active, indStat, stBadge, sumberTags, fmtV, targetTxt, summary, isAkr, akrTag } from './common.js';
 import { remove, eAuditee } from '../app.js';
+import { dalamLingkup, terkunci } from './amisiklus.js';
 
 const F = { q: '', sumber: 'ALL', unit: 'ALL', jenis: 'ALL', status: 'ALL', akr: 'ALL' };
 
@@ -67,13 +68,15 @@ export function detail(id, after) {
   const m = S.settings.bulan, st = indStat(i);
   const ed = i.ed || {}, ami = i.ami || {}, pg = i.pengendalian || {}, pn = i.peningkatan || {};
   const rtls = S.rtl.filter(r => r.ind === i.id);
-  const canCap = can('capaian', i), canAudit = can('audit', i), canPn = ctx.role === 'admin' || ctx.role === 'pimpinan' || ctx.role === 'wadir1';
+  const luar = !dalamLingkup(i), kunciED = terkunci(i, 'ed'), kunciLap = terkunci(i, 'lap');
+  const canCap = can('capaian', i) && !kunciED, canAudit = can('audit', i) && !luar && !kunciLap, canPn = ctx.role === 'admin' || ctx.role === 'pimpinan' || ctx.role === 'wadir1';
   const bukti = (i.bukti && i.bukti[m]) || [];
   const tagsLam = [i.lam && `LAM ${i.lam} · ${(LAM.kriteria.find(k => k.id === i.lam) || {}).nama}`, i.komp && `Komponen ${(LAM.komponen.find(k => k.id === i.komp) || {}).nama}`, i.sp && `Syarat perlu ${i.sp}`, ...(i.iabee || []).map(k => `IABEE ${k}`), i.kurekam && 'Otomatis dari KUREKAM', i.iapt && `IAPT ${i.iapt}`].filter(Boolean);
   openDrawer(`
     <div class="card-h"><span class="ico-badge" style="--c:#14b8a6">${icon('target')}</span><div><div class="muted small">${i.kode} · ${i.jenis} · ${esc(UNIT[i.unit].nama)}</div><h3>${esc(i.teks)}</h3></div><div class="sp"></div><button class="btn ghost" data-close aria-label="Tutup">${icon('close')}</button></div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">${sumberTags(i)} ${tagsLam.map(t => `<span class="tag" style="--c:#0f766e">${esc(t)}</span>`).join(' ')} ${akrTag(i)}</div>
     ${isAkr(i) ? '' : `<div class="ribbon" style="background:rgba(100,116,139,.08);border-color:rgba(100,116,139,.35);color:#475569">${icon('info')} Indikator ini tidak berkorelasi dengan instrumen akreditasi: dievaluasi melalui Audit Mutu Internal saja dan tidak memengaruhi simulasi akreditasi.</div>`}
+    ${luar ? `<div class="ribbon" style="background:rgba(139,92,246,.08);border-color:rgba(139,92,246,.35);color:#5b21b6">${icon('info')} Indikator ini di luar lingkup AMI siklus berjalan: tetap dipantau, evaluasi diri tidak wajib, dan tidak diaudit.</div>` : ''}
     ${i.catatan ? `<div class="ribbon">${icon('info')} ${esc(i.catatan)}</div>` : ''}
     <div class="card" style="margin-bottom:14px"><div class="card-h"><h3>Capaian ${S.settings.tahun}</h3><div class="sp"></div>${stBadge(st.k)}<b style="margin-left:8px">${fmtV(i, st.v)} ${esc(i.satuan)}</b></div><div class="chart sm" id="dchart"></div></div>
     <div class="trail">
@@ -86,7 +89,7 @@ export function detail(id, after) {
           <div class="field span2"><label>Bukti (${bukti.length})</label><div class="small">${bukti.map(b => `${icon('folder')} ${esc(b.nama)} ${b.verified ? '<span class="st ok">terverifikasi</span>' : '<span class="st near">menunggu</span>'}`).join('<br>') || '<span class="muted">Belum ada bukti bulan ini</span>'}</div>
           ${canCap ? `<input class="inp" id="bkIn" placeholder="Nama berkas / tautan Drive bukti" style="margin-top:6px">` : ''}</div>
         </div>
-        ${canCap ? `<button class="btn pri sm" id="saveCap" style="margin-top:10px">${icon('upload')} Simpan capaian & ED</button>` : `<div class="note" style="margin-top:6px">Pengisian oleh auditee ${i.unit} (masuk sebagai pengisi unit ${i.unit}: Prodi, Unit, atau Kasubbag AK).</div>`}`)}
+        ${canCap ? `<button class="btn pri sm" id="saveCap" style="margin-top:10px">${icon('upload')} Simpan capaian & ED</button>` : `<div class="note" style="margin-top:6px">${kunciED ? 'Isian evaluasi diri dikunci SPM setelah batas tahap. Hubungi SPM bila perlu membuka. ' : ''}Pengisian oleh auditee ${i.unit} (masuk sebagai pengisi unit ${i.unit}: Prodi, Unit, atau Kasubbag AK).</div>`}`)}
       ${step('#8b5cf6', 'audit', '3 · Evaluasi — Audit Mutu Internal', i.ami || canAudit ? `
         <div class="grid g2" style="gap:10px">
           <div class="field"><label>Temuan</label><select class="inp" id="amT" ${canAudit ? '' : 'disabled'}>${['Terlampaui', 'Sesuai', 'Observasi', 'KTS Minor', 'KTS Mayor'].map(t => `<option ${ami.temuan === t ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
@@ -94,7 +97,7 @@ export function detail(id, after) {
           <div class="field span2"><label>Uraian</label><textarea class="inp" id="amU" rows="2" ${canAudit ? '' : 'disabled'}>${esc(ami.uraian || '')}</textarea></div>
         </div>
         <div class="note">Auditor: ${esc((AUDITORS.find(a => a.id === ami.auditor) || {}).nama || '–')} · ${ami.tgl || ''}</div>
-        ${canAudit ? `<button class="btn vio sm" id="saveAmi" style="margin-top:8px">${icon('check')} Simpan hasil audit</button>` : ''}` : `<div class="muted small">Belum diaudit pada siklus ini.${ctx.role === 'auditor' ? ' Auditor tidak boleh mengaudit unit asalnya.' : ''}</div>`)}
+        ${canAudit ? `<button class="btn vio sm" id="saveAmi" style="margin-top:8px">${icon('check')} Simpan hasil audit</button>` : ''}` : `<div class="muted small">${luar ? 'Di luar lingkup AMI siklus ini: tetap dipantau bulanan, tetapi tidak diaudit.' : kunciLap ? 'Tahap audit lapangan sudah dikunci SPM.' : 'Belum diaudit pada siklus ini.'}${!luar && ctx.role === 'auditor' ? ' Auditor tidak boleh mengaudit unit asalnya.' : ''}</div>`)}
       ${step('#f5a524', 'loop', '4 · Pengendalian', `${pg.pelaksanaan ? `<dl class="kv"><dt>Pelaksanaan</dt><dd>${esc(pg.pelaksanaan)}</dd><dt>Efektivitas</dt><dd>${esc(pg.efektivitas)}</dd><dt>Rekomendasi</dt><dd>${esc(pg.rekomendasi)}</dd></dl>` : '<div class="muted small">Tidak ada tindakan koreksi.</div>'}
         ${rtls.map(r => `<div class="small" style="margin-top:6px">${icon('loop')} <b>${r.id}</b> · ${esc(r.tindakan)} <span class="st ${r.status === 'Terverifikasi' ? 'ok' : r.status === 'Terbuka' ? 'bad' : 'near'}">${r.status}</span></div>`).join('')}`)}
       ${step('#f472b6', 'spark', '5 · Peningkatan', `
@@ -139,7 +142,7 @@ export function detail(id, after) {
         await save('rtl', { id: 'RTL' + String(n).padStart(3, '0') + '-' + Date.now().toString(36).slice(-3), ind: i.id, unit: i.unit, sumberRTL: 'AMI ' + S.settings.tahun, temuan: i.ami.temuan, tindakan: 'Menyusun rencana perbaikan dengan PIC dan tenggat.', pic: 'Ka. ' + i.unit, tenggat: `${S.settings.tahun}-12-31`, status: 'Terbuka' });
       }
       await save('indikator', i, `Hasil AMI ${i.kode}: ${i.ami.temuan}`);
-      done('Hasil audit tersimpan' + (['Observasi', 'KTS Minor', 'KTS Mayor'].includes(i.ami.temuan) ? ' · RTL dibuat otomatis' : ''));
+      done('Hasil audit tersimpan' + (['Observasi', 'KTS Minor', 'KTS Mayor'].includes(i.ami.temuan) ? ' · tindakan koreksi dibuat otomatis' : ''));
     });
     on('#savePn', async () => {
       i.peningkatan = Object.assign({}, i.peningkatan, { status: d.querySelector('#pnS').value, eis: d.querySelector('#pnE').value });

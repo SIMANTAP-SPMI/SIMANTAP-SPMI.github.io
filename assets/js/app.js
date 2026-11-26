@@ -28,7 +28,7 @@ import { PPEPP_AWAL } from './ppepp-awal.js';
 import laporan from './views/laporan.js';
 
 /* ---------------- state ---------------- */
-export const S = { indikator: [], ami: [], rtl: [], rtm: [], dokumen: [], log: [], settings: {}, kurekam: [], kurPengguna: [], pengguna: [], iabee: [], led: [], lam: [], ppepp: [] };
+export const S = { indikator: [], ami: [], rtl: [], rtm: [], dokumen: [], log: [], settings: {}, kurekam: [], kurPengguna: [], pengguna: [], iabee: [], led: [], lam: [], ppepp: [], siklus: [] };
 const CTX_KEY = 'simantap2web_ctx';
 export const ctx = (() => {
   try { return Object.assign({ role: 'pimpinan', unit: 'TP', auditor: 'AU01' }, JSON.parse(localStorage.getItem(CTX_KEY) || '{}')); }
@@ -164,7 +164,7 @@ export async function remove(col, id, aksi) {
 }
 export async function saveSettings() {
   const doc = Object.assign({ id: 'app' }, S.settings);
-  try { await DB.put('settings', doc, [doc]); } catch (e) { toast('Gagal menyimpan pengaturan'); }
+  try { await DB.put('settings', doc, [doc].concat(S.siklus || [])); } catch (e) { toast('Gagal menyimpan pengaturan'); }
 }
 export async function addLog(aksi) {
   const doc = { id: 'LOG' + Date.now() + Math.floor(Math.random() * 1000), t: new Date().toISOString(), user: userName() + (DB.user && DB.user.email ? ' · ' + DB.user.email : ''), aksi };
@@ -184,7 +184,9 @@ function load(d) {
   S.led = d.led || [];
   S.lam = d.lam || [];
   S.ppepp = d.ppepp || [];
-  S.settings = (d.settings && d.settings[0]) || { bulan: 10, tahun: APP.tahun, jenjang: {} };
+  const stg = d.settings || [];
+  S.siklus = stg.filter(x => String(x.id).startsWith('siklus-'));
+  S.settings = stg.find(x => !String(x.id).startsWith('siklus-')) || { bulan: 10, tahun: APP.tahun, jenjang: {} };
   S.log.sort((a, b) => (b.t || '').localeCompare(a.t || ''));
 }
 
@@ -228,7 +230,7 @@ export const ROUTES = [
   { id: 'indikator', t: 'Katalog Indikator', ic: 'target', c: '#14b8a6', sec: 'Penetapan & Pelaksanaan', v: katalog },
   { id: 'monitoring', t: 'Monitoring Capaian', ic: 'pulse', c: '#f5a524', sec: 'Penetapan & Pelaksanaan', v: monitoring },
   { id: 'ami', t: 'Audit Mutu Internal', ic: 'audit', c: '#f0616d', sec: 'Evaluasi & Pengendalian', v: amiView },
-  { id: 'rtl', t: 'Rencana Tindak Lanjut', ic: 'loop', c: '#6366f1', sec: 'Evaluasi & Pengendalian', v: rtlView },
+  { id: 'rtl', t: 'Tindak Lanjut', sub: 'Tindakan koreksi dan RTL hasil RTM', ic: 'loop', c: '#6366f1', sec: 'Evaluasi & Pengendalian', v: rtlView },
   { id: 'rtm', t: 'Tinjauan Manajemen', ic: 'meet', c: '#f472b6', sec: 'Evaluasi & Pengendalian', v: rtmView },
   { id: 'ppepp', t: 'Siklus PPEPP', sub: 'Satu tahun satu layar, 2022–2026', ic: 'loop', c: '#f0616d', sec: 'Evaluasi & Pengendalian', v: ppeppView },
   { id: 'akreditasi', t: 'Akreditasi LAM & IABEE', ic: 'medal', c: '#10b981', sec: 'Akreditasi', v: akreditasi },
@@ -364,7 +366,7 @@ async function boot() {
   await DB.init(); // mode demo ditutup 24 Nov 2026: akses hanya lewat akun
   if (DB.needLogin) await loginForm();
   let d = await DB.loadAll();
-  const st = d.settings && d.settings[0];
+  const st = (d.settings || []).find(x => !String(x.id).startsWith('siklus-'));
   if (!d.indikator.length || !st || (st.seedVersi || 0) < 6) {
     d = buildSeed();
     for (const c of Object.keys(d)) await DB.replaceAll(c, d[c]);

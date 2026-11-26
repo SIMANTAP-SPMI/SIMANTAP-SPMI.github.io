@@ -50,7 +50,7 @@ service cloud.firestore {
   </div>`;
 
   el.querySelector('#exp').onclick = () => {
-    const data = Object.fromEntries(COLLECTIONS.map(c => [c, c === 'settings' ? [Object.assign({ id: 'app' }, S.settings)] : S[c]]));
+    const data = Object.fromEntries(COLLECTIONS.map(c => [c, c === 'settings' ? [Object.assign({ id: 'app' }, S.settings)].concat(S.siklus || []) : S[c]]));
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 1)], { type: 'application/json' }));
     a.download = `simantap2_backup_${new Date().toISOString().slice(0, 10)}.json`; a.click();
@@ -85,7 +85,7 @@ service cloud.firestore {
   if (fbu) fbu.onclick = async () => {
     if (DB.mode !== 'firebase') return toast('Belum terhubung ke Firestore');
     if (!confirm('Unggah seluruh data saat ini ke Firestore (menimpa isi koleksi)?')) return;
-    for (const c of COLLECTIONS) await DB.replaceAll(c, c === 'settings' ? [Object.assign({ id: 'app' }, S.settings)] : S[c]);
+    for (const c of COLLECTIONS) await DB.replaceAll(c, c === 'settings' ? [Object.assign({ id: 'app' }, S.settings)].concat(S.siklus || []) : S[c]);
     toast('Data terunggah ke Firestore');
   };
   const fbd = el.querySelector('#fbd');
