@@ -1,9 +1,9 @@
-import { S, ctx, icon, esc, toast, saveSettings, resetData, addLog } from '../app.js';
+import { S, ctx, icon, esc, toast, saveSettings, resetData, addLog, levelSistem } from '../app.js';
 import { DB, COLLECTIONS, getFirebaseConfig, saveFirebaseConfig } from '../db.js';
 import { BULAN } from '../scoring.js';
 
 export default function pengaturan(el) {
-  const admin = ctx.role === 'admin';
+  const admin = levelSistem();
   const cfg = getFirebaseConfig();
   el.innerHTML = `
   <div class="grid g2">

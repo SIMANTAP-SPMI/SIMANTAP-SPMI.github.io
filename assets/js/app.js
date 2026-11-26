@@ -246,7 +246,9 @@ export const ROUTES = [
 ];
 
 // Menu Database & Pengaturan hanya untuk pengguna yang sudah masuk (bukan mode demo)
-const navRoutes = () => ROUTES.filter(r => (r.id !== 'pengaturan' || DB.user) && (r.id !== 'pengguna' || (DB.user && ctx.role === 'admin')));
+/** Database & Pengaturan: hanya SPM dan Wakil Direktur I (setara developer). */
+export const levelSistem = (r = ctx.role) => r === 'admin' || r === 'wadir1';
+const navRoutes = () => ROUTES.filter(r => (r.id !== 'pengaturan' || (DB.user && levelSistem())) && (r.id !== 'pengguna' || (DB.user && ctx.role === 'admin')));
 
 function renderSide(cur) {
   let sec = '', h = `<div class="brand-logos"><img src="assets/img/logo-pem-akamigas.png" alt="PEM Akamigas" class="lg-pem"><img src="assets/img/logo-esdm.png" alt="Kementerian ESDM" class="lg-esdm"></div>
