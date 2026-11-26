@@ -104,7 +104,7 @@ export function terapkanPeran() {
     (me.peran || []).forEach(k => {
       if (k === 'auditee') { const t = jenisUnit(me.unit) === 'prodi' ? 'prodi' : 'unit'; if (me.unit) { set.add(t); unitPer[t] = me.unit; } }
       else if (k === 'prodi' || k === 'unit') { if (me.unit) { set.add(k); unitPer[k] = me.unit; } }
-      else if (ROLES[k] && k !== 'tamu') set.add(k);
+      else if (ROLES[k] && k !== 'tamu' && k !== 'developer') set.add(k); // Developer hanya dari sidik akun atau KUREKAM, tidak dari daftar yang bisa diubah SPM
     });
   }
   if (ku) {
