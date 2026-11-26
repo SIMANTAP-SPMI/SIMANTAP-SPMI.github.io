@@ -1,4 +1,4 @@
-import { S, ctx, icon, esc, save, remove, toast, openDrawer, closeDrawer } from '../app.js';
+import { S, ctx, icon, esc, save, remove, toast, openDrawer, closeDrawer, spmLevel } from '../app.js';
 import { chart } from '../charts.js';
 
 const JENIS = ['Kebijakan', 'Manual', 'Standar', 'Formulir', 'SOP', 'Tambahan'];
@@ -6,7 +6,7 @@ const STC = { 'Disetujui': 'ok', 'Review SPM': 'near', 'Draft': 'na', 'Referensi
 let fj = 'ALL';
 
 export default function dokumen(el) {
-  const admin = ctx.role === 'admin', pimp = ctx.role === 'pimpinan' || ctx.role === 'wadir1';
+  const admin = spmLevel(), pimp = ctx.role === 'pimpinan' || ctx.role === 'wadir1';
   const list = S.dokumen.filter(d => fj === 'ALL' || d.jenis === fj);
   el.innerHTML = `
   <div class="grid g-12">

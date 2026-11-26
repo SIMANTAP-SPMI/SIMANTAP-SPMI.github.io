@@ -102,6 +102,25 @@ export const DB = {
     else this._saveLocal(col, all);
   },
 
+  /* Dokumen sesuka hati di koleksi yang tidak dimuat saat start (arsip): disimpan, dibaca, didaftar, dan dihapus per dokumen. */
+  _lsBaca(col) { try { return JSON.parse(localStorage.getItem(LS_PREFIX + col) || '[]'); } catch (e) { return []; } },
+  async simpanDok(col, doc) {
+    if (mode === 'firebase') { await fs.collection(col).doc(String(doc.id)).set(JSON.parse(JSON.stringify(doc))); return; }
+    const a = this._lsBaca(col), i = a.findIndex(x => x.id === doc.id); if (i >= 0) a[i] = doc; else a.push(doc); this._saveLocal(col, a);
+  },
+  async bacaDok(col, id) {
+    if (mode === 'firebase') { const d = await fs.collection(col).doc(String(id)).get(); return d.exists ? d.data() : null; }
+    return this._lsBaca(col).find(x => x.id === id) || null;
+  },
+  async daftarDok(col, field, nilai) {
+    if (mode === 'firebase') { const snap = await fs.collection(col).where(field, '==', nilai).get(); return snap.docs.map(d => d.data()); }
+    return this._lsBaca(col).filter(x => x[field] === nilai);
+  },
+  async hapusDok(col, id) {
+    if (mode === 'firebase') { await fs.collection(col).doc(String(id)).delete(); return; }
+    this._saveLocal(col, this._lsBaca(col).filter(x => x.id !== id));
+  },
+
   /** Baca koleksi milik aplikasi lain (hanya baca, mis. umpan dari KUREKAM). Gagal = daftar kosong. */
   async bacaLuar(col) {
     if (mode !== 'firebase') return [];

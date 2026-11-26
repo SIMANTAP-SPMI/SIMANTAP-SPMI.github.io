@@ -1,10 +1,11 @@
-import { S, ctx, icon, esc, toast, saveSettings, resetData, addLog, levelSistem, semuaSettings } from '../app.js';
+import { arsipOtomatis } from './arsip.js';
+import { S, ctx, icon, esc, toast, saveSettings, resetData, addLog, levelSistem, semuaSettings, eDeveloper } from '../app.js';
 import { kartuTampilan } from './tampilan.js';
 import { DB, COLLECTIONS, getFirebaseConfig, saveFirebaseConfig } from '../db.js';
 import { BULAN } from '../scoring.js';
 
 export default function pengaturan(el) {
-  const admin = levelSistem();
+  const admin = levelSistem(), dev = eDeveloper();
   const cfg = getFirebaseConfig();
   el.innerHTML = `
   <div class="grid g2">
@@ -15,8 +16,8 @@ export default function pengaturan(el) {
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
         <button class="btn" id="exp">${icon('download')} Unduh cadangan (JSON)</button>
         ${DB.user ? `<button class="btn" id="lgo">Keluar (${esc(DB.user.email || '')})</button>` : ''}
-        ${admin ? `<label class="btn">${icon('upload')} Pulihkan dari JSON<input type="file" id="imp" accept="application/json" hidden></label>` : ''}
-        ${admin ? `<button class="btn danger" id="rst">${icon('loop')} Muat ulang data ilustratif</button>` : ''}
+        ${dev ? `<label class="btn">${icon('upload')} Pulihkan dari JSON<input type="file" id="imp" accept="application/json" hidden></label>` : ''}
+        ${dev ? `<button class="btn danger" id="rst">${icon('loop')} Muat ulang data ilustratif</button>` : ''}
       </div>
       ${admin ? `<div class="field" style="margin-top:14px;max-width:260px"><label>Bulan pelaporan berjalan</label><select class="inp" id="bln">${BULAN.map((b, i) => `<option value="${i}" ${i === S.settings.bulan ? 'selected' : ''}>${b} ${S.settings.tahun}</option>`).join('')}</select></div>` : '<div class="note" style="margin-top:12px">Pengaturan hanya dapat diubah oleh Admin UPM.</div>'}
     </div>
@@ -30,7 +31,7 @@ export default function pengaturan(el) {
         <li>Tempel di bawah lalu klik <b>Sambungkan</b>. Untuk permanen, isi juga <code>assets/js/config.js</code> di repo.</li>
       </ol>
       <textarea class="inp" id="fbc" rows="7" style="width:100%;font-family:ui-monospace,monospace;font-size:12px" placeholder='{ "apiKey": "...", "authDomain": "...", "projectId": "...", "storageBucket": "...", "messagingSenderId": "...", "appId": "..." }' ${admin ? '' : 'disabled'}>${cfg ? esc(JSON.stringify(cfg, null, 2)) : ''}</textarea>
-      ${admin ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn pri" id="fbs">${icon('link')} Sambungkan</button>${cfg ? `<button class="btn" id="fbu">${icon('upload')} Unggah data saat ini ke Firestore</button><button class="btn ghost danger" id="fbd">Putuskan</button>` : ''}</div>` : ''}
+      ${dev ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn pri" id="fbs">${icon('link')} Sambungkan</button>${cfg ? `<button class="btn" id="fbu">${icon('upload')} Unggah data saat ini ke Firestore</button><button class="btn ghost danger" id="fbd">Putuskan</button>` : ''}</div>` : ''}
       <details style="margin-top:12px"><summary class="small" style="cursor:pointer;font-weight:700">Contoh aturan keamanan Firestore</summary><pre class="formula" style="margin-top:8px">rules_version = '2';
 service cloud.firestore {
   match /databases/{db}/documents {
@@ -60,7 +61,8 @@ service cloud.firestore {
   const lgo = el.querySelector('#lgo'); if (lgo) lgo.onclick = async () => { await DB.logout(); location.reload(); };
   if (!admin) return;
   kartuTampilan(el);
-  el.querySelector('#imp').onchange = async (e) => {
+  const imp = el.querySelector('#imp');
+  if (imp) imp.onchange = async (e) => {
     const f = e.target.files[0]; if (!f) return;
     try {
       const d = JSON.parse(await f.text());
@@ -70,9 +72,11 @@ service cloud.firestore {
       toast('Data dipulihkan'); setTimeout(() => location.reload(), 600);
     } catch (err) { toast('Gagal memulihkan: ' + err.message); }
   };
-  el.querySelector('#rst').onclick = async () => { if (!confirm('Ganti seluruh data dengan data ilustratif awal?')) return; await resetData(); toast('Data ilustratif dimuat ulang'); pengaturan(el); };
-  el.querySelector('#bln').onchange = async (e) => { S.settings.bulan = +e.target.value; await saveSettings(); await addLog('Bulan pelaporan → ' + BULAN[S.settings.bulan]); toast('Bulan pelaporan diperbarui'); };
-  el.querySelector('#fbs').onclick = () => {
+  const rst = el.querySelector('#rst');
+  if (rst) rst.onclick = async () => { if (!confirm('Ganti seluruh data dengan data ilustratif awal?')) return; await resetData(); toast('Data ilustratif dimuat ulang'); pengaturan(el); };
+  el.querySelector('#bln').onchange = async (e) => { const lama = S.settings.bulan; await arsipOtomatis(+S.settings.tahun, 'pergantian bulan pelaporan (' + BULAN[lama] + ')', `A${S.settings.tahun}-bln${String(lama).padStart(2, '0')}`); S.settings.bulan = +e.target.value; await saveSettings(); await addLog('Bulan pelaporan → ' + BULAN[S.settings.bulan]); toast('Bulan pelaporan diperbarui'); };
+  const fbs = el.querySelector('#fbs');
+  if (fbs) fbs.onclick = () => {
     try {
       let txt = el.querySelector('#fbc').value.trim();
       txt = txt.replace(/^[^{]*/, '').replace(/[^}]*$/, '');

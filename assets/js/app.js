@@ -27,6 +27,7 @@ import { LAM_AWAL } from './lam-awal.js';
 import ppeppView from './views/ppepp.js';
 import { PPEPP_AWAL } from './ppepp-awal.js';
 import laporan from './views/laporan.js';
+import arsipView from './views/arsip.js';
 
 /* ---------------- state ---------------- */
 export const S = { indikator: [], ami: [], rtl: [], rtm: [], dokumen: [], log: [], settings: {}, kurekam: [], kurPengguna: [], pengguna: [], iabee: [], led: [], lam: [], ppepp: [], siklus: [], tampilan: null };
@@ -69,8 +70,8 @@ export function selaraskanUnit() {
 }
 
 /* Peran KUREKAM yang dibaca SIMANTAP. Daftar pengguna KUREKAM adalah satu-satunya tempat mendaftarkan SPM, Prodi, Kasubbag AK, dan Wakil Direktur I.
-   Admin dan developer KUREKAM tampil sebagai SPM (SIMANTAP tidak punya peran admin atau developer). */
-const KUR_PETA = { spm: 'admin', admin: 'admin', developer: 'admin', wadir: 'wadir1', pimpinan: 'pimpinan', prodi: 'prodi', akademik: 'kasubbag' };
+   Admin KUREKAM tampil sebagai SPM; developer KUREKAM tampil sebagai Developer (otoritas tak terbatas). */
+const KUR_PETA = { spm: 'admin', admin: 'admin', developer: 'developer', wadir: 'wadir1', pimpinan: 'pimpinan', prodi: 'prodi', akademik: 'kasubbag' };
 const DEVELOPER_SHA = ['f512cb3abb950d4c65241a0fda6c394decc7b29da869d6f51bbe36b9b1804a7b']; // sama dengan KUREKAM
 let sidikDev = false;
 async function cekDeveloper() {
@@ -112,17 +113,17 @@ export function terapkanPeran() {
       if (t === 'prodi') { if (ku.prodi) { set.add('prodi'); unitPer.prodi = ku.prodi; } } else set.add(t);
     });
   }
-  if (sidikDev) set.add('admin');
+  if (sidikDev) set.add('developer');
   if (set.has('kasubbag')) unitPer.kasubbag = 'AKD';
   const peran = urutPeran([...set]);
   if (!peran.length) { ctx.tersedia = ['tamu']; ctx.role = 'tamu'; ctx.tetap = true; ctx.sumber = ku ? 'kur-saja' : 'tak-terdaftar'; return; }
   ctx.me = me || (ku ? { nama: ku.nama, email: ku.email, id: ku.id } : null);
   ctx.sumber = me && ku ? 'keduanya' : ku ? 'kurekam' : 'simantap';
-  const admin = peran.includes('admin');
+  const admin = peran.includes('admin') || peran.includes('developer');
   ctx.tersedia = admin ? Object.keys(ROLES).filter(k => k !== 'tamu') : peran;
   ctx.tetap = !admin;
   ctx.unitPer = admin ? null : unitPer;
-  if (admin) ctx.role = 'admin'; // SPM memulai sebagai SPM, lalu boleh memeragakan peran lain
+  if (admin) ctx.role = peran.includes('developer') ? 'developer' : 'admin'; // SPM atau Developer memulai sebagai dirinya, lalu boleh memeragakan peran lain
   else if (!ctx.tersedia.includes(ctx.role)) ctx.role = ctx.tersedia[0];
   if (peran.includes('auditor') && !admin && me) ctx.auditor = me.id;
   selaraskanUnit();
@@ -132,7 +133,7 @@ export function terapkanPeran() {
 /** Hak akses per peran. */
 export function can(action, obj) {
   const r = ctx.role;
-  if (r === 'admin') return true;
+  if (spmLevel(r)) return true;
   switch (action) {
     case 'capaian': case 'ed': return eAuditee(r) && obj && obj.unit === ctx.unit;
     case 'audit': {
@@ -245,6 +246,7 @@ export const ROUTES = [
   { id: 'amiiabee', t: 'AMI Kesiapan IABEE', sub: 'Auditor, temuan, matriks prediksi', ic: 'audit', c: '#f0616d', sec: 'Akreditasi', v: amiIabeeView },
   { id: 'amilam', t: 'AMI Akreditasi LAM Teknik', sub: '64 butir, rumus resmi instrumen 2025', ic: 'audit', c: '#14b8a6', sec: 'Akreditasi', v: amiLamView },
   { id: 'skema', t: 'Skema Capaian & Metode', ic: 'layers', c: '#0ea5e9', sec: 'Akreditasi', v: skema },
+  { id: 'arsip', t: 'Arsip Tahun', sub: 'Rekam jejak siklus tahun lalu', ic: 'folder', c: '#64748b', sec: 'Evaluasi & Pengendalian', v: arsipView },
   { id: 'laporan', t: 'Laporan', ic: 'download', c: '#14b8a6', sec: 'Evaluasi & Pengendalian', v: laporan },
   { id: 'dokumen', t: 'Dokumen SPMI', ic: 'folder', c: '#f5a524', sec: 'Sistem', v: dokumen },
   { id: 'pengguna', t: 'Pengguna & Peran', ic: 'users', c: '#6366f1', sec: 'Sistem', v: penggunaView },
@@ -253,8 +255,11 @@ export const ROUTES = [
 
 // Menu Database & Pengaturan hanya untuk pengguna yang sudah masuk (bukan mode demo)
 /** Database & Pengaturan: hanya SPM dan Wakil Direktur I (setara developer). */
-export const levelSistem = (r = ctx.role) => r === 'admin' || r === 'wadir1';
-const navRoutes = () => ROUTES.filter(r => (r.id !== 'pengaturan' || (DB.user && levelSistem())) && (r.id !== 'pengguna' || (DB.user && ctx.role === 'admin')));
+/** SPM dan Developer memegang hak SPM penuh; Developer tambahan memiliki otoritas tak terbatas (ubah atau hapus apa pun, arsip, riwayat, sistem). */
+export const spmLevel = (r = ctx.role) => r === 'admin' || r === 'developer';
+export const eDeveloper = (r = ctx.role) => r === 'developer';
+export const levelSistem = (r = ctx.role) => r === 'admin' || r === 'wadir1' || r === 'developer';
+const navRoutes = () => ROUTES.filter(r => (r.id !== 'pengaturan' || (DB.user && levelSistem())) && (r.id !== 'pengguna' || (DB.user && spmLevel())) && (r.id !== 'arsip' || spmLevel() || ['wadir1', 'pimpinan'].includes(ctx.role)));
 
 function renderSide(cur) {
   let sec = '', h = `<div class="brand-logos"><img src="assets/img/logo-pem-akamigas.png" alt="PEM Akamigas" class="lg-pem"><img src="assets/img/logo-esdm.png" alt="Kementerian ESDM" class="lg-esdm"></div>

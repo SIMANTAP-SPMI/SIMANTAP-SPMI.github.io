@@ -1,7 +1,7 @@
 /* AMI Akreditasi LAM Teknik: instrumen 2025 (Sarjana Terapan, 64 butir) dihitung dengan rumus yang sama persis dengan berkas Excel resmi.
    Prodi mengisi angka borang, deskripsi, dan tautan bukti per butir; auditor menilai butir kualitatif 0 sampai 4 seperti asesor LAM.
    Data di koleksi "lam" (satu dokumen per prodi): { id, input:{sel:nilai}, deskripsi:{no}, bukti:{no:[{label,url}]}, catatan:{no}, riwayat[] }. */
-import { S, ctx, icon, esc, save, toast, openDrawer, closeDrawer, userName } from '../app.js';
+import { S, ctx, icon, esc, save, toast, openDrawer, closeDrawer, userName, spmLevel } from '../app.js';
 import { DB } from '../db.js';
 import { kartuRealisasi } from './rujukan.js';
 import { PRODI } from '../seed.js';
@@ -54,7 +54,7 @@ export function hasilLam(pid) {
 const nJudge = LAM_ITEMS.filter(it => it.judge.length).length;
 
 const riw = (doc, aksi) => { doc.riwayat = [{ t: new Date().toISOString(), oleh: userName(), aksi }, ...(doc.riwayat || [])].slice(0, 60); };
-const bolehIsi = (pid) => ctx.role === 'admin' || (ctx.role === 'prodi' && ctx.unit === pid);
+const bolehIsi = (pid) => spmLevel() || (ctx.role === 'prodi' && ctx.unit === pid);
 const chip = ([c, t]) => `<span class="tag" style="--c:${c}">${t}</span>`;
 const tagStatus = (s) => s ? `<span class="tag" style="--c:${s.warna}">${esc(s.nama)}</span>` : '<span class="muted">Belum dinilai</span>';
 
@@ -91,7 +91,7 @@ export default function amiLamView(el) {
   ${R.d.awal ? `<div class="ribbon" style="margin-top:16px">${icon('alert')} <span><b>Data awal, perlu validasi.</b> Angka dan skor estimasi ini diambil dari ${esc(R.d.awalDari)} serta LKPS yang dinilai saat itu (data lama, bukan kondisi terkini). Auditor dan prodi memvalidasi lalu memperbarui tiap butir; butir yang kosong belum terisi.</span></div>` : ''}
   <div class="card" style="margin-top:16px"><div class="card-h"><span class="ico-badge" style="--c:#8b5cf6">${icon('layers')}</span><div><h3>${esc(p.id)} · ${esc(p.nama)}</h3><div class="sub">${R.selesai} dari ${LAM_ITEMS.length} butir selesai · ${isi ? 'Anda dapat mengisi angka, deskripsi, dan bukti' : audit ? 'Anda ditugaskan menilai prodi ini' : 'Hanya lihat'}</div></div><div class="sp"></div>
     ${lihat.length > 1 ? `<select class="inp" id="m-p" style="max-width:240px">${lihat.map(x => `<option value="${x.id}" ${x.id === pilih ? 'selected' : ''}>${x.id} · ${esc(x.nama)}</option>`).join('')}</select>` : ''}
-    ${R.d._baru && ctx.role === 'admin' ? `<button class="btn sm" id="m-awal">${icon('spark')} Muat data awal dari tanggapan AL</button>` : ''}<button class="btn sm" id="m-x">${icon('download')} Excel</button></div>
+    ${R.d._baru && spmLevel() ? `<button class="btn sm" id="m-awal">${icon('spark')} Muat data awal dari tanggapan AL</button>` : ''}<button class="btn sm" id="m-x">${icon('download')} Excel</button></div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px">
       <div style="padding:10px 12px;border-radius:12px;background:rgba(139,92,246,.1)"><b style="font-size:22px;color:#6d28d9">${R.sentuh ? fmt(H.NA, 1) : '–'}</b><div class="small">NA butir terisi (maks. 400) · proyeksi ${R.cakupan >= 30 ? fmt(R.proy, 1) : '–'} · cakupan ${R.cakupan}%</div></div>
       <div style="padding:10px 12px;border-radius:12px;background:rgba(24,35,58,.05)"><div style="font-weight:700">${R.status ? esc(R.status.nama) : R.indikatif || 'Belum cukup data'}</div><div class="small">${R.status ? 'status akreditasi' : 'indikatif, belum resmi'}</div></div>

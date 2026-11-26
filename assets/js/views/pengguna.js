@@ -1,7 +1,7 @@
 /* Pengguna dan peran SIMANTAP 2.0.
    Aturan: data diisi satu kali di aplikasi pemiliknya. SPM, Prodi (Tim Kurikulum Prodi), Kasubbag AK, dan Wakil Direktur I didaftarkan di KUREKAM
    dan dibaca otomatis di sini. Menu ini hanya untuk akun khusus SIMANTAP: Pimpinan, Auditor, dan Unit. */
-import { S, ctx, icon, esc, save, remove, toast, openDrawer, closeDrawer, peranDariKurekam } from '../app.js';
+import { S, ctx, icon, esc, save, remove, toast, openDrawer, closeDrawer, peranDariKurekam, spmLevel } from '../app.js';
 import { ROLES, UNITS, UNIT } from '../seed.js';
 import { DB } from '../db.js';
 
@@ -11,7 +11,7 @@ const tag = (k) => `<span class="tag" style="--c:#6366f1">${esc((ROLES[k] || { n
 const namaPeran = (k, u) => (k === 'auditee' ? ((UNIT[u.unit] || {}).jenis === 'prodi' ? 'prodi' : 'unit') : k);
 
 export default function penggunaView(el) {
-  if (ctx.role !== 'admin') { el.innerHTML = '<div class="card empty">Menu ini hanya untuk SPM.</div>'; return; }
+  if (!spmLevel()) { el.innerHTML = '<div class="card empty">Menu ini hanya untuk SPM.</div>'; return; }
   const rows = S.pengguna.slice().sort((a, b) => (a.email || '').localeCompare(b.email || ''));
   const kur = S.kurPengguna.map(k => ({ k, p: peranDariKurekam(k) })).filter(x => x.p.length).sort((a, b) => (a.k.email || '').localeCompare(b.k.email || ''));
   const demo = DB.mode !== 'firebase';

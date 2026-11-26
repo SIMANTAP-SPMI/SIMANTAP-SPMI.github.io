@@ -1,6 +1,6 @@
 /* LED IABEE: register 53 aitem evaluasi per prodi. Narasi ditulis di sini, bukti berupa tautan (boleh lebih dari satu),
    kelengkapan diperiksa otomatis, status mengalir dari Belum diisi sampai Final. Data di koleksi "led" (satu dokumen per prodi). */
-import { S, ctx, icon, esc, save, toast, openDrawer, closeDrawer, userName } from '../app.js';
+import { S, ctx, icon, esc, save, toast, openDrawer, closeDrawer, userName, spmLevel } from '../app.js';
 import { DB } from '../db.js';
 import { PRODI, UNIT, AUDITORS } from '../seed.js';
 import { LED_KRITERIA, LED_SUB, LED_SS, LED_AITEM } from '../led-data.js';
@@ -66,10 +66,10 @@ export function kerangka(it, prodi) {
 }
 
 /* ---------- izin ---------- */
-const bolehIsi = (pid) => ctx.role === 'admin' || (ctx.role === 'prodi' && ctx.unit === pid);
+const bolehIsi = (pid) => spmLevel() || (ctx.role === 'prodi' && ctx.unit === pid);
 /** Auditor hanya menilai prodi yang ditugaskan kepadanya (lihat menu AMI IABEE). Tanpa penugasan, hanya mode demo yang membuka, dan tidak untuk unit asal. */
 export function auditorBerhak(pid) {
-  if (ctx.role === 'admin') return true;
+  if (spmLevel()) return true;
   if (ctx.role !== 'auditor') return false;
   const ls = dokIabee(pid).auditor || [];
   if (ls.length) return ls.some(a => a.id === ctx.auditor);

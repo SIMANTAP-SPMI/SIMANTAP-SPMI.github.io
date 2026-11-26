@@ -1,10 +1,11 @@
-import { S, ctx, icon, esc, can, save, toast, openDrawer, closeDrawer, eAuditee } from '../app.js';
+import { S, ctx, icon, esc, can, save, toast, openDrawer, closeDrawer, eAuditee, spmLevel } from '../app.js';
 import { chart, AX, countUp, gaugeOption } from '../charts.js';
 import { UNITS, UNIT, AUDITORS } from '../seed.js';
 import { BULAN } from '../scoring.js';
 import { active, summary, indStat, stBadge, fmtV, targetTxt } from './common.js';
 import { detail } from './indikator.js';
 import { siklusTab, dalamLingkup } from './amisiklus.js';
+import { cekAmiSelesai, ubahJadwalLive } from './arsip.js';
 import { temuanTahun, tahunBar, bindTahun, tahunAktif, berjalan, temuanTabel, drawerTemuan, drawerRtlRtm, kartuTL, amiTahun, rtmTahun, statTahun, tulis, bolehAuditee, bolehAuditor, ketBadge, tg, tgl, beritaAcara, notulen, KAT, RST, today as hariIni } from './siklus-core.js';
 
 const TEMUAN = { 'Terlampaui': '#0ea5e9', 'Sesuai': '#10b981', 'Observasi': '#f5a524', 'KTS Minor': '#fb923c', 'KTS Mayor': '#f0616d' };
@@ -23,17 +24,18 @@ function amiLive(el, ulang) {
     <div class="card tilt"><div class="card-h"><span class="ico-badge" style="--c:#8b5cf6">${icon('dash')}</span><div><h3>Temuan per auditee</h3><div class="sub">Siklus AMI berjalan</div></div></div><div class="chart" id="bar"></div></div>
   </div>
   <div class="card" style="margin-top:18px">
-    <div class="card-h"><span class="ico-badge" style="--c:#0ea5e9">${icon('calendar')}</span><div><h3>Jadwal AMI</h3><div class="sub">Auditor tidak ditugaskan ke unit asalnya</div></div><div class="sp"></div>${ctx.role === 'admin' ? `<button class="btn pri" id="addAmi">${icon('plus')} Jadwal baru</button>` : ''}</div>
+    <div class="card-h"><span class="ico-badge" style="--c:#0ea5e9">${icon('calendar')}</span><div><h3>Jadwal AMI</h3><div class="sub">Auditor tidak ditugaskan ke unit asalnya</div></div><div class="sp"></div>${spmLevel() ? `<button class="btn pri" id="addAmi">${icon('plus')} Jadwal baru</button>` : ''}</div>
     <div class="tbl-wrap"><table class="tbl"><thead><tr><th>ID</th><th>Auditee</th><th>Auditor</th><th>Tanggal</th><th>Status</th><th></th></tr></thead><tbody>
     ${S.ami.map(a => `<tr><td><b>${a.id}</b></td><td><b>${a.auditee}</b><div class="muted small">${esc(UNIT[a.auditee].nama)}</div></td><td>${a.auditor.map(audName).join(', ')}</td><td>${a.tgl}</td><td><span class="st ${a.status === 'Selesai' ? 'ok' : 'near'}">${a.status}</span></td>
-      <td>${ctx.role === 'admin' && a.status !== 'Selesai' ? `<button class="btn sm" data-done="${a.id}">${icon('check')} Tandai selesai</button>` : ''}</td></tr>`).join('')}
+      <td>${spmLevel() ? `${a.status !== 'Selesai' ? `<button class="btn sm" data-done="${a.id}">${icon('check')} Tandai selesai</button> ` : ''}<button class="btn sm ghost" data-ubah="${a.id}">${icon('edit')} Ubah</button>` : ''}</td></tr>`).join('')}
     </tbody></table></div>
   </div>
   ${ctx.role === 'auditor' ? `<div class="card" style="margin-top:18px"><div class="card-h"><span class="ico-badge" style="--c:#8b5cf6">${icon('user')}</span><div><h3>Penugasan ${esc(me.nama)}</h3><div class="sub">Unit asal: ${me.home} (tidak dapat diaudit oleh Anda)</div></div></div>
     ${myAudits.length ? myAudits.map(a => `<h4 style="margin:10px 0 6px">${a.auditee} · ${a.tgl}</h4><div class="tbl-wrap"><table class="tbl"><tbody>${active().filter(i => i.unit === a.auditee && dalamLingkup(i)).map(i => `<tr class="click" data-id="${i.id}"><td>${esc(i.teks)}</td><td class="num">${targetTxt(i)}</td><td class="num">${fmtV(i, indStat(i).v)}</td><td>${i.ami ? `<span class="st" style="background:${TEMUAN[i.ami.temuan]}22">${i.ami.temuan}</span>` : '<span class="st na">belum</span>'}</td></tr>`).join('')}</tbody></table></div>`).join('') : '<div class="muted">Tidak ada penugasan.</div>'}</div>` : ''}`;
   el.querySelectorAll('.kpi .val').forEach(v => countUp(v, +v.dataset.n));
   el.querySelectorAll('tr.click').forEach(tr => tr.onclick = () => detail(tr.dataset.id, () => ulang()));
-  el.querySelectorAll('[data-done]').forEach(b => b.onclick = async () => { const a = S.ami.find(x => x.id === b.dataset.done); a.status = 'Selesai'; await save('ami', a, `AMI ${a.id} selesai`); toast('Jadwal AMI ditandai selesai'); ulang(); });
+  el.querySelectorAll('[data-done]').forEach(b => b.onclick = async () => { const a = S.ami.find(x => x.id === b.dataset.done); a.status = 'Selesai'; await save('ami', a, `AMI ${a.id} selesai`); toast('Jadwal AMI ditandai selesai'); await cekAmiSelesai(a); ulang(); });
+  el.querySelectorAll('[data-ubah]').forEach(b => b.onclick = () => ubahJadwalLive(S.ami.find(x => x.id === b.dataset.ubah), ulang, (a, aksi) => save('ami', a, aksi)));
   const add = el.querySelector('#addAmi');
   if (add) add.onclick = () => openDrawer(`<div class="card-h"><h3>Jadwal AMI baru</h3><div class="sp"></div><button class="btn ghost" data-close>${icon('close')}</button></div>
     <div class="card"><div class="grid g2" style="gap:12px"><div class="field"><label>Auditee</label><select class="inp" id="aU">${UNITS.map(u => `<option>${u.id}</option>`).join('')}</select></div><div class="field"><label>Tanggal</label><input class="inp" type="date" id="aT" value="${S.settings.tahun + 1}-02-10"></div>

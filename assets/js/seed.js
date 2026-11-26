@@ -112,6 +112,7 @@ export const IKU = [
 export const IKUMAP = Object.fromEntries(IKU.map(k => [k.id, k]));
 
 export const ROLES = {
+  developer: { nama: 'Developer', ket: 'Otoritas tak terbatas: mengubah atau menghapus data apa pun, arsip, riwayat koreksi, dan pengaturan sistem (tidak dapat diberikan lewat menu Pengguna)' },
   admin: { nama: 'SPM', ket: 'Mengatur jadwal dan pengguna, mengawal mutu (daftar pengguna dari KUREKAM)' },
   pimpinan: { nama: 'Pimpinan', ket: 'Direktur / Kepala Badan: memantau dashboard dan progres, tanpa mengubah data (didaftarkan di KUREKAM atau oleh SPM)' },
   wadir1: { nama: 'Wakil Direktur I', ket: 'Mengesahkan penetapan, memantau progres akademik (daftar pengguna dari KUREKAM)' },

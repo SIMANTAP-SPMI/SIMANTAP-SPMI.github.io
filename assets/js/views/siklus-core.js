@@ -4,7 +4,7 @@
    - Tahun berjalan: koleksi yang sudah dipakai modul lain (ami, rtl, rtm, indikator). Temuan dan tindak lanjut tahun berjalan = baris koleksi "rtl";
      RTM tahun berjalan = koleksi "rtm". Bidang tambahan (tanggapan, tglSelesai, perpanjang, riwayat) ditulis ke baris yang sama.
    Modul ini menormalkan keduanya menjadi bentuk yang sama dan mengarahkan penulisan ke sumber aslinya. */
-import { S, ctx, icon, esc, can, save, toast, openDrawer, closeDrawer, userName, eAuditee } from '../app.js';
+import { S, ctx, icon, esc, can, save, toast, openDrawer, closeDrawer, userName, eAuditee, spmLevel } from '../app.js';
 import { AUDITORS } from '../seed.js';
 import { docx, unduh } from '../ekspor.js';
 import { detail } from './indikator.js';
@@ -124,9 +124,9 @@ export async function tulis(n, patch, aksi) {
   }
   await save('rtl', r, `RTL ${r.id}: ${aksi}`);
 }
-export const bolehAuditee = (t) => ctx.role === 'admin' || (eAuditee() && (!t.unit || ctx.unit === t.unit));
-export const bolehAuditor = (t) => ctx.role === 'admin' || (ctx.role === 'auditor' && (!t.unit || can('audit', { unit: t.unit })));
-export const bolehPimpinan = () => ctx.role === 'admin' || can('rtm');
+export const bolehAuditee = (t) => spmLevel() || (eAuditee() && (!t.unit || ctx.unit === t.unit));
+export const bolehAuditor = (t) => spmLevel() || (ctx.role === 'auditor' && (!t.unit || can('audit', { unit: t.unit })));
+export const bolehPimpinan = () => spmLevel() || can('rtm');
 
 /* ---------- daftar temuan (menu AMI, tab Temuan) ---------- */
 const F = { u: '', kat: '', st: '', q: '' };
@@ -204,7 +204,7 @@ export function drawerTemuan(id, ulang) {
 /** Rincian RTL dari keputusan RTM (papan RTL, kartu bertanda RTM). */
 export function drawerRtlRtm(id, y, ulang) {
   const r = rtlRtmTahun(y).find(x => x.id === id); if (!r) return;
-  const ok = bolehPimpinan(), ver = ctx.role === 'admin' || ctx.role === 'auditor';
+  const ok = bolehPimpinan(), ver = spmLevel() || ctx.role === 'auditor';
   const ubah = async (st, aksi) => { const p = { status: st }; if (st === 'Selesai') p.tglSelesai = today(); await tulis(r, p, aksi); closeDrawer(); toast(aksi); ulang(); };
   openDrawer(`<div class="card-h"><h3>${r.id} · RTL dari RTM ${y}</h3><div class="sp"></div><button class="btn ghost" data-close>${icon('close')}</button></div>
     <div class="card"><div style="display:flex;gap:6px;margin-bottom:8px">${tg(RST[r.status], r.status)}${ketBadge(r)}</div><p style="margin:0 0 8px"><b>${esc(r.uraian)}</b></p>

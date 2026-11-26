@@ -3,7 +3,7 @@
    Data: dokumen "siklus-<tahun>" di koleksi settings (aturan Firestore settings: baca anggota, tulis SPM), sehingga tidak perlu koleksi baru.
    Bentuk dokumen: { id, tahun, gelombang: [{ id, nama, mulai, tahap: [{ k, nama, pj, mulai, hari, kunci }], baris: [{ auditee, lingkup: { mode: 'semua'|'sebagian', ids: [] } }] }] }.
    Tanpa dokumen siklus, semua indikator aktif ikut AMI (perilaku lama). */
-import { S, ctx, icon, esc, toast, openDrawer, closeDrawer, semuaSettings } from '../app.js';
+import { S, ctx, icon, esc, toast, openDrawer, closeDrawer, semuaSettings, spmLevel } from '../app.js';
 import { DB } from '../db.js';
 import { UNITS, UNIT, SUMBER } from '../seed.js';
 import { active, isAkr, sumberTags } from './common.js';
@@ -17,7 +17,7 @@ const DASAR = [
   { k: 'ba', nama: 'Berita Acara dan rapat penutup', pj: 'Auditor, SPM', hari: 3 },
   { k: 'tk', nama: 'Tindakan koreksi unit dan verifikasi', pj: 'Auditee, Auditor', hari: 30 }
 ];
-const adaSPM = () => ctx.role === 'admin';
+const adaSPM = () => spmLevel();
 const tambah = (s, n) => { const d = new Date(s + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 const selisih = (a, b) => Math.round((new Date(b + 'T00:00:00Z') - new Date(a + 'T00:00:00Z')) / 864e5);
 export const selesai = (t) => tambah(t.mulai, Math.max(1, +t.hari || 1) - 1);

@@ -1,4 +1,4 @@
-import { S, ctx, icon, esc, can, save, toast, openDrawer, closeDrawer, route_ } from '../app.js';
+import { S, ctx, icon, esc, can, save, toast, openDrawer, closeDrawer, route_, spmLevel } from '../app.js';
 import { chart, AX, grad } from '../charts.js';
 import { UNITS, UNIT, SUMBER, SUMBERMAP, STANDAR, STD, IKU, IKUMAP, EIS, AUDITORS } from '../seed.js';
 import { LAM, IABEE } from '../config.js';
@@ -69,7 +69,7 @@ export function detail(id, after) {
   const ed = i.ed || {}, ami = i.ami || {}, pg = i.pengendalian || {}, pn = i.peningkatan || {};
   const rtls = S.rtl.filter(r => r.ind === i.id);
   const luar = !dalamLingkup(i), kunciED = terkunci(i, 'ed'), kunciLap = terkunci(i, 'lap');
-  const canCap = can('capaian', i) && !kunciED, canAudit = can('audit', i) && !luar && !kunciLap, canPn = ctx.role === 'admin' || ctx.role === 'pimpinan' || ctx.role === 'wadir1';
+  const canCap = can('capaian', i) && !kunciED, canAudit = can('audit', i) && !luar && !kunciLap, canPn = spmLevel() || ctx.role === 'pimpinan' || ctx.role === 'wadir1';
   const bukti = (i.bukti && i.bukti[m]) || [];
   const tagsLam = [i.lam && `LAM ${i.lam} · ${(LAM.kriteria.find(k => k.id === i.lam) || {}).nama}`, i.komp && `Komponen ${(LAM.komponen.find(k => k.id === i.komp) || {}).nama}`, i.sp && `Syarat perlu ${i.sp}`, ...(i.iabee || []).map(k => `IABEE ${k}`), i.kurekam && 'Otomatis dari KUREKAM', i.iapt && `IAPT ${i.iapt}`].filter(Boolean);
   openDrawer(`
@@ -80,7 +80,7 @@ export function detail(id, after) {
     ${i.catatan ? `<div class="ribbon">${icon('info')} ${esc(i.catatan)}</div>` : ''}
     <div class="card" style="margin-bottom:14px"><div class="card-h"><h3>Capaian ${S.settings.tahun}</h3><div class="sp"></div>${stBadge(st.k)}<b style="margin-left:8px">${fmtV(i, st.v)} ${esc(i.satuan)}</b></div><div class="chart sm" id="dchart"></div></div>
     <div class="trail">
-      ${step('#10b981', 'flag', '1 · Penetapan', `<dl class="kv"><dt>Target</dt><dd>${targetTxt(i)}</dd><dt>Standar</dt><dd>${i.std} · ${esc(STD[i.std])}</dd><dt>IKU/IKT Renstra</dt><dd>${i.iku ? i.iku + ' · ' + esc((IKUMAP[i.iku] || {}).nama) : '–'}</dd><dt>Data / Risiko</dt><dd>${i.data} · ${i.risk}</dd><dt>Rencana</dt><dd>${esc(i.rencana)}</dd></dl>${ctx.role === 'admin' ? `<div style="display:flex;gap:6px;margin-top:8px"><button class="btn sm" id="editInd">${icon('edit')} Ubah penetapan & target</button><button class="btn sm ghost danger" id="delInd">${icon('trash')} Hapus indikator</button></div>` : ''}`)}
+      ${step('#10b981', 'flag', '1 · Penetapan', `<dl class="kv"><dt>Target</dt><dd>${targetTxt(i)}</dd><dt>Standar</dt><dd>${i.std} · ${esc(STD[i.std])}</dd><dt>IKU/IKT Renstra</dt><dd>${i.iku ? i.iku + ' · ' + esc((IKUMAP[i.iku] || {}).nama) : '–'}</dd><dt>Data / Risiko</dt><dd>${i.data} · ${i.risk}</dd><dt>Rencana</dt><dd>${esc(i.rencana)}</dd></dl>${spmLevel() ? `<div style="display:flex;gap:6px;margin-top:8px"><button class="btn sm" id="editInd">${icon('edit')} Ubah penetapan & target</button><button class="btn sm ghost danger" id="delInd">${icon('trash')} Hapus indikator</button></div>` : ''}`)}
       ${step('#0ea5e9', 'pulse', `2 · Pelaksanaan & Evaluasi Diri (${BULAN[m]})`, `
         <div class="grid g2" style="gap:10px">
           <div class="field"><label>Capaian ${BULAN[m]} (${esc(i.satuan)})</label><input class="inp" id="capIn" type="number" step="any" value="${i.cap[m] ?? ''}" ${canCap ? '' : 'disabled'}></div>

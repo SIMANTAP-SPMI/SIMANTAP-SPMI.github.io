@@ -67,8 +67,8 @@ export function hitungSPM() {
     ['RTM terlaksana', 20, pct(rtmDue.filter(r => r.status === 'Selesai').length, rtmDue.length), rtmDue.length ? `${rtmDue.filter(r => r.status === 'Selesai').length} dari ${rtmDue.length} RTM yang sudah jatuh tempo` : 'RTM belum jatuh tempo']]));
 }
 
-const lencana = (s) => { if (s == null) return '<span class="muted small">belum dapat dihitung</span>'; const [t, c] = predikat(s); return `<span class="tag" style="--c:${c}"><b>${s}</b> · ${t}</span>`; };
-const detail = (komp) => komp.map(k => `<div class="small" style="display:flex;gap:6px;align-items:center;margin:2px 0"><span style="width:44px" class="muted">${k[1]}%</span><span style="flex:1">${esc(k[0])}: <span class="muted">${esc(k[3])}</span></span><b>${k[2] == null ? '–' : Math.round(k[2] * 100) + '%'}</b></div>`).join('');
+export const lencana = (s) => { if (s == null) return '<span class="muted small">belum dapat dihitung</span>'; const [t, c] = predikat(s); return `<span class="tag" style="--c:${c}"><b>${s}</b> · ${t}</span>`; };
+export const detail = (komp) => komp.map(k => `<div class="small" style="display:flex;gap:6px;align-items:center;margin:2px 0"><span style="width:44px" class="muted">${k[1]}%</span><span style="flex:1">${esc(k[0])}: <span class="muted">${esc(k[3])}</span></span><b>${k[2] == null ? '–' : Math.round(k[2] * 100) + '%'}</b></div>`).join('');
 
 /** Kartu skor sendiri di beranda "Tugas saya" (siklus AMI tahun berjalan). */
 export function kartuSkor(jenis, id) {

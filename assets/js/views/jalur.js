@@ -1,6 +1,6 @@
 /* Jalur IABEE: delapan langkah dari pemahaman sampai keputusan, kelayakan PA/GA, surat tugas dan registrasi, serta progres per prodi.
    Data per prodi disimpan di koleksi "iabee" (satu dokumen per prodi). Hanya tautan bukti, tanpa berkas. */
-import { S, ctx, icon, esc, save, toast, openDrawer, closeDrawer, userName } from '../app.js';
+import { S, ctx, icon, esc, save, toast, openDrawer, closeDrawer, userName, spmLevel } from '../app.js';
 import { PRODI, UNIT } from '../seed.js';
 import { IABEE_JALUR } from '../config.js';
 
@@ -89,7 +89,7 @@ function drawerBukti(judul, list, simpan) {
 const links = (arr) => (arr || []).map(b => `<a class="small" href="${esc(b.url)}" target="_blank" rel="noopener">${esc(b.label)}</a>`).join(' · ') || '<span class="small muted">belum ada bukti</span>';
 
 export default function jalurView(el) {
-  const admin = ctx.role === 'admin', sah = ctx.role === 'pimpinan' || ctx.role === 'wadir1';
+  const admin = spmLevel(), sah = ctx.role === 'pimpinan' || ctx.role === 'wadir1';
   if (!pilih || !PRODI.some(p => p.id === pilih)) pilih = (ctx.role === 'prodi' && PRODI.some(p => p.id === ctx.unit)) ? ctx.unit : 'TP';
   const pid = pilih, R = ringkas(pid), d = R.d, isi = admin || (ctx.role === 'prodi' && ctx.unit === pid);
   const ubah = async (fn, aksi) => { const x = JSON.parse(JSON.stringify(dokIabee(pid))); delete x._baru; fn(x); await save('iabee', x, aksi + ' ' + pid); jalurView(el); };

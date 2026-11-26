@@ -1,7 +1,7 @@
 /* Siklus PPEPP: satu tahun satu layar (AMI, temuan, perbaikan, berita acara, RTM, RTL, pemantauan, risiko), tren 2022 sampai 2026, dan risiko.
    Rincian temuan, RTM, dan RTL tidak diulang di sini; tiap tahap menautkan ke menu AMI, RTL, atau RTM pada tahun yang sama.
    Data arsip (koleksi "ppepp", ppepp-awal.js) berlabel ILUSTRATIF sampai diganti data asli; lihat siklus-core.js untuk sumber data. */
-import { S, ctx, icon, esc, can, save, toast, openDrawer, closeDrawer } from '../app.js';
+import { S, ctx, icon, esc, can, save, toast, openDrawer, closeDrawer, spmLevel } from '../app.js';
 import { chart, AX } from '../charts.js';
 import { PPEPP_AWAL } from '../ppepp-awal.js';
 import { xlsx, unduh } from '../ekspor.js';
@@ -13,7 +13,7 @@ const skor = (r) => r.kemungkinan * r.dampak;
 const skorKel = (v) => v >= 15 ? ['bad', 'Tinggi'] : v >= 8 ? ['near', 'Sedang'] : ['ok', 'Rendah'];
 
 export default function ppeppView(el) {
-  const admin = ctx.role === 'admin', ulang = () => ppeppView(el), kosong = !S.ppepp.length;
+  const admin = spmLevel(), ulang = () => ppeppView(el), kosong = !S.ppepp.length;
   el.innerHTML = `
   ${kosong ? `<div class="card empty" style="margin-bottom:14px">Belum ada data arsip siklus 2022–2025. ${admin ? '<button class="btn pri" id="p-muat">Muat data contoh arsip 2022–2025</button>' : 'SPM dapat memuat data contoh.'}</div>` : ''}
   <div class="card" style="padding:10px 14px;margin-bottom:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
@@ -85,7 +85,7 @@ function trenTab(el, ulang) {
 
 /* ---------- risiko ---------- */
 function risikoTab(el, ulang) {
-  const rd = riskDoc(), daftar = rd.daftar || [], boleh = ctx.role === 'admin' || can('rtm');
+  const rd = riskDoc(), daftar = rd.daftar || [], boleh = spmLevel() || can('rtm');
   const sel = (k, d) => daftar.filter(r => r.kemungkinan === k && r.dampak === d);
   const warna = (k, d) => { const v = k * d; return v >= 15 ? 'rgba(240,97,109,.28)' : v >= 8 ? 'rgba(245,165,36,.25)' : 'rgba(16,185,129,.2)'; };
   el.innerHTML = `<div class="grid g-21">

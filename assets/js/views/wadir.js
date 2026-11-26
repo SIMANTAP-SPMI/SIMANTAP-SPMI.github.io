@@ -1,4 +1,4 @@
-import { S, ctx, icon, esc } from '../app.js';
+import { S, ctx, icon, esc, spmLevel } from '../app.js';
 import { chart, AX, countUp, grad } from '../charts.js';
 import { UNITS, WADIR } from '../seed.js';
 import { BLN, BULAN, KELAS, fmt } from '../scoring.js';
@@ -23,7 +23,7 @@ export default function wadir(el, id) {
   </div>
   <div class="card" style="margin-bottom:18px;background:linear-gradient(120deg, color-mix(in srgb, ${W.warna} 14%, #fff), rgba(255,255,255,.85))">
     <div class="card-h" style="margin:0"><span class="ico-badge" style="--c:${W.warna}">${icon('user')}</span><div><h3>${W.nama} — ${W.bidang}</h3><div class="sub">${units.map(u => `<b>${u.id}</b> ${esc(u.nama)}`).join(' · ')}</div></div><div class="sp"></div>
-      ${ctx.role === 'admin' ? `<a class="btn pri" href="#/indikator">${icon('plus')} Input indikator</a>` : ''}<a class="btn" href="#/laporan">${icon('download')} Laporan</a></div>
+      ${spmLevel() ? `<a class="btn pri" href="#/indikator">${icon('plus')} Input indikator</a>` : ''}<a class="btn" href="#/laporan">${icon('download')} Laporan</a></div>
   </div>
   <div class="grid g4">
     ${[['Indikator unit', inds.length, '', '#0ea5e9', 'target', `${inds.filter(isAkr).length} berkorelasi akreditasi`], ['Tercapai', Math.round(sum.pct), '%', '#10b981', 'check', `${sum.ok} dari ${sum.n} indikator`], ['Temuan KTS AMI', kts, '', '#f0616d', 'audit', 'minor + mayor'], ['RTL belum terverifikasi', rtlOpen, '', '#f5a524', 'loop', 'perlu tindak lanjut']]

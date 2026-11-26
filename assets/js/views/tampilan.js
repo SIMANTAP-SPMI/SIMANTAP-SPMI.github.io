@@ -47,7 +47,7 @@ export function bagiMenu(routes) {
 
 /** Kartu pengaturan di halaman Database & Pengaturan (SPM dan Wakil Direktur I). */
 export function kartuTampilan(el) {
-  const rute = ROUTES.filter(r => r.id !== 'beranda' && r.id !== 'pengguna' && r.id !== 'pengaturan');
+  const rute = ROUTES.filter(r => r.id !== 'beranda' && r.id !== 'pengguna' && r.id !== 'pengaturan' && r.id !== 'arsip');
   const box = document.createElement('div'); box.className = 'card'; box.style.marginTop = '18px';
   box.innerHTML = `<div class="card-h"><span class="ico-badge" style="--c:#6366f1">${icon('eye')}</span><div><h3>Tampilan per peran</h3><div class="sub">Centang menu yang tampil di menu utama. Yang tidak dicentang masuk "Menu lainnya" dan tetap bisa dibuka. Ini pengaturan tampilan, bukan hak akses data.</div></div></div>
     <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Menu</th>${FOKUS.map(r => `<th>${esc(ROLES[r].nama)}</th>`).join('')}</tr></thead><tbody>

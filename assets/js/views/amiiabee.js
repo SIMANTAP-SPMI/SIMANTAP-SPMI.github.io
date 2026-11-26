@@ -1,6 +1,6 @@
 /* AMI kesiapan IABEE: penugasan auditor dari daftar dosen KUREKAM, progres audit, temuan C/W/D, dan matriks prediksi
    mengikuti RPEA 2026 (bagian 2.5.4 dan 2.6). Penugasan disimpan pada dokumen prodi di koleksi "iabee" (bidang "auditor"). */
-import { S, ctx, icon, esc, save, toast, openDrawer, closeDrawer } from '../app.js';
+import { S, ctx, icon, esc, save, toast, openDrawer, closeDrawer, spmLevel } from '../app.js';
 import { DB } from '../db.js';
 import { PRODI, UNITS, AUDITORS } from '../seed.js';
 import { LED_AITEM } from '../led-data.js';
@@ -58,7 +58,7 @@ async function daftarkanPengguna(a) {
 }
 
 export default function amiIabeeView(el) {
-  const admin = ctx.role === 'admin';
+  const admin = spmLevel();
   const lihat = ctx.role === 'prodi' ? PRODI.filter(p => p.id === ctx.unit) : PRODI;
   if (!lihat.length) { el.innerHTML = '<div class="empty">Akun Prodi/Unit ini belum terhubung ke prodi.</div>'; return; }
   if (!pilih || !lihat.some(p => p.id === pilih)) pilih = lihat[0].id;
