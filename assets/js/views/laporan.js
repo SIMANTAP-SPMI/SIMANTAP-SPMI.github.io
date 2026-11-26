@@ -1,10 +1,12 @@
-import { S, icon, esc, toast } from '../app.js';
+import { S, ctx, icon, esc, toast } from '../app.js';
+import { kinerjaLaporan, kontrolKinerja, bindKinerja } from './kinerja.js';
+import { FOKUS } from './tampilan.js';
 import { UNITS, UNIT, AUDITORS } from '../seed.js';
 import { BULAN, KELAS, fmt } from '../scoring.js';
 import { active, summary, indStat, fmtV, targetTxt, isAkr } from './common.js';
 
 const R = { jenis: 'capaian', unit: 'ALL', ami: null, rtm: null };
-const JENIS = [['capaian', 'Capaian Indikator'], ['ami', 'Hasil AMI'], ['rtl', 'Tindak Lanjut (RTL)'], ['rtm', 'Tinjauan Manajemen (RTM)']];
+const JENIS = [['capaian', 'Capaian Indikator'], ['ami', 'Hasil AMI'], ['rtl', 'Tindak Lanjut (RTL)'], ['rtm', 'Tinjauan Manajemen (RTM)'], ['kinerja', 'Kinerja Pelaksana SPMI']];
 const audName = id => (AUDITORS.find(a => a.id === id) || {}).nama || id;
 
 function kop(judul, meta) {
@@ -15,6 +17,8 @@ const ttd = (a, b) => `<div class="ttd"><div><span>${a}</span><span>( ..........
 
 export default function laporan(el) {
   const m = S.settings.bulan, per = `${BULAN[m]} ${S.settings.tahun}`;
+  const jenisAda = FOKUS.includes(ctx.role) ? JENIS.filter(j => j[0] === 'kinerja') : JENIS;
+  if (!jenisAda.some(j => j[0] === R.jenis)) R.jenis = jenisAda[0][0];
   const amiDone = S.ami.filter(a => a.status === 'Selesai');
   if (!R.ami && amiDone.length) R.ami = amiDone[0].id;
   if (!R.rtm && S.rtm.length) R.rtm = S.rtm[0].id;
@@ -79,11 +83,14 @@ export default function laporan(el) {
       <h4>C. Peningkatan standar</h4><ul class="small">${usulan.map(i => `<li>${i.kode} · ${esc(i.teks)} (${i.unit}) — ${i.peningkatan.rtm ? '<b>disahkan</b>' : 'menunggu pengesahan'}</li>`).join('') || '<li>Tidak ada usulan.</li>'}</ul>` + ttd('Notulis', 'Direktur PEM Akamigas');
   }
 
+  if (R.jenis === 'kinerja') { const k = kinerjaLaporan(); rows = k.rows; body = kop('LAPORAN KINERJA PELAKSANA SPMI', 'Skor kelengkapan dan ketepatan waktu SPM, auditor, dan auditee') + k.html; }
+
   el.innerHTML = `
   <div class="card no-print" style="margin-bottom:18px">
     <div class="filters" style="margin:0">
-      <div class="seg scroll" id="lj">${JENIS.map(([k, n]) => `<button data-j="${k}" class="${R.jenis === k ? 'on' : ''}">${n}</button>`).join('')}</div>
+      <div class="seg scroll" id="lj">${jenisAda.map(([k, n]) => `<button data-j="${k}" class="${R.jenis === k ? 'on' : ''}">${n}</button>`).join('')}</div>
       ${R.jenis === 'capaian' || R.jenis === 'rtl' ? `<select class="inp" id="lu"><option value="ALL">Seluruh unit</option>${UNITS.map(u => `<option value="${u.id}" ${R.unit === u.id ? 'selected' : ''}>${u.id} · ${esc(u.nama)}</option>`).join('')}</select>` : ''}
+      ${R.jenis === 'kinerja' ? kontrolKinerja() : ''}
       ${R.jenis === 'ami' ? `<select class="inp" id="la">${amiDone.map(a => `<option value="${a.id}" ${R.ami === a.id ? 'selected' : ''}>${a.id} · ${a.auditee}</option>`).join('')}</select>` : ''}
       ${R.jenis === 'rtm' ? `<select class="inp" id="lr">${S.rtm.map(r => `<option value="${r.id}" ${R.rtm === r.id ? 'selected' : ''}>${esc(r.judul)}</option>`).join('')}</select>` : ''}
       <div class="sp" style="flex:1"></div>
@@ -98,6 +105,7 @@ export default function laporan(el) {
   on('#lu', e => { R.unit = e.target.value; laporan(el); });
   on('#la', e => { R.ami = e.target.value; laporan(el); });
   on('#lr', e => { R.rtm = e.target.value; laporan(el); });
+  bindKinerja(el, () => laporan(el));
   el.querySelector('#lp').onclick = () => window.print();
   el.querySelector('#lx').onclick = () => {
     if (!rows.length) return toast('Tidak ada data');

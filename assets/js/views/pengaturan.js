@@ -1,4 +1,5 @@
-import { S, ctx, icon, esc, toast, saveSettings, resetData, addLog, levelSistem } from '../app.js';
+import { S, ctx, icon, esc, toast, saveSettings, resetData, addLog, levelSistem, semuaSettings } from '../app.js';
+import { kartuTampilan } from './tampilan.js';
 import { DB, COLLECTIONS, getFirebaseConfig, saveFirebaseConfig } from '../db.js';
 import { BULAN } from '../scoring.js';
 
@@ -50,7 +51,7 @@ service cloud.firestore {
   </div>`;
 
   el.querySelector('#exp').onclick = () => {
-    const data = Object.fromEntries(COLLECTIONS.map(c => [c, c === 'settings' ? [Object.assign({ id: 'app' }, S.settings)].concat(S.siklus || []) : S[c]]));
+    const data = Object.fromEntries(COLLECTIONS.map(c => [c, c === 'settings' ? semuaSettings() : S[c]]));
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 1)], { type: 'application/json' }));
     a.download = `simantap2_backup_${new Date().toISOString().slice(0, 10)}.json`; a.click();
@@ -58,6 +59,7 @@ service cloud.firestore {
   };
   const lgo = el.querySelector('#lgo'); if (lgo) lgo.onclick = async () => { await DB.logout(); location.reload(); };
   if (!admin) return;
+  kartuTampilan(el);
   el.querySelector('#imp').onchange = async (e) => {
     const f = e.target.files[0]; if (!f) return;
     try {
@@ -85,7 +87,7 @@ service cloud.firestore {
   if (fbu) fbu.onclick = async () => {
     if (DB.mode !== 'firebase') return toast('Belum terhubung ke Firestore');
     if (!confirm('Unggah seluruh data saat ini ke Firestore (menimpa isi koleksi)?')) return;
-    for (const c of COLLECTIONS) await DB.replaceAll(c, c === 'settings' ? [Object.assign({ id: 'app' }, S.settings)].concat(S.siklus || []) : S[c]);
+    for (const c of COLLECTIONS) await DB.replaceAll(c, c === 'settings' ? semuaSettings() : S[c]);
     toast('Data terunggah ke Firestore');
   };
   const fbd = el.querySelector('#fbd');

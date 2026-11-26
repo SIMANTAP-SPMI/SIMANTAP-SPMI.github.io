@@ -5,6 +5,8 @@ import { SUMBER, PRODI, ROLES, UNIT } from '../seed.js';
 import { BULAN, BLN } from '../scoring.js';
 import { active, summary, evalAll, indStat } from './common.js';
 import { kartuProgres } from './jalur.js';
+import tugasSaya from './tugas.js';
+import { berandaTugas } from './tampilan.js';
 
 const TUGAS = {
   kasubbag: [
@@ -35,6 +37,7 @@ function kartuTugas() {
 }
 
 export default function beranda(el) {
+  if (berandaTugas(ctx.role)) return tugasSaya(el);
   const m = S.settings.bulan;
   const inds = active();
   const sum = summary(inds);

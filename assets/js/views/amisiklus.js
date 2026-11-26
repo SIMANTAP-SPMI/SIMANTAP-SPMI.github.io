@@ -3,7 +3,7 @@
    Data: dokumen "siklus-<tahun>" di koleksi settings (aturan Firestore settings: baca anggota, tulis SPM), sehingga tidak perlu koleksi baru.
    Bentuk dokumen: { id, tahun, gelombang: [{ id, nama, mulai, tahap: [{ k, nama, pj, mulai, hari, kunci }], baris: [{ auditee, lingkup: { mode: 'semua'|'sebagian', ids: [] } }] }] }.
    Tanpa dokumen siklus, semua indikator aktif ikut AMI (perilaku lama). */
-import { S, ctx, icon, esc, toast, openDrawer, closeDrawer } from '../app.js';
+import { S, ctx, icon, esc, toast, openDrawer, closeDrawer, semuaSettings } from '../app.js';
 import { DB } from '../db.js';
 import { UNITS, UNIT, SUMBER } from '../seed.js';
 import { active, isAkr, sumberTags } from './common.js';
@@ -53,8 +53,7 @@ function hitungUlang(g) { let t = g.mulai; g.tahap.forEach(x => { x.mulai = t; t
 
 async function simpan(s, aksi) {
   const i = S.siklus.findIndex(x => x.id === s.id); if (i >= 0) S.siklus[i] = s; else S.siklus.push(s);
-  const semua = [Object.assign({ id: 'app' }, S.settings)].concat(S.siklus);
-  try { await DB.put('settings', s, semua); } catch (e) { toast('Gagal menyimpan siklus: ' + e.message); return false; }
+  try { await DB.put('settings', s, semuaSettings()); } catch (e) { toast('Gagal menyimpan siklus: ' + e.message); return false; }
   return true;
 }
 

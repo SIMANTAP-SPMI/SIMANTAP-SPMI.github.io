@@ -18,6 +18,7 @@ import dokumen from './views/dokumen.js';
 import pengaturan from './views/pengaturan.js';
 import wadir from './views/wadir.js';
 import penggunaView from './views/pengguna.js';
+import { bagiMenu } from './views/tampilan.js';
 import jalurView from './views/jalur.js';
 import ledView from './views/led.js';
 import amiIabeeView from './views/amiiabee.js';
@@ -28,7 +29,7 @@ import { PPEPP_AWAL } from './ppepp-awal.js';
 import laporan from './views/laporan.js';
 
 /* ---------------- state ---------------- */
-export const S = { indikator: [], ami: [], rtl: [], rtm: [], dokumen: [], log: [], settings: {}, kurekam: [], kurPengguna: [], pengguna: [], iabee: [], led: [], lam: [], ppepp: [], siklus: [] };
+export const S = { indikator: [], ami: [], rtl: [], rtm: [], dokumen: [], log: [], settings: {}, kurekam: [], kurPengguna: [], pengguna: [], iabee: [], led: [], lam: [], ppepp: [], siklus: [], tampilan: null };
 const CTX_KEY = 'simantap2web_ctx';
 export const ctx = (() => {
   try { return Object.assign({ role: 'pimpinan', unit: 'TP', auditor: 'AU01' }, JSON.parse(localStorage.getItem(CTX_KEY) || '{}')); }
@@ -162,14 +163,18 @@ export async function remove(col, id, aksi) {
   try { await DB.del(col, id, S[col]); } catch (e) { toast('Gagal menghapus: ' + e.message); }
   if (aksi) await addLog(aksi);
 }
+/** Dokumen pengaturan utama di koleksi settings (id 'app'); dokumen siklus-<tahun> dan 'tampilan' berbagi koleksi yang sama. */
+export const settingsApp = (stg) => (stg || []).find(x => x.id === 'app') || (stg || []).find(x => !/^(siklus-|tampilan$)/.test(String(x.id)));
+export const semuaSettings = () => [Object.assign({ id: 'app' }, S.settings)].concat(S.siklus || [], S.tampilan ? [S.tampilan] : []);
 export async function saveSettings() {
   const doc = Object.assign({ id: 'app' }, S.settings);
-  try { await DB.put('settings', doc, [doc].concat(S.siklus || [])); } catch (e) { toast('Gagal menyimpan pengaturan'); }
+  try { await DB.put('settings', doc, semuaSettings()); } catch (e) { toast('Gagal menyimpan pengaturan'); }
 }
 export async function addLog(aksi) {
-  const doc = { id: 'LOG' + Date.now() + Math.floor(Math.random() * 1000), t: new Date().toISOString(), user: userName() + (DB.user && DB.user.email ? ' · ' + DB.user.email : ''), aksi };
+  const doc = { id: 'LOG' + Date.now() + Math.floor(Math.random() * 1000), t: new Date().toISOString(), user: userName() + (DB.user && DB.user.email ? ' · ' + DB.user.email : ''), aksi,
+    peran: ctx.role, unit: eAuditee() ? ctx.unit : '', auditor: ctx.role === 'auditor' ? ctx.auditor : '' };
   S.log.unshift(doc);
-  if (S.log.length > 300) S.log.length = 300;
+  if (S.log.length > 3000) S.log.length = 3000;
   try { await DB.put('log', doc, S.log); } catch (e) { /* abaikan */ }
 }
 export async function resetData() {
@@ -186,7 +191,8 @@ function load(d) {
   S.ppepp = d.ppepp || [];
   const stg = d.settings || [];
   S.siklus = stg.filter(x => String(x.id).startsWith('siklus-'));
-  S.settings = stg.find(x => !String(x.id).startsWith('siklus-')) || { bulan: 10, tahun: APP.tahun, jenjang: {} };
+  S.tampilan = stg.find(x => x.id === 'tampilan') || null;
+  S.settings = settingsApp(stg) || { bulan: 10, tahun: APP.tahun, jenjang: {} };
   S.log.sort((a, b) => (b.t || '').localeCompare(a.t || ''));
 }
 
@@ -253,10 +259,13 @@ const navRoutes = () => ROUTES.filter(r => (r.id !== 'pengaturan' || (DB.user &&
 function renderSide(cur) {
   let sec = '', h = `<div class="brand-logos"><img src="assets/img/logo-pem-akamigas.png" alt="PEM Akamigas" class="lg-pem"><img src="assets/img/logo-esdm.png" alt="Kementerian ESDM" class="lg-esdm"></div>
     <div class="brand"><div class="brand-logo">${icon('spark')}</div><div><b>${APP.nama}</b><small>Sistem Penjaminan Mutu Internal</small></div></div><nav class="nav">`;
-  navRoutes().forEach(r => {
+  const { utama, lain } = bagiMenu(navRoutes());
+  const item = r => `<a href="#/${r.id}" class="${r.id === cur ? 'on' : ''}" style="--c:${r.c}"><span class="chip">${icon(r.ic)}</span><span>${r.t}${r.sub ? `<small class="nsub">${r.sub}</small>` : ''}</span></a>`;
+  utama.forEach(r => {
     if (r.sec !== sec) { sec = r.sec; h += `<div class="nav-sec">${sec}</div>`; }
-    h += `<a href="#/${r.id}" class="${r.id === cur ? 'on' : ''}" style="--c:${r.c}"><span class="chip">${icon(r.ic)}</span><span>${r.t}${r.sub ? `<small class="nsub">${r.sub}</small>` : ''}</span></a>`;
+    h += item(r);
   });
+  if (lain.length) h += `<details class="nav-lain"${lain.some(r => r.id === cur) ? ' open' : ''}><summary class="nav-sec" style="cursor:pointer">Menu lainnya (${lain.length})</summary>${lain.map(item).join('')}</details>`;
   h += `<div class="nav-sec">Aplikasi lain</div><a href="${APP_LAIN.kurekam.url}" target="_blank" rel="noopener" style="--c:#10b981"><span class="chip">${icon('book')}</span><span>KUREKAM<small class="nsub">Kurikulum dan kesiapan IABEE</small></span></a>`;
   h += `</nav><div class="side-foot">${APP.institusi}<br>Data prodi terkalibrasi · ${BULAN[S.settings.bulan]} ${S.settings.tahun}</div>`;
   $('#side').innerHTML = h;
@@ -368,7 +377,7 @@ async function boot() {
   await DB.init(); // mode demo ditutup 24 Nov 2026: akses hanya lewat akun
   if (DB.needLogin) await loginForm();
   let d = await DB.loadAll();
-  const st = (d.settings || []).find(x => !String(x.id).startsWith('siklus-'));
+  const st = settingsApp(d.settings);
   if (!d.indikator.length || !st || (st.seedVersi || 0) < 6) {
     d = buildSeed();
     for (const c of Object.keys(d)) await DB.replaceAll(c, d[c]);
