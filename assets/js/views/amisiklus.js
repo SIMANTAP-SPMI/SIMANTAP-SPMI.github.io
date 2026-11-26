@@ -114,7 +114,7 @@ export function siklusTab(el, ulang) {
     const dobel = g.baris.length;
     return `<div class="card" style="margin-bottom:16px">
       <div class="card-h"><span class="ico-badge" style="--c:#6366f1">${icon('calendar')}</span><div><h3>${esc(g.nama)}</h3><div class="sub">Mulai ${tgl(g.mulai)} · ${dobel} auditee: ${g.baris.map(b => b.auditee).join(', ') || 'belum ada'}</div></div><div class="sp"></div>
-        ${spm ? `<button class="btn sm" data-tgl="${gi}">${icon('calendar')} Atur tanggal</button><button class="btn sm" data-aud="${gi}">${icon('user')} Auditee</button>` : ''}</div>
+        ${spm ? `<button class="btn sm" data-tgl="${gi}">${icon('calendar')} Atur tanggal</button><button class="btn sm" data-aud="${gi}">${icon('user')} Auditee</button>${s.gelombang.length > 1 ? `<button class="btn sm" data-del="${gi}">${icon('close')} Hapus</button>` : ''}` : ''}</div>
       ${gantt(g, rtmTgl)}
       <h4 style="margin:16px 0 6px">Lingkup dan kemajuan per auditee</h4>
       <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Auditee</th><th>Lingkup AMI</th><th>Evaluasi diri</th><th>Sudah diaudit</th><th>Tindakan koreksi</th><th>Penanda</th>${spm ? '<th></th>' : ''}</tr></thead><tbody>
@@ -130,10 +130,11 @@ export function siklusTab(el, ulang) {
   <div class="muted small" style="margin-top:10px">Indikator di luar lingkup tetap dipantau bulanan, tetapi tidak wajib evaluasi diri dan tidak diaudit pada siklus ini.</div>`;
 
   el.querySelectorAll('[data-tgl]').forEach(b => b.onclick = () => dialogTanggal(s, +b.dataset.tgl, ulang));
+  el.querySelectorAll('[data-del]').forEach(b => b.onclick = () => dialogHapus(s, +b.dataset.del, ulang));
   el.querySelectorAll('[data-aud]').forEach(b => b.onclick = () => dialogAuditee(s, +b.dataset.aud, ulang));
   el.querySelectorAll('[data-ling]').forEach(b => { const [gi, u] = b.dataset.ling.split('|'); b.onclick = () => dialogLingkup(s, +gi, u, ulang); });
   const gel = el.querySelector('#gel');
-  if (gel) gel.onclick = async () => { const w = { id: 'G' + (s.gelombang.length + 1), nama: 'Tahap ' + (s.gelombang.length + 1), mulai: today(), tahap: DASAR.map(t => Object.assign({ kunci: false }, t)), baris: [] }; hitungUlang(w); s.gelombang.push(w); if (await simpan(s)) { toast('Gelombang ditambahkan'); ulang(); } };
+  if (gel) gel.onclick = async () => { const nx = Math.max(0, ...s.gelombang.map(x => +String(x.id).replace(/\D/g, '') || 0)) + 1; const w = { id: 'G' + nx, nama: 'Tahap ' + nx, mulai: today(), tahap: DASAR.map(t => Object.assign({ kunci: false }, t)), baris: [] }; hitungUlang(w); s.gelombang.push(w); if (await simpan(s)) { toast('Gelombang ditambahkan'); ulang(); } };
 }
 
 function dialogTanggal(s, gi, ulang) {
@@ -158,8 +159,12 @@ function dialogAuditee(s, gi, ulang) {
   const g = s.gelombang[gi], pakai = new Set(s.gelombang.flatMap(x => x.baris.map(b => b.auditee)));
   openDrawer(`<div class="card-h"><h3>Auditee · ${esc(g.nama)}</h3><div class="sp"></div><button class="btn ghost" data-close>${icon('close')}</button></div>
     <div class="card"><div class="small muted" style="margin-bottom:8px">Satu auditee diaudit satu kali per siklus; pilih unit yang belum masuk gelombang mana pun.</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">${g.baris.map(b => `<span class="tag" style="--c:#6366f1">${b.auditee} <a href="#" data-hapus="${b.auditee}" title="Keluarkan">×</a></span>`).join('') || '<span class="muted small">Belum ada.</span>'}</div>
+    <div style="margin-bottom:12px">${g.baris.map(b => `<div style="display:flex;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid rgba(148,163,184,.2)"><b style="width:46px">${b.auditee}</b><span class="muted small" style="flex:1">${esc((UNIT[b.auditee] || {}).nama || '')}</span>
+      ${s.gelombang.length > 1 ? `<select class="inp" data-pindah="${b.auditee}" style="max-width:170px"><option value="">Pindahkan ke…</option>${s.gelombang.filter((x, n) => n !== gi).map(x => `<option value="${x.id}">${esc(x.nama)}</option>`).join('')}</select>` : ''}
+      <a href="#" class="btn sm ghost" data-hapus="${b.auditee}" title="Keluarkan dari siklus">${icon('close')}</a></div>`).join('') || '<span class="muted small">Belum ada.</span>'}</div>
     <div style="display:flex;gap:8px"><select class="inp" id="aU">${UNITS.filter(u => !pakai.has(u.id)).map(u => `<option value="${u.id}">${u.id} · ${esc(u.nama)}</option>`).join('')}</select><button class="btn pri" id="aT">${icon('plus')} Tambah</button></div></div>`, d => {
+    d.querySelectorAll('[data-pindah]').forEach(sel => sel.onchange = async () => { if (!sel.value) return; const tujuan = s.gelombang.find(x => x.id === sel.value), b = g.baris.find(x => x.auditee === sel.dataset.pindah);
+      g.baris = g.baris.filter(x => x !== b); tujuan.baris.push(b); if (await simpan(s)) { closeDrawer(); toast(`${b.auditee} dipindah ke ${tujuan.nama}`); ulang(); } });
     d.querySelectorAll('[data-hapus]').forEach(a => a.onclick = async e => { e.preventDefault(); g.baris = g.baris.filter(b => b.auditee !== a.dataset.hapus); if (await simpan(s)) { closeDrawer(); ulang(); } });
     d.querySelector('#aT').onclick = async () => { const u = d.querySelector('#aU').value; if (!u) return toast('Semua unit sudah masuk siklus'); g.baris.push({ auditee: u, lingkup: { mode: 'semua', ids: [] } }); if (await simpan(s)) { closeDrawer(); toast(u + ' masuk siklus'); ulang(); } };
   });
@@ -193,5 +198,20 @@ function dialogLingkup(s, gi, unit, ulang) {
       if (await simpan(s)) { closeDrawer(); toast(`Lingkup ${unit} tersimpan`); ulang(); }
     };
     segar();
+  });
+}
+
+function dialogHapus(s, gi, ulang) {
+  const g = s.gelombang[gi], lain = s.gelombang.filter((x, n) => n !== gi);
+  openDrawer(`<div class="card-h"><h3>Hapus ${esc(g.nama)}</h3><div class="sp"></div><button class="btn ghost" data-close>${icon('close')}</button></div>
+    <div class="card"><div class="small" style="margin-bottom:10px">Gelombang ini memuat ${g.baris.length ? g.baris.length + ' auditee: <b>' + g.baris.map(b => b.auditee).join(', ') + '</b>' : 'tidak ada auditee'}. Hasil audit yang sudah diisi tidak ikut terhapus; hanya jadwal tahap dan lingkup yang dihapus dari siklus.</div>
+    ${g.baris.length ? `<div class="field"><label>Auditee dipindahkan ke</label><select class="inp" id="hT">${lain.map(x => `<option value="${x.id}">${esc(x.nama)}</option>`).join('')}<option value="">Keluarkan dari siklus (semua indikator tetap ikut audit seperti sebelum siklus ditetapkan)</option></select></div>` : ''}
+    <button class="btn pri" id="hS" style="margin-top:12px">${icon('check')} Hapus gelombang</button></div>`, d => {
+    d.querySelector('#hS').onclick = async () => {
+      const t = d.querySelector('#hT'), tujuan = t && t.value ? s.gelombang.find(x => x.id === t.value) : null;
+      if (tujuan) g.baris.forEach(b => tujuan.baris.push(b));
+      s.gelombang = s.gelombang.filter(x => x !== g);
+      if (await simpan(s)) { closeDrawer(); toast(`${g.nama} dihapus` + (tujuan ? `; auditee dipindah ke ${tujuan.nama}` : '')); ulang(); }
+    };
   });
 }
