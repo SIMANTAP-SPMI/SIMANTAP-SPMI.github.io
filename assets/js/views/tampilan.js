@@ -6,6 +6,20 @@ import { DB } from '../db.js';
 import { ROLES } from '../seed.js';
 
 export const FOKUS = ['prodi', 'unit', 'kasubbag', 'auditor'];
+
+/* Pengaturan laporan kinerja: mulai tanggal berapa aktivitas dihitung dan jenis kegiatan apa saja. Kosong = semua. */
+export const KEGIATAN = [['capaian', 'Capaian dan evaluasi diri'], ['audit', 'Audit'], ['tindak', 'Tindakan koreksi dan tindak lanjut'], ['jadwal', 'Penjadwalan dan penugasan'], ['rtm', 'RTM dan peningkatan'], ['akreditasi', 'Akreditasi (LED, LAM, IABEE)'], ['lain', 'Lainnya']];
+export function jenisKegiatan(aksi) {
+  const a = String(aksi || '');
+  if (/^Capaian|Monitoring|evaluasi diri/i.test(a)) return 'capaian';
+  if (/Hasil AMI|audit|Berita Acara/i.test(a)) return 'audit';
+  if (/RTL|Temuan|tindak|koreksi/i.test(a)) return 'tindak';
+  if (/siklus|Menjadwalkan|jadwal|lingkup|gelombang|Penugasan|ditugaskan/i.test(a)) return 'jadwal';
+  if (/RTM|Peningkatan/i.test(a)) return 'rtm';
+  if (/LED|LAM|IABEE|jalur/i.test(a)) return 'akreditasi';
+  return 'lain';
+}
+export const cfgKinerja = () => Object.assign({ mulai: '', kegiatan: KEGIATAN.map(k => k[0]) }, (S.tampilan && S.tampilan.kinerja) || {});
 const BAWAAN = {
   prodi: ['beranda', 'monitoring', 'ami', 'rtl', 'jalur', 'led', 'amilam', 'laporan', 'dokumen'],
   unit: ['beranda', 'monitoring', 'ami', 'rtl', 'laporan', 'dokumen'],
@@ -40,6 +54,10 @@ export function kartuTampilan(el) {
     ${rute.map(r => `<tr><td>${esc(r.t)}</td>${FOKUS.map(f => `<td><input type="checkbox" data-m="${f}|${r.id}" ${menuTampil(f).has(r.id) ? 'checked' : ''}></td>`).join('')}</tr>`).join('')}
     <tr><td><b>Layar awal</b></td>${FOKUS.map(f => `<td><select class="inp" data-b="${f}"><option value="tugas" ${berandaTugas(f) ? 'selected' : ''}>Tugas saya</option><option value="penuh" ${berandaTugas(f) ? '' : 'selected'}>Beranda lengkap</option></select></td>`).join('')}</tr>
     </tbody></table></div>
+    <h4 style="margin:16px 0 6px">Laporan kinerja: yang dihitung</h4>
+    <div class="small muted" style="margin-bottom:8px">Aktivitas dan jadwal AMI sebelum tanggal mulai tidak dihitung. Hanya jenis kegiatan yang dicentang yang muncul di jejak aktivitas.</div>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:6px"><label class="small">Dihitung mulai tanggal <input class="inp" type="date" id="kM" value="${cfgKinerja().mulai}" style="width:auto"></label>
+    ${KEGIATAN.map(([k, n]) => `<label class="small"><input type="checkbox" data-kg="${k}" ${cfgKinerja().kegiatan.includes(k) ? 'checked' : ''}> ${esc(n)}</label>`).join('')}</div>
     <div style="display:flex;gap:8px;margin-top:12px"><button class="btn pri" id="tmS">${icon('check')} Simpan tampilan</button><button class="btn" id="tmB">${icon('loop')} Pulihkan bawaan</button></div>`;
   el.appendChild(box);
   const simpan = async (doc, pesan) => {
@@ -47,7 +65,7 @@ export function kartuTampilan(el) {
     try { await DB.put('settings', doc, semuaSettings()); toast(pesan); } catch (e) { toast('Gagal menyimpan tampilan: ' + e.message); }
   };
   box.querySelector('#tmS').onclick = async () => {
-    const doc = { id: 'tampilan', menu: {}, beranda: {} };
+    const doc = { id: 'tampilan', menu: {}, beranda: {}, kinerja: { mulai: box.querySelector('#kM').value, kegiatan: Array.from(box.querySelectorAll('[data-kg]:checked')).map(c => c.dataset.kg) } };
     FOKUS.forEach(f => {
       doc.menu[f] = ['beranda'].concat(Array.from(box.querySelectorAll(`[data-m^="${f}|"]:checked`)).map(c => c.dataset.m.split('|')[1]));
       doc.beranda[f] = box.querySelector(`[data-b="${f}"]`).value;

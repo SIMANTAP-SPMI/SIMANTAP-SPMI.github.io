@@ -6,7 +6,7 @@ import { S, ctx, icon, esc } from '../app.js';
 import { AUDITORS, UNIT } from '../seed.js';
 import { gelombangUnit, lingkupUnit, selesai } from './amisiklus.js';
 import { temuanTahun, berjalan, today, tgl } from './siklus-core.js';
-import { FOKUS } from './tampilan.js';
+import { FOKUS, cfgKinerja, jenisKegiatan } from './tampilan.js';
 
 export const KIN = { tipe: 'siklus', tahun: null };
 const TIPE = [['siklus', 'Siklus AMI'], ['tahun', 'Tahun kalender'], ['ganjil', 'Semester ganjil (Agu–Jan)'], ['genap', 'Semester genap (Feb–Jul)']];
@@ -15,7 +15,7 @@ const tahunRow = (a) => 2000 + (+String(a.id).slice(4, 6) || berjalan() - 2000);
 const audNama = (id) => (AUDITORS.find(a => a.id === id) || {}).nama || id;
 
 export function barisPeriode() {
-  const y = thn(), r = S.ami;
+  const y = thn(), mulai = cfgKinerja().mulai, r = S.ami.filter(a => !mulai || a.tgl >= mulai);
   if (KIN.tipe === 'siklus') return r.filter(a => tahunRow(a) === y);
   if (KIN.tipe === 'tahun') return r.filter(a => String(a.tgl).startsWith(String(y)));
   if (KIN.tipe === 'ganjil') return r.filter(a => a.tgl >= `${y}-08-01` && a.tgl <= `${y + 1}-01-31`);
@@ -93,7 +93,8 @@ export function bindKinerja(el, ulang) {
 }
 
 function jejak(filter, maks = 12) {
-  return S.log.filter(l => l.peran && filter(l)).slice(0, maks).map(l => `<div class="small muted">${new Date(l.t).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })} · ${esc(l.aksi)}</div>`).join('') || '<div class="small muted">Belum ada jejak terstruktur (dicatat mulai 26 November 2026).</div>';
+  const c = cfgKinerja();
+  return S.log.filter(l => l.peran && filter(l) && (!c.mulai || String(l.t).slice(0, 10) >= c.mulai) && c.kegiatan.includes(jenisKegiatan(l.aksi))).slice(0, maks).map(l => `<div class="small muted">${new Date(l.t).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })} · ${esc(l.aksi)}</div>`).join('') || '<div class="small muted">Belum ada jejak terstruktur (dicatat mulai 26 November 2026).</div>';
 }
 
 export function kinerjaLaporan() {
