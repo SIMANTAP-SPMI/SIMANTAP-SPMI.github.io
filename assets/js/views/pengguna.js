@@ -1,7 +1,7 @@
 /* Pengguna dan peran SIMANTAP 2.0.
    Aturan: data diisi satu kali di aplikasi pemiliknya. SPM, Prodi (Tim Kurikulum Prodi), Kasubbag AK, dan Wakil Direktur I didaftarkan di KUREKAM
    dan dibaca otomatis di sini. Menu ini hanya untuk akun khusus SIMANTAP: Pimpinan, Auditor, dan Unit. */
-import { S, ctx, icon, esc, save, remove, toast, openDrawer, closeDrawer, peranDariKurekam, spmLevel } from '../app.js';
+import { S, ctx, icon, esc, save, remove, toast, openDrawer, closeDrawer, peranDariKurekam, spmLevel, eDeveloper, eEmailDeveloper } from '../app.js';
 import { ROLES, UNITS, UNIT } from '../seed.js';
 import { DB } from '../db.js';
 
@@ -12,8 +12,9 @@ const namaPeran = (k, u) => (k === 'auditee' ? ((UNIT[u.unit] || {}).jenis === '
 
 export default function penggunaView(el) {
   if (!spmLevel()) { el.innerHTML = '<div class="card empty">Menu ini hanya untuk SPM.</div>'; return; }
-  const rows = S.pengguna.slice().sort((a, b) => (a.email || '').localeCompare(b.email || ''));
-  const kur = S.kurPengguna.map(k => ({ k, p: peranDariKurekam(k) })).filter(x => x.p.length).sort((a, b) => (a.k.email || '').localeCompare(b.k.email || ''));
+  const sembunyi = (e) => !eDeveloper() && eEmailDeveloper(e);
+  const rows = S.pengguna.filter(u => !sembunyi(u.email)).sort((a, b) => (a.email || '').localeCompare(b.email || ''));
+  const kur = S.kurPengguna.map(k => ({ k, p: peranDariKurekam(k) })).filter(x => x.p.length && !sembunyi(x.k.email)).sort((a, b) => (a.k.email || '').localeCompare(b.k.email || ''));
   const demo = DB.mode !== 'firebase';
   el.innerHTML = `
   ${ctx.bootstrap ? `<div class="ribbon">${icon('info')} Daftar pengguna KUREKAM dan SIMANTAP masih kosong, sehingga akun yang sedang masuk diperlakukan sebagai SPM. Daftarkan SPM di KUREKAM (menu Data induk).</div>` : ''}
@@ -32,7 +33,7 @@ export default function penggunaView(el) {
     </tbody></table></div>
   </div>
   <div class="card" style="margin-top:18px"><div class="card-h"><span class="ico-badge" style="--c:#0ea5e9">${icon('check')}</span><div><h3>Hak akses per peran</h3><div class="sub">Pengesahan, pengaturan jadwal, dan pengisian dipisahkan</div></div></div>
-    <div class="tbl-wrap"><table class="tbl"><tbody>${Object.keys(ROLES).filter(k => k !== 'tamu').map(k => `<tr><td><b>${ROLES[k].nama}</b></td><td class="small">${ROLES[k].ket}</td></tr>`).join('')}</tbody></table></div>
+    <div class="tbl-wrap"><table class="tbl"><tbody>${Object.keys(ROLES).filter(k => k !== 'tamu' && (k !== 'developer' || eDeveloper())).map(k => `<tr><td><b>${ROLES[k].nama}</b></td><td class="small">${ROLES[k].ket}</td></tr>`).join('')}</tbody></table></div>
   </div>`;
 
   const form = (u) => {
@@ -59,6 +60,7 @@ export default function penggunaView(el) {
         if (peran.includes('unit') && (UNIT[unit] || {}).jenis !== 'unit') return toast('Pilih unit (bukan prodi) untuk peran Unit');
         if (peran.includes('prodi') && (UNIT[unit] || {}).jenis !== 'prodi') return toast('Pilih prodi untuk peran Prodi');
         if (peran.includes('auditor') && !home) return toast('Pilih unit asal untuk peran Auditor');
+        if (sembunyi(email)) return toast('Email sudah terdaftar');
         if (baru && S.pengguna.some(x => x.id === email)) return toast('Email sudah terdaftar');
         await save('pengguna', { id: email, email, nama: d.querySelector('#u-n').value.trim(), peran, unit: unit || '', home: home || '' }, (baru ? 'Menambah' : 'Mengubah') + ' pengguna ' + email);
         closeDrawer(); toast('Pengguna tersimpan'); penggunaView(el);

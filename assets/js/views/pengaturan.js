@@ -22,7 +22,7 @@ export default function pengaturan(el) {
       ${admin ? `<div class="field" style="margin-top:14px;max-width:260px"><label>Bulan pelaporan berjalan</label><select class="inp" id="bln">${BULAN.map((b, i) => `<option value="${i}" ${i === S.settings.bulan ? 'selected' : ''}>${b} ${S.settings.tahun}</option>`).join('')}</select></div>` : '<div class="note" style="margin-top:12px">Pengaturan hanya dapat diubah oleh Admin UPM.</div>'}
     </div>
 
-    <div class="card">
+    ${dev ? `<div class="card">
       <div class="card-h"><span class="ico-badge" style="--c:#f5a524">${icon('bolt')}</span><div><h3>Sambungkan Firebase Firestore</h3><div class="sub">Database awan bersama untuk semua pengguna</div></div></div>
       <ol class="small" style="padding-left:18px;margin:0 0 10px;line-height:1.8">
         <li>Buka <a href="https://console.firebase.google.com/" target="_blank" rel="noopener">Firebase Console</a> → <b>Add project</b> (mis. <i>simantap-pem</i>).</li>
@@ -41,7 +41,7 @@ service cloud.firestore {
     }
   }
 }</pre><div class="note">Selama uji coba tanpa login, aturan <code>allow write: if true</code> dapat dipakai sementara. Tahap berikut: Firebase Authentication (akun @esdm.go.id) dan aturan per peran.</div></details>
-    </div>
+    </div>` : ''}
   </div>
 
   <div class="card" style="margin-top:18px">

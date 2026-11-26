@@ -74,9 +74,21 @@ export function selaraskanUnit() {
 const KUR_PETA = { spm: 'admin', admin: 'admin', developer: 'developer', wadir: 'wadir1', pimpinan: 'pimpinan', prodi: 'prodi', akademik: 'kasubbag' };
 const DEVELOPER_SHA = ['f512cb3abb950d4c65241a0fda6c394decc7b29da869d6f51bbe36b9b1804a7b']; // sama dengan KUREKAM
 let sidikDev = false;
+const DEV_EMAIL = new Set();
+const sha = async (t) => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)))).map(x => x.toString(16).padStart(2, '0')).join('');
+/** Akun Developer: sidik email (sama dengan KUREKAM) atau peran developer di KUREKAM. Dipakai juga untuk menyembunyikan akun itu dari menu SPM. */
+export const eEmailDeveloper = (e) => DEV_EMAIL.has(String(e || '').toLowerCase());
 async function cekDeveloper() {
-  sidikDev = false; const em = DB.user && DB.user.email ? DB.user.email.toLowerCase() : ''; if (!em || !window.crypto || !crypto.subtle) return;
-  try { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('kurekam:' + em)); sidikDev = DEVELOPER_SHA.includes(Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2, '0')).join('')); } catch (e) { /* abaikan */ }
+  sidikDev = false; DEV_EMAIL.clear();
+  if (!window.crypto || !crypto.subtle) return;
+  try {
+    const em = DB.user && DB.user.email ? DB.user.email.toLowerCase() : '';
+    if (em) sidikDev = DEVELOPER_SHA.includes(await sha('kurekam:' + em));
+    const semua = new Set([...S.pengguna.map(p => p.email), ...S.kurPengguna.map(p => p.email)].filter(Boolean).map(e => e.toLowerCase()));
+    for (const e of semua) if (DEVELOPER_SHA.includes(await sha('kurekam:' + e))) DEV_EMAIL.add(e);
+    S.kurPengguna.filter(k => (k.peran || []).includes('developer') && k.email).forEach(k => DEV_EMAIL.add(k.email.toLowerCase()));
+    if (sidikDev) DEV_EMAIL.add(em);
+  } catch (e) { /* abaikan */ }
 }
 const urutPeran = (arr) => Object.keys(ROLES).filter(k => k !== 'tamu' && arr.includes(k));
 /** Peran SIMANTAP yang diturunkan dari satu dokumen kur_pengguna (untuk tampilan daftar pengguna). */
@@ -120,7 +132,7 @@ export function terapkanPeran() {
   ctx.me = me || (ku ? { nama: ku.nama, email: ku.email, id: ku.id } : null);
   ctx.sumber = me && ku ? 'keduanya' : ku ? 'kurekam' : 'simantap';
   const admin = peran.includes('admin') || peran.includes('developer');
-  ctx.tersedia = admin ? Object.keys(ROLES).filter(k => k !== 'tamu') : peran;
+  ctx.tersedia = admin ? Object.keys(ROLES).filter(k => k !== 'tamu' && (k !== 'developer' || peran.includes('developer'))) : peran; // SPM tidak bisa memeragakan Developer
   ctx.tetap = !admin;
   ctx.unitPer = admin ? null : unitPer;
   if (admin) ctx.role = peran.includes('developer') ? 'developer' : 'admin'; // SPM atau Developer memulai sebagai dirinya, lalu boleh memeragakan peran lain
@@ -297,7 +309,7 @@ function renderTop(route) {
     ${DB.user ? `<button class="btn" id="logoutBtn" title="Keluar dari ${esc(DB.user.email || '')}">${icon('logout')} Keluar</button>` : ''}`;
   $('#menuBtn').onclick = () => $('#side').classList.toggle('open');
   const lo = $('#logoutBtn'); if (lo) lo.onclick = async () => { if (!confirm('Keluar dari SIMANTAP 2.0?')) return; await DB.logout(); location.reload(); };
-  const rs = $('#roleSel'); if (rs) rs.onchange = e => { ctx.role = e.target.value; selaraskanUnit(); saveCtx(); route_(); };
+  const rs = $('#roleSel'); if (rs) rs.onchange = e => { if (!ctx.tersedia.includes(e.target.value)) return; ctx.role = e.target.value; selaraskanUnit(); saveCtx(); route_(); };
   const us = $('#unitSel'); if (us) us.onchange = e => { ctx.unit = e.target.value; saveCtx(); route_(); };
   const as = $('#audSel'); if (as) as.onchange = e => { ctx.auditor = e.target.value; saveCtx(); route_(); };
 }
